@@ -10,14 +10,23 @@ BOLD="\033[1m"
 NORMAL="\033[22m"
 CHECK="\xE2\x9C\x94"
 
-while getopts "c" opt; do
+ORG=rancher
+BRANCH=main
+
+while getopts "co:b:" opt; do
   case $opt in
     c)
-    rm -rf ./charts
-    rm -rf ./assets
-    rm -rf ./extensions
-    rm -rf ./icons
-    ;;
+      rm -rf ./charts
+      rm -rf ./assets
+      rm -rf ./extensions
+      rm -rf ./icons
+      ;;
+    o)
+      ORG="${OPTARG}"
+      ;;
+    b)
+      BRANCH="${OPTARG}"
+      ;;
   esac
 done
 
@@ -34,8 +43,10 @@ mkdir -p ${TMP}
 HELM_INDEX=${BASE_DIR}/index.yaml
 CHART_TMP=${TMP}/_charts
 
-REPOSITORY=rancher/ui-plugin-charts
-BRANCH=main
+REPOSITORY=${ORG}/ui-plugin-charts
+
+echo "GitHub Repository: ${REPOSITORY}"
+echo "GitHub Branch:     ${BRANCH}"
 
 for NAME in ${EXTS}
 do
