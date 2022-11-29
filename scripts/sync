@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+BASE_DIR="$( cd $SCRIPT_DIR && cd .. & pwd)"
+
+CYAN="\033[96m"
+YELLOW="\033[93m"
+RESET="\033[0m"
+BOLD="\033[1m"
+NORMAL="\033[22m"
+CHECK="\xE2\x9C\x94"
+
+ORG=rancher
+BRANCH=main
+
+while getopts "co:b:" opt; do
+  case $opt in
+    c)
+      rm -rf ./charts
+      rm -rf ./assets
+      rm -rf ./extensions
+      rm -rf ./icons
+      ;;
+    o)
+      ORG="${OPTARG}"
+      ;;
+    b)
+      BRANCH="${OPTARG}"
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+echo -e "${CYAN}${BOLD}Syncing Extensions${RESET}"
+
+EXTS=$(jq -r ".extensions | keys[]" manifest.json)
+
+TMP=${BASE_DIR}/tmp
+rm -rf ${TMP}
+mkdir -p ${TMP}
+
+HELM_INDEX=${BASE_DIR}/index.yaml
+CHART_TMP=${TMP}/_charts
+
+REPOSITORY=${ORG}/ui-plugin-charts
+
+echo "GitHub Repository: ${REPOSITORY}"
+echo "GitHub Branch:     ${BRANCH}"
+
+for NAME in ${EXTS}
+do
+  echo -e "${CYAN} + Syncing: ${BOLD}${NAME}${RESET}"
+
+  # Make diretories for assets anc charts
+  mkdir -p ./assets/${NAME}
+  mkdir -p ./charts/${NAME}
+  mkdir -p ./extensions/${NAME}
+
+  # Get repository name
+  REPO=$(jq -r ".extensions.${NAME}.repo" manifest.json)
+  VERSIONS=$(jq -r ".extensions.${NAME}.versions[]" manifest.json)
+  VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
+
+  echo -e "     Repository: ${REPO}"
+  echo -e "     Versions  : ${VFORMAT}"
+  echo ""
+
+  echo -e "  .. Cloning repository"
+  rm -rf ./tmp/${NAME}
+  pushd tmp > /dev/null
+  git clone https://github.com/${REPO}.git ${NAME}
+  pwd
+  popd > /dev/null
+
+  for VERSION in ${VERSIONS}
+  do
+    echo -e "${CYAN}     Syncing: ${BOLD}${NAME}@${VERSION}${RESET}"
+
+    if [ -d "./charts/${NAME}/${VERSION}" ]; then
+      echo "      Version already synced"
+    else
+      echo "     + Copying version ${VERSION}"
+      # cp ./tmp/${NAME}/extensions/${NAME}/${NAME}-${VERSION}.tgz ./assets/${NAME}
+      cp -R ./tmp/${NAME}/extensions/${NAME}/${VERSION} ./extensions/${NAME}/${VERSION}
+      cp -R ./tmp/${NAME}/charts/${NAME}/${VERSION} ./charts/${NAME}/${VERSION}
+
+      # Need to patch the charts
+      echo "     + Patching Helm chart"
+      CR_FILE=./charts/${NAME}/${VERSION}/templates/cr.yaml
+      ENDPOINT=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/extensions/${NAME}/${VERSION}
+      sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
+      rm -f ${CR_FILE}.bak
+
+      echo "     + Fetching and patching icon"
+
+      # Check the chart file for an icon
+      CHART_FILE=./charts/${NAME}/${VERSION}/Chart.yaml
+
+      ICON=$(sed -nr 's/icon: (.*)/\1/p' ${CHART_FILE})
+      
+      if [ -n "${ICON}" ]; then
+        # Downloading icon
+        ICON_FILE=$(basename $ICON)
+        echo "     + Fetching icon: ${ICON}"
+        ICON_REL=icons/${NAME}/${VERSION}-${ICON_FILE}
+        mkdir -p ${BASE_DIR}/icons/${NAME}
+        rm -f ${BASE_DIR}/${ICON_REL}
+        wget --quiet -O ${BASE_DIR}/${ICON_REL} ${ICON}
+
+        NEW_ICON=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/${ICON_REL}
+
+        sed -i.bak -e 's@icon:.*@icon: '"$NEW_ICON"'@' ${CHART_FILE}
+        rm -rf ${CHART_FILE}.bak
+
+        PKG_FILE=${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json
+        sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
+        rm -rf ${PKG_FILE}.bak
+      fi
+
+      echo "     + Packaging Helm chart"
+      helm package ./charts/${NAME}/${VERSION} -d ./assets/${NAME}
+
+      echo "     + Updating Helm index"
+
+      # --------------------------------------------------------------------------------
+      # Update the helm index just for this chart 
+      # --------------------------------------------------------------------------------
+      if [ -f "${HELM_INDEX}" ]; then
+        UPDATE="--merge ${HELM_INDEX}"
+      fi
+
+      # Base URL referencing assets directly from GitHub
+      BASE_URL="assets/${NAME}"
+
+      rm -rf ${CHART_TMP}
+      mkdir -p ${CHART_TMP}
+      cp ${BASE_DIR}/assets/${NAME}/${NAME}-${VERSION}.tgz ${CHART_TMP}
+
+      helm repo index ${CHART_TMP} --url ${BASE_URL} ${UPDATE}
+
+      cp ${CHART_TMP}/index.yaml ${HELM_INDEX}
+    fi
+  done
+
+  echo ""
+done
+
+# Clean up
+rm -rf ${CHART_TMP}
+rm -rf ${TMP}

@@ -1,0 +1,10 @@
+{
+  "extensions": {
+    "elemental": {
+      "repo": "rancher/elemental-ui",
+      "versions": [
+        "1.0.0"
+      ]
+    }
+  }
+}
