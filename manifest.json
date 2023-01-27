@@ -5,6 +5,12 @@
       "versions": [
         "1.0.0"
       ]
+    },
+    "kubewarden": {
+      "repo": "kubewarden/ui",
+      "versions": [
+        "1.0.0"
+      ]
     }
   }
 }
