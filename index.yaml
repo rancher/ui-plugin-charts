@@ -21,4 +21,25 @@ entries:
     urls:
     - assets/elemental/elemental-1.0.0.tgz
     version: 1.0.0
-generated: "2022-11-30T15:29:01.901027Z"
+  kubewarden:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0 < 1.25.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.7.0-0 < 2.8.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-02-06T10:51:04.5908629-05:00"
+    description: Kubewarden extension for Rancher Manager
+    digest: 60b1af28b5cf3962e49225ebf1a57a87d4fbf7fdc31e24c66af590dbe1b694cc
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.0.0-icon-kubewarden.svg
+    name: kubewarden
+    type: application
+    urls:
+    - assets/kubewarden/kubewarden-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-02-06T10:51:04.590398828-05:00"
