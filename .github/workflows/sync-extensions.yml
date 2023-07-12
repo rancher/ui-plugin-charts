@@ -1,0 +1,58 @@
+name: Sync and Release Extensions
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - manifest.json
+
+env:
+  ACTIONS_RUNNER_DEBUG: false
+  CI_COMMIT_MESSAGE: CI Build Artifacts
+
+jobs:
+  sync:
+    if: github.repository_owner == 'rancher'
+    name: Sync and Release Extensions
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.1
+
+      - name: Setup yq
+        uses: chrisdickinson/setup-yq@v1.0.1
+        with:
+          yq-version: v4.34.2
+
+      - name: Run sync script
+        shell: bash
+        id: sync_script
+        run: |
+          chmod +x ./scripts/sync
+          ./scripts/sync
+
+      - name: Commit build
+        run: |
+          git add ./{assets,charts,extensions,icons,index.yaml}
+          git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0
+        with:
+          charts_dir: ./charts/*
+        env:
+          CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          CR_SKIP_EXISTING: true
