@@ -64,7 +64,7 @@ if [[ $CLEAN == true ]]; then
   rm -rf ./icons
 fi
 
-echo -e "${CYAN}${BOLD}Syncing Extensions${RESET}"
+echo -e "${CYAN}${BOLD}Syncing Extension Charts${RESET}"
 
 EXTS=$(jq -r ".extensions | keys[]" manifest.json)
 
