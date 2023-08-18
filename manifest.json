@@ -10,7 +10,7 @@
       ]
     },
     "kubewarden": {
-      "repo": "kubewarden/ui",
+      "repo": "rancher/kubewarden-ui",
       "branch": "gh-pages",
       "versions": [
         "1.0.0",

@@ -21,11 +21,12 @@ Then create a new branch off of main
 {
   "extensions": {
     "kubewarden": {
-      "repo": "kubewarden/ui",
+      "repo": "rancher/kubewarden-ui",
       "branch": "gh-pages",
       "versions": [
         "1.0.0",
-        "1.1.0"
+        "1.1.0",
+        "1.2.0
       ]
     }
   }
@@ -35,7 +36,7 @@ Then create a new branch off of main
 #### 3. Commit your changes
 ```bash
 git add manifest.json
-git commit -m "Submitting kubewarden/ui version 1.1.0"
+git commit -m "Submitting rancher/kubewarden-ui version 1.2.0"
 ```
 
 #### 4. Push your commit
@@ -50,13 +51,12 @@ Once your pull request is approved and merged, an automated workflow will sync t
 ### Configuration File
 
 Required properties for `manifest.json`
-| Variable | Description |
-| ------------- |------------- |
-| [extension key] | This name is representative of the Extension **package** name. For example, the [clock](https://github.com/rancher/ui-plugin-examples/tree/main/pkg/clock) package within the [`ui-plugin-examples`](https://github.com/rancher/ui-plugin-examples/tree/main) repository, `clock` would be the extension key.
-| repo | Defines the upstream **Github** repository to pull the build assets from.
-| branch | Defines which branch to pull from the upstream `repo`
-| versions | An array of version strings which correspond to the Extension **package** version(s) to be synced with this repository. For example, the [clock](https://github.com/rancher/ui-plugin-examples/tree/main/charts/clock) extension package has two versions, `0.1.0` and `0.2.0` would be added.
-
+| Property | Type | Description |
+| --------- | :---: | ------------- |
+| `[extension key]` | `Object` | This object is representative of the Extension **package** name. For example, the [clock](https://github.com/rancher/ui-plugin-examples/tree/main/pkg/clock) package within the [`ui-plugin-examples`](https://github.com/rancher/ui-plugin-examples/tree/main) repository, `clock` would be the extension key.
+| `repo` | `String` | Defines the upstream **Github** repository to pull the build assets from.
+| `branch` | `String` | Defines which branch to pull from the upstream `repo`
+| `versions` | `String[]` | An array of version strings which correspond to the Extension **package** version(s) to be synced with this repository. For example, the [clock](https://github.com/rancher/ui-plugin-examples/tree/main/charts/clock) extension package has two versions, `0.1.0` and `0.2.0` would be added.
 
 ### Examples
 
@@ -83,7 +83,8 @@ Required properties for `manifest.json`
         "1.0.4",
         "1.0.5",
         "1.0.6",
-        "1.1.0"
+        "1.1.0",
+        "1.2.0"
       ]
     }
   }

@@ -1,0 +1,221 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+BASE_DIR="$( cd $SCRIPT_DIR && cd .. & pwd)"
+
+CYAN="\033[96m"
+YELLOW="\033[93m"
+RESET="\033[0m"
+BOLD="\033[1m"
+NORMAL="\033[22m"
+CHECK="\xE2\x9C\x94"
+
+DEST_IMAGE_NAME="ui-plugin-catalog"
+DEST_TAG="latest"
+DEST_REGISTRY="ghcr.io"
+DEST_NAMESPACE="rancher"
+
+usage() {
+  echo "Usage: $0 [<options>]"
+  echo " options:"
+  echo "  -i, --image <name>            Specify the destination image name (defaults to 'ui-plugin-catalog')"
+  echo "  -t, --tag <name>              Specify the version tag for the destination image (defaults to 'latest')"
+  echo "  -r, --registry <name>         Specify the destination container registry to push the catalog images (defaults to 'ghcr.io')"
+  echo "  -n, --namespace <name>        Specify the destination namespace of the for the catalog image scope (defaults to 'rancher')"
+  exit 1
+}
+
+function missing_arg() {
+  if [[ -z $2 || $2 == -* ]]; then
+    echo "Error: Missing argument for $1 option"
+    usage
+  fi
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      ;;
+    -i|--image)
+      missing_arg $1 $2
+      DEST_IMAGE_NAME="${2}"
+      shift 2
+      ;;
+    -t|--tag)
+      missing_arg $1 $2
+      DEST_TAG="${2}"
+      shift 2
+      ;;
+    -r|--registry)
+      missing_arg $1 $2
+      DEST_REGISTRY="${2}"
+      shift 2
+      ;;
+    -n|--namespace)
+      missing_arg $1 $2
+      DEST_NAMESPACE="${2}"
+      shift 2
+      ;;
+    *)
+      echo "Error: Unknown option $1"
+      usage
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+echo -e "${CYAN}${BOLD}Syncing Extension Catalogs${RESET}"
+
+EXTS=$(jq -r ".extensions | keys[]" manifest.json)
+
+TMP=${BASE_DIR}/tmp
+rm -rf ${TMP}
+mkdir -p ${TMP}
+
+CONTAINER_TMP=${TMP}/_container
+
+# ============================================
+# Rebuild Helm charts and assets
+# ============================================
+for NAME in ${EXTS}
+do
+  echo -e "${CYAN} + Syncing: ${BOLD}${NAME}${RESET}"
+
+  REPO=$(jq -r ".extensions.${NAME}.repo" manifest.json)
+  EXT_BRANCH=$(jq -r ".extensions.${NAME}.branch" manifest.json)
+  VERSIONS=$(jq -r ".extensions.${NAME}.versions[]" manifest.json)
+  VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
+
+  echo -e "     Repository: ${REPO}"
+  echo -e "     Branch: ${EXT_BRANCH}"
+  echo -e "     Versions  : ${VFORMAT}"
+  echo ""
+
+  echo -e "  .. Cloning repository"
+  rm -rf ${TMP}/${NAME}
+  pushd ${TMP} > /dev/null
+  git clone https://github.com/${REPO}.git ${NAME}
+  cd ${NAME}
+  git checkout ${EXT_BRANCH}
+  pwd
+  popd > /dev/null
+
+  for VERSION in ${VERSIONS}; do
+    echo -e "${CYAN}     Syncing: ${BOLD}${NAME}@${VERSION}${RESET}"
+
+    mkdir -p ${CONTAINER_TMP}/{assets,charts,extensions}/${NAME}
+
+    echo "     + Copying version ${VERSION}"
+    cp -R ./tmp/${NAME}/extensions/${NAME}/${VERSION} ${CONTAINER_TMP}/extensions/${NAME}
+    cp -R ./tmp/${NAME}/charts/${NAME}/${VERSION} ${CONTAINER_TMP}/charts/${NAME}
+
+    echo "     + Patching Helm chart"
+    CR_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/templates/cr.yaml
+    ENDPOINT=http://${DEST_IMAGE_NAME}-svc.cattle-ui-plugin-system:8080/plugin/${NAME}-${VERSION}
+    sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
+    rm -f ${CR_FILE}.bak
+
+    echo "     + Fetching and patching icon"
+    CHART_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/Chart.yaml
+    ICON=$(yq eval '.icon' ${CHART_FILE})
+    
+    if [[ -n "${ICON}" ]]; then
+      ICON_FILE=$(ls -1 "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img" | head -n 1)
+      NEW_ICON=${ENDPOINT}/plugin/img/${ICON_FILE}
+
+      sed -i.bak -e 's@icon:.*@icon: '"$NEW_ICON"'@' ${CHART_FILE}
+
+      PKG_FILE=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/package.json
+      sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
+      rm -rf ${PKG_FILE}.bak
+    fi
+
+    echo "     + Packaging Helm chart"
+    helm package ${CONTAINER_TMP}/charts/${NAME}/${VERSION} -d ${CONTAINER_TMP}/assets/${NAME}
+
+    echo "     + Updating Helm index"
+    HELM_INDEX="${CONTAINER_TMP}/index.yaml"
+
+    if [ -f "${HELM_INDEX}" ]; then
+      UPDATE="--merge ${HELM_INDEX}"
+    fi
+
+    RELATIVE_URL="plugin/${NAME}"
+
+    helm repo index ${CONTAINER_TMP}/assets/${NAME} --url ${RELATIVE_URL} ${UPDATE}
+
+    mv ${CONTAINER_TMP}/assets/${NAME}/index.yaml ${CONTAINER_TMP}
+
+    # Move pkg files into relative named plugin directories
+    for d in ${CONTAINER_TMP}/extensions; do
+      pushd ${d}
+      mkdir -p ${NAME}-${VERSION}
+      mv ${NAME}/${VERSION}/* ${NAME}-${VERSION}
+      popd
+    done
+
+    rm -rf ${CONTAINER_TMP}/extensions/${NAME}
+  done
+
+  rm -rf ./tmp/${NAME}
+done
+
+# ============================================
+# Bundle extension assets into catalog image
+# ============================================
+PACKAGING_CONTAINER=${TMP}/container
+rm -rf ${PACKAGING_CONTAINER}
+mkdir -p ${PACKAGING_CONTAINER}
+
+# Fetch packaging scripts
+pushd ${PACKAGING_CONTAINER}
+git init
+git remote add subdir https://github.com/rancher/dashboard.git
+git fetch subdir
+git checkout subdir/master -- shell/scripts/extension/helm
+mv shell/scripts/extension/helm/* .
+rm -rf .git shell
+popd
+
+mkdir -p ${PACKAGING_CONTAINER}/plugin
+
+# Copy the plugin assets
+cp -R ${CONTAINER_TMP}/assets/* ${PACKAGING_CONTAINER}/plugin
+cp -R ${CONTAINER_TMP}/extensions/* ${PACKAGING_CONTAINER}/plugin
+cp ${CONTAINER_TMP}/index.yaml ${PACKAGING_CONTAINER}
+cp ${CONTAINER_TMP}/index.yaml ${PACKAGING_CONTAINER}/plugin
+
+cp ${BASE_DIR}/scripts/bundle/package.json ${PACKAGING_CONTAINER}/plugin
+
+PLUGIN_JSON=${PACKAGING_CONTAINER}/plugin/package.json
+cat ${PLUGIN_JSON} | jq '.name = $image_name' --arg image_name "${DEST_IMAGE_NAME}" | tee ${PLUGIN_JSON} >/dev/null
+cat ${PLUGIN_JSON} | jq '.version = $tagged_version' --arg tagged_version "${DEST_TAG}" | tee ${PLUGIN_JSON} >/dev/null
+
+pushd ${PACKAGING_CONTAINER} > /dev/null
+echo -e "${CYAN}Building container image ...${RESET}"
+
+IMAGE="${DEST_REGISTRY}/${DEST_NAMESPACE}/${DEST_IMAGE_NAME}:${DEST_TAG}"
+
+if [ ! -z "${DEST_REGISTRY}" ]; then
+  REGISTRY=${DEST_REGISTRY} ORG=${DEST_NAMESPACE} REPO=${DEST_IMAGE_NAME} TAG=${DEST_TAG} ./scripts/package
+
+  echo -e "${CYAN}Pushing container image ...${RESET}"
+
+  # Ensure that you do not overwrite production images
+  if [[ "${DEST_NAMESPACE}" == "rancher" ]]; then
+    if docker manifest inspect 2>&1 1>/dev/null; then
+      echo -e "${RED}${BOLD}Cannot overwrite production image ${DEST_IMAGE_NAME} since it already exists${RESET}"
+      exit 1
+    fi
+  fi
+
+  docker push ${IMAGE}
+fi
+
+popd > /dev/null
+
+rm -rf ${TMP}
+
+echo -e "${CHECK}${CYAN} ${IMAGE} has been successfully published.${RESET}"

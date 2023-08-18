@@ -1,6 +1,8 @@
 name: Sync and Release Extensions
 
 on:
+  release:
+    types: [released]
   push:
     branches:
       - main
@@ -10,21 +12,27 @@ on:
 env:
   ACTIONS_RUNNER_DEBUG: false
   CI_COMMIT_MESSAGE: CI Build Artifacts
+  REGISTRY_URL: ghcr.io
+  REGISTRY_USER: ${{ github.actor }}
 
 jobs:
-  sync:
-    if: github.repository_owner == 'rancher'
-    name: Sync and Release Extensions
+  sync-charts:
+    if: github.repository_owner == 'rancher' && github.ref_type != 'tag'
+    name: Sync and Release Extension Charts
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      actions: write
+      contents: write
+      deployments: write
+      pages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Configure Git
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@github.com
       
       - name: Setup Helm
         uses: azure/setup-helm@v3
@@ -36,12 +44,12 @@ jobs:
         with:
           yq-version: v4.34.2
 
-      - name: Run sync script
+      - name: Run sync-charts script
         shell: bash
-        id: sync_script
+        id: sync_charts_script
         run: |
-          chmod +x ./scripts/sync
-          ./scripts/sync
+          chmod +x ./scripts/sync-charts
+          ./scripts/sync-charts
 
       - name: Commit build
         run: |
@@ -56,3 +64,34 @@ jobs:
         env:
           CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           CR_SKIP_EXISTING: true
+
+  sync-catalogs:
+      if: github.repository_owner == 'rancher' && github.ref_type == 'tag'
+      name: Sync and Release Extension Catalog
+      runs-on: ubuntu-latest
+      permissions:
+        actions: write
+        contents: read
+        packages: write
+
+      steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure Git
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_URL }}
+          username: ${{ evn.REGISTRY_USER }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync Catalog Image with Registry
+        id: sync_catalog_script
+        run: |
+          chmod +x ./scripts/sync-catalogs
+          ./scripts/sync-catalogs -t ${{ github.ref_name }}
