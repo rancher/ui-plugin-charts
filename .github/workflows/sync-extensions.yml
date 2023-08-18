@@ -93,5 +93,5 @@ jobs:
       - name: Sync Catalog Image with Registry
         id: sync_catalog_script
         run: |
-          chmod +x ./scripts/sync-catalogs
-          ./scripts/sync-catalogs -t ${{ github.ref_name }}
+          chmod +x ./scripts/bundle-catalog
+          ./scripts/bundle-catalog -t ${{ github.ref_name }}
