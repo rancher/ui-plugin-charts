@@ -87,7 +87,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY_URL }}
-          username: ${{ evn.REGISTRY_USER }}
+          username: ${{ env.REGISTRY_USER }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Sync Catalog Image with Registry
