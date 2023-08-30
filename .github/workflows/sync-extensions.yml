@@ -12,8 +12,6 @@ on:
 env:
   ACTIONS_RUNNER_DEBUG: false
   CI_COMMIT_MESSAGE: CI Build Artifacts
-  REGISTRY_URL: ghcr.io
-  REGISTRY_USER: ${{ github.actor }}
 
 jobs:
   sync-charts:
@@ -86,9 +84,8 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY_URL }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Sync Catalog Image with Registry
         id: sync_catalog_script
