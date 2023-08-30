@@ -12,7 +12,7 @@ CHECK="\xE2\x9C\x94"
 
 DEST_IMAGE_NAME="ui-plugin-catalog"
 DEST_TAG="latest"
-DEST_REGISTRY="ghcr.io"
+DEST_REGISTRY=""
 DEST_NAMESPACE="rancher"
 
 usage() {
@@ -20,7 +20,7 @@ usage() {
   echo " options:"
   echo "  -i, --image <name>            Specify the destination image name (defaults to 'ui-plugin-catalog')"
   echo "  -t, --tag <name>              Specify the version tag for the destination image (defaults to 'latest')"
-  echo "  -r, --registry <name>         Specify the destination container registry to push the catalog images (defaults to 'ghcr.io')"
+  echo "  -r, --registry <name>         Specify the destination container registry to push the catalog images (defaults to 'docker.io')"
   echo "  -n, --namespace <name>        Specify the destination namespace of the for the catalog image scope (defaults to 'rancher')"
   exit 1
 }
@@ -196,9 +196,12 @@ cat ${PLUGIN_JSON} | jq '.version = $tagged_version' --arg tagged_version "${DES
 pushd ${PACKAGING_CONTAINER} > /dev/null
 echo -e "${CYAN}Building container image ...${RESET}"
 
-IMAGE="${DEST_REGISTRY}/${DEST_NAMESPACE}/${DEST_IMAGE_NAME}:${DEST_TAG}"
+IMAGE="${DEST_NAMESPACE}/${DEST_IMAGE_NAME}:${DEST_TAG}"
+if [[ -n ${DEST_REGISTRY} ]]; then
+  IMAGE="${DEST_REGISTRY}/${IMAGE}"
+fi
 
-if [ ! -z "${DEST_REGISTRY}" ]; then
+if [ ! -z "${IMAGE}" ]; then
   REGISTRY=${DEST_REGISTRY} ORG=${DEST_NAMESPACE} REPO=${DEST_IMAGE_NAME} TAG=${DEST_TAG} ./scripts/package
 
   echo -e "${CYAN}Pushing container image ...${RESET}"
