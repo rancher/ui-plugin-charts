@@ -125,11 +125,19 @@ do
       ICON_FILE=$(ls -1 "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img" | head -n 1)
       NEW_ICON=${ENDPOINT}/plugin/img/${ICON_FILE}
 
-      sed -i.bak -e 's@icon:.*@icon: '"$NEW_ICON"'@' ${CHART_FILE}
+
+      # Check if '>-' exists in the icon property to remove the second line
+      if grep -q 'icon: >-' "${CHART_FILE}"; then
+        SECOND_LINE=$(sed -n '/^icon: >-/{n;p;q}' "${CHART_FILE}")
+        sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
+        sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+      else
+        sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+      fi
 
       PKG_FILE=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/package.json
-      sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
-      rm -rf ${PKG_FILE}.bak
+      sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"${NEW_ICON}"'\"@' ${PKG_FILE}
+      rm -f ${PKG_FILE}.bak ${CHART_FILE}.bak
     fi
 
     echo "     + Packaging Helm chart"
@@ -208,8 +216,9 @@ if [ ! -z "${IMAGE}" ]; then
 
   # Ensure that you do not overwrite production images
   if [[ "${DEST_NAMESPACE}" == "rancher" ]]; then
-    if docker manifest inspect 2>&1 1>/dev/null; then
+    if docker manifest inspect ${IMAGE} 2>&1 1>/dev/null; then
       echo -e "${RED}${BOLD}Cannot overwrite production image ${DEST_IMAGE_NAME} since it already exists${RESET}"
+      rm -rf ${TMP}
       exit 1
     fi
   fi
