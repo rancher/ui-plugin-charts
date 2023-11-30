@@ -14,6 +14,7 @@ DEST_IMAGE_NAME="ui-plugin-catalog"
 DEST_TAG="latest"
 DEST_REGISTRY=""
 DEST_NAMESPACE="rancher"
+RUNTIME="docker"
 
 usage() {
   echo "Usage: $0 [<options>]"
@@ -210,20 +211,20 @@ if [[ -n ${DEST_REGISTRY} ]]; then
 fi
 
 if [ ! -z "${IMAGE}" ]; then
-  REGISTRY=${DEST_REGISTRY} ORG=${DEST_NAMESPACE} REPO=${DEST_IMAGE_NAME} TAG=${DEST_TAG} ./scripts/package
+  REGISTRY=${DEST_REGISTRY} ORG=${DEST_NAMESPACE} REPO=${DEST_IMAGE_NAME} TAG=${DEST_TAG} RUNTIME=${RUNTIME} ./scripts/package
 
   echo -e "${CYAN}Pushing container image ...${RESET}"
 
   # Ensure that you do not overwrite production images
   if [[ "${DEST_NAMESPACE}" == "rancher" ]]; then
-    if docker manifest inspect ${IMAGE} 2>&1 1>/dev/null; then
+    if ${RUNTIME} manifest inspect ${IMAGE} 2>&1 1>/dev/null; then
       echo -e "${RED}${BOLD}Cannot overwrite production image ${DEST_IMAGE_NAME} since it already exists${RESET}"
       rm -rf ${TMP}
       exit 1
     fi
   fi
 
-  docker push ${IMAGE}
+  ${RUNTIME} push ${IMAGE}
 fi
 
 popd > /dev/null
