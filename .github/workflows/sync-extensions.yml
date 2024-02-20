@@ -3,11 +3,12 @@ name: Sync and Release Extensions
 on:
   release:
     types: [released]
-  push:
-    branches:
-      - main
-    paths:
-      - manifest.json
+  # Removing this trigger until the protected rule on the `main` branch does not limit actions.
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - manifest.json
 
 env:
   ACTIONS_RUNNER_DEBUG: false
