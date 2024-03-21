@@ -404,4 +404,26 @@ entries:
     urls:
     - assets/kubewarden/kubewarden-1.0.0.tgz
     version: 1.0.0
-generated: "2024-03-21T09:03:21.916284Z"
+  neuvector-ui-ext:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: NeuVector UI Extension
+      catalog.cattle.io/kube-version: '>= 1.16.0-0 < 1.29.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= v2.7.9'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-03-21T15:20:51.898453Z"
+    description: NeuVector extension for Rancher Manager
+    digest: d2a6b7ec50c0baf317a819b7d7870666b49fa0395f74507c113b939dcc754750
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/1.0.0-nv-icon.svg
+    name: neuvector-ui-ext
+    type: application
+    urls:
+    - assets/neuvector-ui-ext/neuvector-ui-ext-1.0.0.tgz
+    version: 1.0.0
+generated: "2024-03-21T15:20:51.898019Z"

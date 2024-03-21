@@ -1,5 +1,12 @@
 {
   "extensions": {
+    "neuvector-ui-ext": {
+      "repo": "neuvector/manager-ext",
+      "branch": "gh-pages",
+      "versions": [
+        "1.0.0"
+      ]
+    },
     "elemental": {
       "repo": "rancher/elemental-ui",
       "branch": "gh-pages",
