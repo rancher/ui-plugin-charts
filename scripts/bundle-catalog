@@ -84,9 +84,9 @@ for NAME in ${EXTS}
 do
   echo -e "${CYAN} + Syncing: ${BOLD}${NAME}${RESET}"
 
-  REPO=$(jq -r ".extensions.${NAME}.repo" manifest.json)
-  EXT_BRANCH=$(jq -r ".extensions.${NAME}.branch" manifest.json)
-  VERSIONS=$(jq -r ".extensions.${NAME}.versions[]" manifest.json)
+  REPO=$(jq -r ".extensions[\"${NAME}\"].repo" manifest.json)
+  EXT_BRANCH=$(jq -r ".extensions[\"${NAME}\"].branch" manifest.json)
+  VERSIONS=$(jq -r ".extensions[\"${NAME}\"].versions[]" manifest.json)
   VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
 
   echo -e "     Repository: ${REPO}"
