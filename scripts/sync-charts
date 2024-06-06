@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 BASE_DIR="$( cd $SCRIPT_DIR && cd .. & pwd)"
@@ -89,7 +90,7 @@ do
   mkdir -p ./charts/${NAME}
   mkdir -p ./extensions/${NAME}
 
-  # Get repository name, branch, and versions 
+  # Get repository name, branch, and versions
   REPO=$(jq -r ".extensions.\"${NAME}\".repo" manifest.json)
   EXT_BRANCH=$(jq -r ".extensions.\"${NAME}\".branch" manifest.json)
   VERSIONS=$(jq -r ".extensions.\"${NAME}\".versions[]" manifest.json)
@@ -134,7 +135,7 @@ do
       CHART_FILE=./charts/${NAME}/${VERSION}/Chart.yaml
 
       ICON=$(yq eval '.icon' ${CHART_FILE})
-      
+
       if [ -n "${ICON}" ]; then
         # Downloading icon
         ICON_FILE=$(basename $ICON)
@@ -154,7 +155,7 @@ do
         else
           sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
         fi
-        
+
         rm -rf ${CHART_FILE}.bak
 
         PKG_FILE=${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json
@@ -168,7 +169,7 @@ do
       echo "     + Updating Helm index"
 
       # --------------------------------------------------------------------------------
-      # Update the helm index just for this chart 
+      # Update the helm index just for this chart
       # --------------------------------------------------------------------------------
       if [ -f "${HELM_INDEX}" ]; then
         UPDATE="--merge ${HELM_INDEX}"
