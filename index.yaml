@@ -7,6 +7,49 @@ entries:
       catalog.cattle.io/namespace: cattle-ui-plugin-system
       catalog.cattle.io/os: linux
       catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.9.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 2.0.0-0'
+      catalog.cattle.io/ui-version: '>= 2.7.2'
+    apiVersion: v2
+    appVersion: 2.0.0
+    created: "2024-08-13T13:35:28.430765459Z"
+    description: OS Management extension
+    digest: e06e8e3c145bafe73e9c58e8e8f9d9ac69f3835c60bbb0831c0b0bb9d6fed300
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/2.0.0-icon-v2.svg
+    name: elemental
+    type: application
+    urls:
+    - assets/elemental/elemental-2.0.0.tgz
+    version: 2.0.0
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.8.0-0 < 2.9.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-version: '>= 2.7.2'
+    apiVersion: v2
+    appVersion: 1.3.1
+    created: "2024-08-13T13:35:28.294590169Z"
+    description: OS Management extension
+    digest: 1dc835df925372bde621f8829bcdc3bb9cc65ffd91edc959f3f846489bcaa6a6
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/1.3.1-icon-v2.svg
+    name: elemental
+    type: application
+    urls:
+    - assets/elemental/elemental-1.3.1.tgz
+    version: 1.3.1
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
       catalog.cattle.io/rancher-version: '>= 2.8.0-0'
       catalog.cattle.io/scope: management
       catalog.cattle.io/ui-component: plugins
@@ -607,4 +650,4 @@ entries:
     urls:
     - assets/neuvector-ui-ext/neuvector-ui-ext-1.0.0.tgz
     version: 1.0.0
-generated: "2024-08-01T09:16:46.563785304-04:00"
+generated: "2024-08-13T13:35:28.430248523Z"
