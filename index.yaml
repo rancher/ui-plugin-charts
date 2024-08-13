@@ -3,6 +3,49 @@ entries:
   elemental:
   - annotations:
       catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.9.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 2.0.0-0'
+      catalog.cattle.io/ui-version: '>= 2.7.2'
+    apiVersion: v2
+    appVersion: 2.0.0
+    created: "2024-08-13T13:35:42.232477823Z"
+    description: OS Management extension
+    digest: becb6b09be35ffed95557454558f9fc12e3ca3a16d1f4e76e77f06742e5318da
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/2.0.0-icon-v2.svg
+    name: elemental
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/elemental-2.0.0/elemental-2.0.0.tgz
+    version: 2.0.0
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.8.0-0 < 2.9.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-version: '>= 2.7.2'
+    apiVersion: v2
+    appVersion: 1.3.1
+    created: "2024-08-13T13:35:42.107894183Z"
+    description: OS Management extension
+    digest: ed68de64f3a3d274f8be15d8d726839ed6e86f5f07efd6f6d8e8c74e2faf8875
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/1.3.1-icon-v2.svg
+    name: elemental
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/elemental-1.3.1/elemental-1.3.1.tgz
+    version: 1.3.1
+  - annotations:
+      catalog.cattle.io/certified: rancher
       catalog.cattle.io/kube-version: '>= 1.16.0-0 < 1.28.0-0'
       catalog.cattle.io/namespace: cattle-ui-plugin-system
       catalog.cattle.io/os: linux
@@ -225,4 +268,4 @@ entries:
     urls:
     - assets/kubewarden/kubewarden-1.0.0.tgz
     version: 1.0.0
-generated: "2023-07-06T16:10:58.265175401-04:00"
+generated: "2024-08-13T13:35:42.232553596Z"
