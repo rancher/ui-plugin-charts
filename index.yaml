@@ -309,4 +309,26 @@ entries:
     urls:
     - assets/kubewarden/kubewarden-1.0.0.tgz
     version: 1.0.0
-generated: "2024-08-22T14:20:40.219178824Z"
+  observability:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.9.0 < 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 2.0.1'
+    apiVersion: v2
+    appVersion: 0.5.0
+    created: "2024-08-30T10:05:35.603464908Z"
+    description: Tech Preview - Rancher Prime Observability Extension
+    digest: f2bc276438d65a96b470a675fb70ec326059b02c76f080ea8b35b958b28870a4
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/0.5.0-rancher-observability.svg
+    name: observability
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/observability-0.5.0/observability-0.5.0.tgz
+    version: 0.5.0
+generated: "2024-08-30T10:05:35.603512126Z"
