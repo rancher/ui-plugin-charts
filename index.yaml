@@ -691,4 +691,26 @@ entries:
     urls:
     - assets/neuvector-ui-ext/neuvector-ui-ext-1.0.0.tgz
     version: 1.0.0
-generated: "2024-08-22T14:20:31.379996493Z"
+  observability:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.9.0 < 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 2.0.1'
+    apiVersion: v2
+    appVersion: 0.5.0
+    created: "2024-08-30T10:05:29.034580053Z"
+    description: Tech Preview - Rancher Prime Observability Extension
+    digest: 83ac6f0eeb6ab9c98d6e26b9e735b1b6af32c6dc8bd5f7169061b6330ce7ded1
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/0.5.0-rancher-observability.svg
+    name: observability
+    type: application
+    urls:
+    - assets/observability/observability-0.5.0.tgz
+    version: 0.5.0
+generated: "2024-08-30T10:05:29.034190756Z"
