@@ -1,5 +1,12 @@
 {
   "extensions": {
+    "observability": {
+      "repo": "StackVista/rancher-extension-stackstate",
+      "branch": "gh-pages",
+      "versions": [
+        "0.5.0"
+      ]
+    },
     "neuvector-ui-ext": {
       "repo": "neuvector/manager-ext",
       "branch": "gh-pages",
