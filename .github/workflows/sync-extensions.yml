@@ -4,11 +4,11 @@ on:
   release:
     types: [released]
   # Removing this trigger until the protected rule on the `main` branch does not limit actions.
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - manifest.json
+  push:
+    branches:
+      - main
+    paths:
+      - manifest.json
 
 env:
   ACTIONS_RUNNER_DEBUG: false
