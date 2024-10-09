@@ -11,7 +11,8 @@
       "repo": "neuvector/manager-ext",
       "branch": "gh-pages",
       "versions": [
-        "1.0.0"
+        "1.0.0",
+        "2.0.0"
       ]
     },
     "elemental": {
