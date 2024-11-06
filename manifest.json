@@ -4,8 +4,8 @@
       "repo": "StackVista/rancher-extension-stackstate",
       "branch": "gh-pages",
       "versions": [
-        "0.2.0",
-        "0.5.0"
+        "0.5.0",
+        "1.0.0"
       ]
     },
     "neuvector-ui-ext": {
