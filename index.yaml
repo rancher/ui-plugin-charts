@@ -7,6 +7,49 @@ entries:
       catalog.cattle.io/namespace: cattle-ui-plugin-system
       catalog.cattle.io/os: linux
       catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+      catalog.cattle.io/ui-version: '>= 2.7.2'
+    apiVersion: v2
+    appVersion: 3.0.0
+    created: "2024-11-27T16:02:26.616432915Z"
+    description: OS Management extension
+    digest: 60f6f7436aa88bd76681a8fa9e8628afe1bdf5a697afb8b72c7c5e6678be5e8b
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/3.0.0-icon-v2.svg
+    name: elemental
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/elemental-3.0.0/elemental-3.0.0.tgz
+    version: 3.0.0
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.9.0 < 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-version: '>= 2.7.2'
+    apiVersion: v2
+    appVersion: 2.0.1
+    created: "2024-11-27T16:02:26.384073169Z"
+    description: OS Management extension
+    digest: 5eb68b59a556d169436207b8b16312d9aa50995eb1a24f9d1ec8ccf5395fd6f8
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/2.0.1-icon-v2.svg
+    name: elemental
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/elemental-2.0.1/elemental-2.0.1.tgz
+    version: 2.0.1
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
       catalog.cattle.io/rancher-version: '>= 2.9.0-0'
       catalog.cattle.io/scope: management
       catalog.cattle.io/ui-component: plugins
@@ -477,4 +520,4 @@ entries:
     urls:
     - https://github.com/rancher/ui-plugin-charts/releases/download/observability-0.2.1/observability-0.2.1.tgz
     version: 0.2.1
-generated: "2024-11-20T12:05:04.770980277Z"
+generated: "2024-11-27T16:02:26.616514369Z"
