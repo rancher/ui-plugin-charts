@@ -67,6 +67,13 @@
         "2.1.0",
         "3.0.0"
       ]
+    },
+    "harvester": {
+      "repo": "harvester/harvester-ui-extension",
+      "branch": "gh-pages",
+      "versions": [
+        "1.0.1"
+      ]
     }
   }
 }
