@@ -1,0 +1,21 @@
+{
+  "name": "neuvector-ui-ext",
+  "description": "NeuVector extension for Rancher Manager",
+  "version": "2.1.1",
+  "private": false,
+  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.1-nv-icon.svg",
+  "rancher": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "5.0.8",
+    "@vue/cli-plugin-typescript": "5.0.8",
+    "@vue/cli-service": "5.0.8"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "neuvector-ui-ext-2.1.1.umd.min.js"
+}
