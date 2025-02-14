@@ -41,7 +41,7 @@ jobs:
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ env.APP_ID }}
-          private-key: ${{ env.APP_PEM }}
+          private-key: ${{ env.PRIVATE_KEY }}
 
       - name: Configure Git
         run: |
