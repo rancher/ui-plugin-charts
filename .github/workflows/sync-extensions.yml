@@ -38,8 +38,8 @@ jobs:
         shell: bash
         id: sync_script
         run: |
-          chmod +x ./scripts/sync
-          ./scripts/sync
+          chmod +x ./scripts/sync-charts
+          ./scripts/sync-charts
 
       - name: Generate branch name based on date and time
         run: echo "NOW=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
