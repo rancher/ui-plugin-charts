@@ -65,7 +65,7 @@ if [[ $CLEAN == true ]]; then
   rm -rf ./icons
 fi
 
-echo -e "${CYAN}${BOLD}Syncing Extension Charts${RESET}"
+echo -e "${CYAN}${BOLD}Syncing Extensions${RESET}"
 
 EXTS=$(jq -r ".extensions | keys[]" manifest.json)
 
@@ -143,24 +143,35 @@ do
         ICON_REL=icons/${NAME}/${VERSION}-${ICON_FILE}
         mkdir -p ${BASE_DIR}/icons/${NAME}
         rm -f ${BASE_DIR}/${ICON_REL}
+        # Download the icon - ignore errors, we will handle those
+        set +e
         wget --quiet -O ${BASE_DIR}/${ICON_REL} ${ICON}
+        ERR=$?
+        set -1
 
-        NEW_ICON=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/${ICON_REL}
+        # Icon downloaded okay
+        if [ ${ERR} -eq 0 ]; then
+          NEW_ICON=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/${ICON_REL}
 
-        # Check if '>-' exists in the icon property to remove the second line
-        if grep -q 'icon: >-' "${CHART_FILE}"; then
-          SECOND_LINE=$(sed -n '/^icon: >-/{n;p;q}' "${CHART_FILE}")
-          sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
-          sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+          # Check if '>-' exists in the icon property to remove the second line
+          if grep -q 'icon: >-' "${CHART_FILE}"; then
+            SECOND_LINE=$(sed -n '/^icon: >-/{n;p;q}' "${CHART_FILE}")
+            sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
+            sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+          else
+            sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+          fi
+
+          rm -rf ${CHART_FILE}.bak
+
+          PKG_FILE=${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json
+          sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
+          rm -rf ${PKG_FILE}.bak
         else
-          sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
-        fi
-
-        rm -rf ${CHART_FILE}.bak
-
-        PKG_FILE=${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json
-        sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
-        rm -rf ${PKG_FILE}.bak
+          echo -e "${YELLOW}${BOLD}Warning: Could not download icon - check URL${RESET}"
+          # Rename the 'icon' property to 'ignored' so the icon is not used
+          sed -i.bak -e 's@icon:@ignored:@' ${CHART_FILE}
+         fi
       fi
 
       echo "     + Packaging Helm chart"

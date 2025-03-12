@@ -3,7 +3,6 @@ name: Sync and Release Extensions
 on:
   release:
     types: [released]
-  # Removing this trigger until the protected rule on the `main` branch does not limit actions.
   push:
     branches:
       - main
@@ -13,68 +12,77 @@ on:
 env:
   ACTIONS_RUNNER_DEBUG: false
   CI_COMMIT_MESSAGE: CI Build Artifacts
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
-  sync-charts:
+  sync:
     if: github.repository_owner == 'rancher' && github.ref_type != 'tag'
-    name: Sync and Release Extension Charts
+    name: Sync and Release Extensions
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: write
-      deployments: write
-      pages: write
-      id-token: write
+    permissions: write-all
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Read secrets
-        uses: rancher-eio/read-vault-secrets@main
-        with:
-          secrets: |
-            secret/data/github/org/rancher/github/rancher-ui-extension-release appId | APP_ID ;
-            secret/data/github/org/rancher/github/rancher-ui-extension-release privateKey | PRIVATE_KEY
-
-      - name: Generate Token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ env.APP_ID }}
-          private-key: ${{ env.PRIVATE_KEY }}
-
       - name: Configure Git
         run: |
-          git config user.name 'github-actions[rancher-ui-extension-releaser]'
-          git config user.email 'github-actions[rancher-ui-extension-releaser]@users.noreply.github.com'
-
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
           version: v3.12.1
 
-      - name: Run sync-charts script
+      - name: Run sync script
         shell: bash
-        id: sync_charts_script
+        id: sync_script
         run: |
-          chmod +x ./scripts/sync-charts
-          ./scripts/sync-charts
+          chmod +x ./scripts/sync
+          ./scripts/sync
 
-      - name: Commit build
+      - name: Generate branch name based on date and time
+        run: echo "NOW=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+
+      - name: Commit Changes and push to a branch
         run: |
+          git checkout -b sync-${{ env.NOW }}
           git add ./{assets,charts,extensions,icons,index.yaml}
-          git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
-          git push
+          git commit -a -m "Sync extensions ${{ env.NOW }}"
+          git push origin sync-${{ env.NOW }}
 
+      - name: Create Pull Request
+        run: |
+          # Create the PR using the GitHub CLI
+          pr_number=$(gh pr create \
+            --title "Create PR for extension sync: ${{ env.NOW }}" \
+            --body "This PR was automatically created by a GitHub Action." \
+            --base main \
+            --head sync-${{ env.NOW }} \
+            --fill \
+            --repo ${{ github.repository }} | awk '{print $NF}') # Get the PR URL and Extract the last element (the PR number)
+
+          # Check if pr_number is empty (creation failed)
+          if [ -z "$pr_number" ]; then
+            echo "Failed to create PR."
+            exit 1
+          fi
+          
+          # Store the PR number as an output
+          echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
+
+      - name: Merge Pull Request when approved
+        run: |
+          # Merge the PR using the GitHub CLI
+          gh pr merge ${{ env.PR_NUMBER }} --auto --delete-branch --merge --repo ${{ github.repository }}
+  
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         with:
           charts_dir: ./charts/*
         env:
-          # CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-          CR_TOKEN: ${{ steps.generate-token.outputs.token }}
+          CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           CR_SKIP_EXISTING: true
-
   sync-catalogs:
     if: github.repository_owner == 'rancher' && github.ref_type == 'tag'
     name: Sync and Release Extension Catalog
@@ -86,7 +94,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure Git
         run: |
