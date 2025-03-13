@@ -98,6 +98,13 @@
         "1.0.3",
         "1.0.4"
       ]
+    },
+    "supportability-review": {
+      "repo": "rancher/supportability-review-app",
+      "branch": "gh-pages",
+      "versions": [
+        "0.1.0"
+      ]
     }
   }
 }
