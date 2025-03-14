@@ -74,7 +74,7 @@ jobs:
       - name: Merge Pull Request when approved
         run: |
           # Merge the PR using the GitHub CLI
-          gh pr merge ${{ env.PR_NUMBER }} --auto --delete-branch --merge --repo ${{ github.repository }}
+          gh pr merge ${{ env.PR_NUMBER }} --delete-branch --merge --repo ${{ github.repository }}
   
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
