@@ -1,0 +1,22 @@
+{
+  "name": "observability",
+  "description": "SUSE Rancher Prime Observability Extension",
+  "version": "2.1.1",
+  "license": "Apache-2.0",
+  "author": "SUSE",
+  "private": false,
+  "rancher": true,
+  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.1.1-rancher-observability.svg",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0",
+    "@vue/cli-service": "~5.0.0"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "observability-2.1.1.umd.min.js"
+}

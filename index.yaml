@@ -1570,6 +1570,90 @@ entries:
       catalog.cattle.io/ui-component: plugins
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
+    appVersion: 2.1.2
+    created: "2025-05-15T10:48:41.856476848Z"
+    description: SUSE Rancher Prime Observability Extension
+    digest: 115bd2b646783e66c68ba7e1aea27d2e037b3abba421d9925ae90171a9381c66
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.1.2-rancher-observability.svg
+    name: observability
+    type: application
+    urls:
+    - assets/observability/observability-2.1.2.tgz
+    version: 2.1.2
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 2.1.1
+    created: "2025-05-15T10:48:41.67823209Z"
+    description: SUSE Rancher Prime Observability Extension
+    digest: 2e06bea1cbce59029d5976bfe71a9ddd097ef322dd09cd95394d3ac5238bb1a7
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.1.1-rancher-observability.svg
+    name: observability
+    type: application
+    urls:
+    - assets/observability/observability-2.1.1.tgz
+    version: 2.1.1
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 2.1.0
+    created: "2025-05-15T10:48:41.503578697Z"
+    description: SUSE Rancher Prime Observability Extension
+    digest: 41e47498848d66164dfde9ae12049cf90246ee1316681a612384e5b71015f9be
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.1.0-rancher-observability.svg
+    name: observability
+    type: application
+    urls:
+    - assets/observability/observability-2.1.0.tgz
+    version: 2.1.0
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 2.0.1
+    created: "2025-05-15T10:48:41.326316745Z"
+    description: SUSE Rancher Prime Observability Extension
+    digest: 55baae7fc845472146ce889718f7cda5e846aabb11b7003d9130774a5347c492
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.0.1-rancher-observability.svg
+    name: observability
+    type: application
+    urls:
+    - assets/observability/observability-2.0.1.tgz
+    version: 2.0.1
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
     appVersion: 2.0.0
     created: "2024-12-22T14:02:15.525981126Z"
     description: SUSE Rancher Prime Observability Extension
@@ -1580,6 +1664,27 @@ entries:
     urls:
     - assets/observability/observability-2.0.0.tgz
     version: 2.0.0
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.9.0 < 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 2.0.1'
+    apiVersion: v2
+    appVersion: 1.0.2
+    created: "2025-05-15T10:48:41.148992943Z"
+    description: SUSE Rancher Prime Observability Extension
+    digest: 851739a790cf4fabb3bcc3c28106d91f78674e7663b31f37c827bea4a587f96a
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/1.0.2-rancher-observability.svg
+    name: observability
+    type: application
+    urls:
+    - assets/observability/observability-1.0.2.tgz
+    version: 1.0.2
   - annotations:
       catalog.cattle.io/certified: rancher
       catalog.cattle.io/kube-version: '>= 1.16.0-0'
@@ -1663,4 +1768,4 @@ entries:
     urls:
     - assets/observability/observability-0.2.1.tgz
     version: 0.2.1
-generated: "2025-05-02T08:51:28.365709118Z"
+generated: "2025-05-15T10:48:41.856090444Z"
