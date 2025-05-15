@@ -1,0 +1,16 @@
+plugin/img/rancher-observability.3cc5997d.svg
+plugin/observability-1.0.2.umd.min.2.js
+plugin/observability-1.0.2.umd.min.2.js.map
+plugin/observability-1.0.2.umd.min.3.js
+plugin/observability-1.0.2.umd.min.3.js.map
+plugin/observability-1.0.2.umd.min.4.js
+plugin/observability-1.0.2.umd.min.4.js.map
+plugin/observability-1.0.2.umd.min.5.js
+plugin/observability-1.0.2.umd.min.5.js.map
+plugin/observability-1.0.2.umd.min.6.js
+plugin/observability-1.0.2.umd.min.6.js.map
+plugin/observability-1.0.2.umd.min.formatters.js
+plugin/observability-1.0.2.umd.min.formatters.js.map
+plugin/observability-1.0.2.umd.min.js
+plugin/observability-1.0.2.umd.min.js.map
+plugin/package.json
