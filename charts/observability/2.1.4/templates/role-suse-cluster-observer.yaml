@@ -1,0 +1,21 @@
+apiVersion: management.cattle.io/v3
+kind: RoleTemplate
+displayName: SUSE Observability Cluster Observer
+description: Read-only access to cluster data in SUSE Observability
+builtin: false
+hidden: false
+external: false
+context: cluster
+metadata:
+  name: suse-observability-cluster-observer
+  namespace: {{ .Release.Namespace }}
+  labels: {{ include "extension-server.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+    - scope.observability.cattle.io
+  resources:
+    - metrics
+    - topology
+    - traces
+  verbs:
+    - get
