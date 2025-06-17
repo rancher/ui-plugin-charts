@@ -1769,4 +1769,27 @@ entries:
     urls:
     - assets/observability/observability-0.2.1.tgz
     version: 0.2.1
-generated: "2025-05-26T17:03:59.579805982Z"
+  supportability-review-app:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Supportability Review
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 3.0.0
+    created: "2025-06-17T10:43:12.69195976Z"
+    description: Collects and analyses cluster data for supportability assessment
+    digest: 85b50289cafc1a0cc7ee0c6d6652b1534785fd774356915d2d328484cb077bd5
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/3.0.0-icon.png
+    name: supportability-review-app
+    type: application
+    urls:
+    - assets/supportability-review-app/supportability-review-app-3.0.0.tgz
+    version: 3.0.0
+generated: "2025-06-17T10:43:12.691581475Z"
