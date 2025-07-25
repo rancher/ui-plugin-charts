@@ -70,11 +70,6 @@ jobs:
           
           # Store the PR number as an output
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-
-      - name: Merge Pull Request when approved
-        run: |
-          # Merge the PR using the GitHub CLI
-          gh pr merge ${{ env.PR_NUMBER }} --delete-branch --merge --repo ${{ github.repository }}
   
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
