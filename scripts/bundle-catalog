@@ -10,6 +10,7 @@ BOLD="\033[1m"
 NORMAL="\033[22m"
 CHECK="\xE2\x9C\x94"
 
+DOCKERHUB_REPO="rancher/ui-plugin-catalog"
 DEST_IMAGE_NAME="ui-plugin-catalog"
 DEST_TAG="latest"
 DEST_REGISTRY=""
@@ -170,6 +171,38 @@ do
 
   rm -rf ./tmp/${NAME}
 done
+
+# if no tag is passed, get the latest version from dockerhub and bump the minor version
+if [[ "${DEST_TAG}" == "latest" ]]; then
+  echo "No tag argument passed. Fetching tags for Docker Hub repo: $DOCKERHUB_REPO"
+
+  # Get latest semver tag
+  TAGS=$(curl -s "https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=100" | jq -r '.results[].name')
+
+  LATEST_TAG=$(echo "$TAGS" \
+    | grep -v '^latest$' \
+    | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?$' \
+    | sort -Vr \
+    | head -n 1)
+
+  if [[ -z "$LATEST_TAG" ]]; then
+    echo "No semantic version tags found."
+    exit 1
+  fi
+
+  echo "Latest tag: $LATEST_TAG"
+
+  # Extract version parts
+  IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_TAG"
+
+  # Calculate next minor version
+  NEXT_MINOR=$((MINOR + 1))
+  NEXT_TAG="${MAJOR}.${NEXT_MINOR}.0"
+
+  echo "Next tag: $NEXT_TAG"
+  
+  DEST_TAG="${NEXT_TAG}"
+fi
 
 # ============================================
 # Bundle extension assets into catalog image
