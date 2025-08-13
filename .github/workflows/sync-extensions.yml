@@ -55,20 +55,6 @@ jobs:
 
           echo "Next tag: $NEXT_TAG"
           echo "GH_RELEASE_TAG=$NEXT_TAG" >> $GITHUB_ENV
-
-      - name: Create release test1
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: "${{ env.GH_RELEASE_TAG }}",
-              name: "Release extensions catalog ${{ env.GH_RELEASE_TAG }}",
-              body: "Automated release from workflow",
-              draft: false,
-              prerelease: false
-            })
   
       - name: Create Release
         run: |
