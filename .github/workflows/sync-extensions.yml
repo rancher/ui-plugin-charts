@@ -2,7 +2,7 @@ name: Sync and Release Extensions
 
 on:
   pull_request:
-    types: [closed]
+    types: [closed, opened]
   push:
     branches:
       - main
@@ -15,70 +15,132 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
-  sync:
-    if: github.repository_owner == 'rancher' && github.event.pull_request.merged != true
-    name: Sync and Release Extensions
+  test-script: 
+    if: github.event.pull_request.opened == true
+    name: 'some-name'
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Configure Git
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-      
-      - name: Setup Helm
-        uses: azure/setup-helm@v3
         with:
-          version: v3.12.1
+          fetch-depth: 0
 
-      - name: Run sync script
+      - name: Test script basics
         shell: bash
-        id: sync_script
+        id: sync_script1
         run: |
-          chmod +x ./scripts/sync-charts
-          ./scripts/sync-charts
+          # Get latest semver tag
+          TAGS=$(curl -s "https://hub.docker.com/v2/repositories/rancher/ui-plugin-catalog/tags/?page_size=100" | jq -r '.results[].name')
 
-      - name: Generate branch name based on date and time
-        run: echo "NOW=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+          LATEST_TAG=$(echo "$TAGS" \
+            | grep -v '^latest$' \
+            | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?$' \
+            | sort -Vr \
+            | head -n 1)
 
-      - name: Commit Changes and push to a branch
-        run: |
-          git checkout -b sync-${{ env.NOW }}
-          git add ./{assets,charts,extensions,icons,index.yaml}
-          git commit -a -m "Sync extensions ${{ env.NOW }}"
-          git push origin sync-${{ env.NOW }}
-
-      - name: Create Pull Request
-        run: |
-          # Create the PR using the GitHub CLI
-          pr_number=$(gh pr create \
-            --title "Create PR for extension sync: ${{ env.NOW }}" \
-            --body "This PR was automatically created by a GitHub Action." \
-            --base main \
-            --head sync-${{ env.NOW }} \
-            --fill \
-            --repo ${{ github.repository }} | awk '{print $NF}') # Get the PR URL and Extract the last element (the PR number)
-
-          # Check if pr_number is empty (creation failed)
-          if [ -z "$pr_number" ]; then
-            echo "Failed to create PR."
+          if [[ -z "$LATEST_TAG" ]]; then
+            echo "No semantic version tags found."
             exit 1
           fi
-          
-          # Store the PR number as an output
-          echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-  
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.5.0
+
+          echo "Latest tag: $LATEST_TAG"
+
+          # Extract version parts
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_TAG"
+
+          # Calculate next minor version
+          NEXT_MINOR=$((MINOR + 1))
+          NEXT_TAG="${MAJOR}.${NEXT_MINOR}.0"
+
+          echo "Next tag: $NEXT_TAG"
+          echo "GH_RELEASE_TAG=$NEXT_TAG" >> $GITHUB_ENV
+
+      - name: Create release test1
+        uses: actions/github-script@v7
         with:
-          charts_dir: ./charts/*
+          script: |
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: "${{ env.GH_RELEASE_TAG }}",
+              name: "Release extensions catalog ${{ env.GH_RELEASE_TAG }}",
+              body: "Automated release from workflow",
+              draft: false,
+              prerelease: false
+            })
+  
+      - name: Create Release
+        run: |
+          gh release create ${{ env.GH_RELEASE_TAG }} \
+            --title "Release extensions catalog ${{ env.GH_RELEASE_TAG }}" \
+            --notes "Automated release from workflow"
         env:
-          CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-          CR_SKIP_EXISTING: true
-  sync-catalogs:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # sync:
+  #   if: github.repository_owner == 'rancher' && github.event.pull_request.merged != true
+  #   name: Sync and Release Extensions
+  #   runs-on: ubuntu-latest
+  #   permissions: write-all
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+
+  #     - name: Configure Git
+  #       run: |
+  #         git config user.name github-actions
+  #         git config user.email github-actions@github.com
+      
+  #     - name: Setup Helm
+  #       uses: azure/setup-helm@v3
+  #       with:
+  #         version: v3.12.1
+
+  #     - name: Run sync script
+  #       shell: bash
+  #       id: sync_script
+  #       run: |
+  #         chmod +x ./scripts/sync-charts
+  #         ./scripts/sync-charts
+
+  #     - name: Generate branch name based on date and time
+  #       run: echo "NOW=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+
+  #     - name: Commit Changes and push to a branch
+  #       run: |
+  #         git checkout -b sync-${{ env.NOW }}
+  #         git add ./{assets,charts,extensions,icons,index.yaml}
+  #         git commit -a -m "Sync extensions ${{ env.NOW }}"
+  #         git push origin sync-${{ env.NOW }}
+
+  #     - name: Create Pull Request
+  #       run: |
+  #         # Create the PR using the GitHub CLI
+  #         pr_number=$(gh pr create \
+  #           --title "Create PR for extension sync: ${{ env.NOW }}" \
+  #           --body "This PR was automatically created by a GitHub Action." \
+  #           --base main \
+  #           --head sync-${{ env.NOW }} \
+  #           --fill \
+  #           --repo ${{ github.repository }} | awk '{print $NF}') # Get the PR URL and Extract the last element (the PR number)
+
+  #         # Check if pr_number is empty (creation failed)
+  #         if [ -z "$pr_number" ]; then
+  #           echo "Failed to create PR."
+  #           exit 1
+  #         fi
+          
+  #         # Store the PR number as an output
+  #         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
+  
+  #     - name: Run chart-releaser
+  #       uses: helm/chart-releaser-action@v1.5.0
+  #       with:
+  #         charts_dir: ./charts/*
+  #       env:
+  #         CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+  #         CR_SKIP_EXISTING: true
+  # sync-catalogs:
     if: github.repository_owner == 'rancher' && github.event.pull_request.merged == true
     name: Sync and Release Extension Catalog
     runs-on: ubuntu-latest
