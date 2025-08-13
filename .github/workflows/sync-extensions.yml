@@ -16,7 +16,6 @@ env:
 
 jobs:
   test-script: 
-    if: github.event.pull_request.opened == true
     name: 'some-name'
     runs-on: ubuntu-latest
     permissions: write-all
