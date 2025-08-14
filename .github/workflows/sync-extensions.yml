@@ -55,6 +55,7 @@ jobs:
 
           echo "Next tag: $NEXT_TAG"
           echo "GH_RELEASE_TAG=$NEXT_TAG" >> $GITHUB_ENV
+          echo "Automated release from workflow: \n\n\n\n $(jq . manifest.json | less)"
   
       - name: Create Release
         run: |
