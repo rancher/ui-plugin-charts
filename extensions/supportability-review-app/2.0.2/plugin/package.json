@@ -1,0 +1,20 @@
+{
+  "name": "supportability-review-app",
+  "description": "Collects and analyses cluster data for supportability assessment",
+  "version": "2.0.2",
+  "private": false,
+  "rancher": true,
+  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/2.0.2-icon.png",
+  "engines": {
+    "node": ">=16"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "supportability-review-app-2.0.2.umd.min.js"
+}
