@@ -55,14 +55,12 @@ jobs:
 
           echo "Next tag: $NEXT_TAG"
           echo "GH_RELEASE_TAG=$NEXT_TAG" >> $GITHUB_ENV
-
-          echo "$(jq . manifest.json | less)"
   
       - name: Create Release
         run: |
           gh release create ${{ env.GH_RELEASE_TAG }} \
             --title "Release extensions catalog ${{ env.GH_RELEASE_TAG }}" \
-            --notes "Automated release from workflow: "
+            --notes "Automated release from workflow: \n\n\n\n $(jq . manifest.json | less)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # sync:
