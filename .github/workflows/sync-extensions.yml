@@ -2,8 +2,7 @@ name: Sync and Release Extensions
 
 on:
   pull_request:
-    branches:
-      - main
+    types: [closed]
   push:
     branches:
       - main
