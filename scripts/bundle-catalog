@@ -200,6 +200,7 @@ if [[ "${DEST_TAG}" == "latest" ]]; then
   NEXT_TAG="${MAJOR}.${NEXT_MINOR}.0"
 
   echo "Next tag: $NEXT_TAG"
+  echo "GH_RELEASE_TAG=${NEXT_TAG}" >> $GITHUB_OUTPUT
   
   DEST_TAG="${NEXT_TAG}"
 fi

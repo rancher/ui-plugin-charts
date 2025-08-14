@@ -44,7 +44,12 @@ git push origin <your_branch>
 
 ### 5. Open a pull request on the **main** branch
 
-Once your pull request is approved and merged, an automated workflow will sync this repository with the build assets from the supplied repository within the `manifest.json` file. When fully synced, a new release will be created and added to the [releases](https://github.com/rancher/ui-plugin-charts/releases) section. 
+Once your pull request is approved and merged, an automated workflow will sync this repository with the build assets from the supplied repository within the `manifest.json` file and generate a PR with all the new files to update the Helm Chart, which will need review and approval
+
+### 6. Merging PR that updates Helm Chart
+
+Once the PR that updates Helm Chart is approved and merged, the Helm Chart in the `main` branch should be automatically updated. After this, a new automated workflow will run that 
+will release the extensions catalog (airgapped) and also create a release tag in the repository.
 
 ## Configuration File
 

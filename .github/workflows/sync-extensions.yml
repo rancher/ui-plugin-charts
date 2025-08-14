@@ -16,157 +16,119 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
-  test-script: 
-    name: 'some-name'
+  sync:
+    if: github.repository_owner == 'rancher' && github.event.pull_request.merged != true
+    name: Sync and Release Extensions
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Test script basics
-        shell: bash
-        id: sync_script1
+      - name: Configure Git
         run: |
-          # Get latest semver tag
-          TAGS=$(curl -s "https://hub.docker.com/v2/repositories/rancher/ui-plugin-catalog/tags/?page_size=100" | jq -r '.results[].name')
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.1
 
-          LATEST_TAG=$(echo "$TAGS" \
-            | grep -v '^latest$' \
-            | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?$' \
-            | sort -Vr \
-            | head -n 1)
+      - name: Run sync script
+        shell: bash
+        id: sync_script
+        run: |
+          chmod +x ./scripts/sync-charts
+          ./scripts/sync-charts
 
-          if [[ -z "$LATEST_TAG" ]]; then
-            echo "No semantic version tags found."
+      - name: Generate branch name based on date and time
+        run: echo "NOW=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+
+      - name: Commit Changes and push to a branch
+        run: |
+          git checkout -b sync-${{ env.NOW }}
+          git add ./{assets,charts,extensions,icons,index.yaml}
+          git commit -a -m "Sync extensions ${{ env.NOW }}"
+          git push origin sync-${{ env.NOW }}
+
+      - name: Create Pull Request
+        run: |
+          # Create the PR using the GitHub CLI
+          pr_number=$(gh pr create \
+            --title "Create PR for extension sync: ${{ env.NOW }}" \
+            --body "This PR was automatically created by a GitHub Action." \
+            --base main \
+            --head sync-${{ env.NOW }} \
+            --fill \
+            --repo ${{ github.repository }} | awk '{print $NF}') # Get the PR URL and Extract the last element (the PR number)
+
+          # Check if pr_number is empty (creation failed)
+          if [ -z "$pr_number" ]; then
+            echo "Failed to create PR."
             exit 1
           fi
-
-          echo "Latest tag: $LATEST_TAG"
-
-          # Extract version parts
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_TAG"
-
-          # Calculate next minor version
-          NEXT_MINOR=$((MINOR + 1))
-          NEXT_TAG="${MAJOR}.${NEXT_MINOR}.0"
-
-          echo "Next tag: $NEXT_TAG"
-          echo "GH_RELEASE_TAG=$NEXT_TAG" >> $GITHUB_ENV
-          echo "Automated release from workflow: \n\n\n\n $(jq . manifest.json | less)"
+          
+          # Store the PR number as an output
+          echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
   
-      - name: Create Release
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0
+        with:
+          charts_dir: ./charts/*
+        env:
+          CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          CR_SKIP_EXISTING: true
+  sync-catalogs:
+    if: github.repository_owner == 'rancher' && github.event.pull_request.merged == true
+    name: Sync and Release Extension Catalog
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      packages: write
+
+    steps:
+      - name: Check PR title
+        id: check_title
         run: |
-          gh release create ${{ env.GH_RELEASE_TAG }} \
-            --title "Release extensions catalog ${{ env.GH_RELEASE_TAG }}" \
+          title="${{ github.event.pull_request.title }}"
+          if [[ "$title" == *"Create PR for extension sync"* ]]; then
+            echo "match=true" >> $GITHUB_OUTPUT
+          else
+            echo "match=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout repository
+        if: steps.check_title.outputs.match == 'true'
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        if: steps.check_title.outputs.match == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Login to Container Registry
+        if: steps.check_title.outputs.match == 'true'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Sync Catalog Image with Registry
+        if: steps.check_title.outputs.match == 'true'
+        id: sync_catalog_script
+        run: |
+          chmod +x ./scripts/bundle-catalog
+          ./scripts/bundle-catalog
+      
+      - name: Create Release tag in repo
+        if: steps.check_title.outputs.match == 'true'
+        id: create-release-tag
+        run: |
+          gh release create ${{ steps.sync_catalog_script.outputs.GH_RELEASE_TAG }} \
+            --title "Release extensions catalog ${{ steps.sync_catalog_script.outputs.GH_RELEASE_TAG }}" \
             --notes "Automated release from workflow: \n\n\n\n $(jq . manifest.json | less)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  # sync:
-  #   if: github.repository_owner == 'rancher' && github.event.pull_request.merged != true
-  #   name: Sync and Release Extensions
-  #   runs-on: ubuntu-latest
-  #   permissions: write-all
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-
-  #     - name: Configure Git
-  #       run: |
-  #         git config user.name github-actions
-  #         git config user.email github-actions@github.com
-      
-  #     - name: Setup Helm
-  #       uses: azure/setup-helm@v3
-  #       with:
-  #         version: v3.12.1
-
-  #     - name: Run sync script
-  #       shell: bash
-  #       id: sync_script
-  #       run: |
-  #         chmod +x ./scripts/sync-charts
-  #         ./scripts/sync-charts
-
-  #     - name: Generate branch name based on date and time
-  #       run: echo "NOW=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
-
-  #     - name: Commit Changes and push to a branch
-  #       run: |
-  #         git checkout -b sync-${{ env.NOW }}
-  #         git add ./{assets,charts,extensions,icons,index.yaml}
-  #         git commit -a -m "Sync extensions ${{ env.NOW }}"
-  #         git push origin sync-${{ env.NOW }}
-
-  #     - name: Create Pull Request
-  #       run: |
-  #         # Create the PR using the GitHub CLI
-  #         pr_number=$(gh pr create \
-  #           --title "Create PR for extension sync: ${{ env.NOW }}" \
-  #           --body "This PR was automatically created by a GitHub Action." \
-  #           --base main \
-  #           --head sync-${{ env.NOW }} \
-  #           --fill \
-  #           --repo ${{ github.repository }} | awk '{print $NF}') # Get the PR URL and Extract the last element (the PR number)
-
-  #         # Check if pr_number is empty (creation failed)
-  #         if [ -z "$pr_number" ]; then
-  #           echo "Failed to create PR."
-  #           exit 1
-  #         fi
-          
-  #         # Store the PR number as an output
-  #         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-  
-  #     - name: Run chart-releaser
-  #       uses: helm/chart-releaser-action@v1.5.0
-  #       with:
-  #         charts_dir: ./charts/*
-  #       env:
-  #         CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-  #         CR_SKIP_EXISTING: true
-  # sync-catalogs:
-  #   if: github.repository_owner == 'rancher' && github.event.pull_request.merged == true
-  #   name: Sync and Release Extension Catalog
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     actions: write
-  #     contents: read
-  #     packages: write
-
-  #   steps:
-  #     - name: Check PR title
-  #       id: check_title
-  #       run: |
-  #         title="${{ github.event.pull_request.title }}"
-  #         if [[ "$title" == *"Create PR for extension sync"* ]]; then
-  #           echo "match=true" >> $GITHUB_OUTPUT
-  #         else
-  #           echo "match=false" >> $GITHUB_OUTPUT
-  #         fi
-
-  #     - name: Checkout repository
-  #       if: steps.check_title.outputs.match == 'true'
-  #       uses: actions/checkout@v4
-
-  #     - name: Configure Git
-  #       if: steps.check_title.outputs.match == 'true'
-  #       run: |
-  #         git config user.name 'github-actions[bot]'
-  #         git config user.email 'github-actions[bot]@users.noreply.github.com'
-
-  #     - name: Login to Container Registry
-  #       if: steps.check_title.outputs.match == 'true'
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-
-  #     - name: Sync Catalog Image with Registry
-  #       if: steps.check_title.outputs.match == 'true'
-  #       id: sync_catalog_script
-  #       run: |
-  #         chmod +x ./scripts/bundle-catalog
-  #         ./scripts/bundle-catalog
