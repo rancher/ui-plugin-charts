@@ -1,0 +1,20 @@
+{
+  "name": "harvester",
+  "description": "Rancher UI Extension for Harvester",
+  "version": "1.6.0",
+  "private": false,
+  "rancher": true,
+  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.6.0-icon.svg",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "harvester-1.6.0.umd.min.js"
+}
