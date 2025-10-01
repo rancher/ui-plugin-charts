@@ -1,0 +1,87 @@
+apiVersion: management.cattle.io/v3
+kind: RoleTemplate
+displayName: SUSE Observability Instance Admin
+description: Administrate the SUSE Observability instance
+builtin: false
+hidden: false
+external: false
+context: project
+metadata:
+  name: suse-observability-instance-admin
+  namespace: {{ .Release.Namespace }}
+  labels: {{ include "extension-server.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - views
+      - ingestionapikeys
+      - permissions
+      - servicetokens
+      - settings
+      - stackpackconfigurations
+      - monitors
+      - notifications
+      - dashboards
+    verbs:
+      - create
+      - update
+      - get
+      - delete
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - settings
+    verbs:
+      - unlock
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - stackpacks
+    verbs:
+      - create
+      - get
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - agents
+      - apitokens
+      - metrics
+      - metricbindings
+      - syncdata
+      - systemnotifications
+      - topology
+      - topicmessages
+      - traces
+    verbs:
+      - get
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - syncdata
+      - visualizationsettings
+    verbs:
+      - update
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - componentactions
+      - monitors
+      - restrictedscripts
+    verbs:
+      - execute
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - favoriteviews
+      - favoritedashboards
+    verbs:
+      - create
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - favoriteviews
+      - syncdata
+      - favoritedashboards
+    verbs:
+      - delete
