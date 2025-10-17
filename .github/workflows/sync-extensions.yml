@@ -52,6 +52,8 @@ jobs:
           git push origin sync-${{ env.NOW }}
 
       - name: Create Pull Request
+        env:
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         run: |
           # Create the PR using the GitHub CLI
           pr_number=$(gh pr create \
