@@ -19,7 +19,12 @@ jobs:
     if: github.event.pull_request.merged != true
     name: Sync and Release Extensions
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      actions: write
+      contents: write
+      deployments: write
+      pages: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
