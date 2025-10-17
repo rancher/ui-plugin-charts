@@ -18,7 +18,7 @@ env:
 
 jobs:
   sync:
-    if: github.repository_owner == 'rancher' && github.event.pull_request.merged != true
+    if: github.event.pull_request.merged != true
     name: Sync and Release Extensions
     runs-on: ubuntu-latest
     permissions: write-all
@@ -83,7 +83,7 @@ jobs:
           CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           CR_SKIP_EXISTING: true
   sync-catalogs:
-    if: github.repository_owner == 'rancher' && github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     name: Sync and Release Extension Catalog
     runs-on: ubuntu-latest
     permissions:
