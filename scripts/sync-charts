@@ -206,6 +206,8 @@ done
 echo -e "  .. Checking versions that are published but are not in the manifest. We will remove those"
 
 # Remove versions that are published but aren't on the manifest
+REMOVED_EXTS=false
+
 for DIR in ./charts/*/; do
   SYNCED_EXT=$(basename "$DIR")
 
@@ -226,17 +228,24 @@ for DIR in ./charts/*/; do
       if [[ $VFORMAT == *"${EXT_V}"* ]]; then
         echo "No removal action for ${EXT_V} of extension ${SYNCED_EXT}."
       else
+        REMOVED_EXTS=true
         echo -e "***** REMOVE ****** ${EXT_V} of extension ${SYNCED_EXT} to be removed!"
 
         # remove files and update ./index.yaml
-        rm -rf ./charts/${SYNCED_EXT}/${EXT_V}
-        rm -rf ./extensions/${SYNCED_EXT}/${EXT_V}
-        rm -rf ./assets/${SYNCED_EXT}/${SYNCED_EXT}-${EXT_V}.tgz
-        yq -i "del(.entries.\"${SYNCED_EXT}\"[] | select(.version == \"${EXT_V}\"))" ./index.yaml
+        rm -rf ${BASE_DIR}/charts/${SYNCED_EXT}/${EXT_V}
+        rm -rf ${BASE_DIR}/extensions/${SYNCED_EXT}/${EXT_V}
+        rm -rf ${BASE_DIR}/assets/${SYNCED_EXT}/${SYNCED_EXT}-${EXT_V}.tgz
       fi
     done
   fi
 done
+
+if [[ $REMOVED_EXTS == true ]]; then
+  echo "extensions were removed... let's regenerate index.yaml"
+  helm repo index ./assets/ --url assets
+  cp ./assets/index.yaml ${HELM_INDEX}
+  rm -rf ./assets/index.yaml
+fi
 
 # Clean up
 rm -rf ${CHART_TMP}
