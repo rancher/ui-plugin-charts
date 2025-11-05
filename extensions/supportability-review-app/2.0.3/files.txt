@@ -1,0 +1,17 @@
+plugin/img/harvester.765f68bd.png
+plugin/img/icon.7fc5aa3e.svg
+plugin/package.json
+plugin/supportability-review-app-2.0.3.umd.min.5.js
+plugin/supportability-review-app-2.0.3.umd.min.5.js.map
+plugin/supportability-review-app-2.0.3.umd.min.6.js
+plugin/supportability-review-app-2.0.3.umd.min.6.js.map
+plugin/supportability-review-app-2.0.3.umd.min.detail.js
+plugin/supportability-review-app-2.0.3.umd.min.detail.js.map
+plugin/supportability-review-app-2.0.3.umd.min.edit.js
+plugin/supportability-review-app-2.0.3.umd.min.edit.js.map
+plugin/supportability-review-app-2.0.3.umd.min.js
+plugin/supportability-review-app-2.0.3.umd.min.js.map
+plugin/supportability-review-app-2.0.3.umd.min.vendors~detail.js
+plugin/supportability-review-app-2.0.3.umd.min.vendors~detail.js.map
+plugin/supportability-review-app-2.0.3.umd.min.vendors~edit.js
+plugin/supportability-review-app-2.0.3.umd.min.vendors~edit.js.map
