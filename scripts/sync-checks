@@ -119,10 +119,10 @@ do
         echo -e "${YELLOW}${BOLD}Warning: Icon not found! Icon presence is mandatory!"
         exit 1
       fi
+
+      echo "✅ ALL CHECKS SUCCEEDED!!!!"
     fi
   done
-
-  echo "✅ ALL CHECKS SUCCEEDED!!!!"
 done
 
 # Clean up
