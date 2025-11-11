@@ -2182,4 +2182,26 @@ entries:
     urls:
     - assets/supportability-review-app/supportability-review-app-2.0.0.tgz
     version: 2.0.0
-generated: "2025-11-05T09:36:16.069484285Z"
+  virtual-clusters:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Virtual Clusters
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>=2.12.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.5-rc.6'
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-11-11T19:32:55.33485578Z"
+    description: Virtual cluster provisioning using K3K (Prime only)
+    digest: 0784cc20dfa7d5cf04b49ddcf2a52587bde3e1e01c5c2d5c32e1f299a3abca2c
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/virtual-clusters/1.0.0-icon-k3k.svg
+    name: virtual-clusters
+    type: application
+    urls:
+    - assets/virtual-clusters/virtual-clusters-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-11-11T19:32:55.334463779Z"
