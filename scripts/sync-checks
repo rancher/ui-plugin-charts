@@ -105,7 +105,6 @@ do
         # Download the icon using curl (available everywhere) - ignore errors temporarily
         set +e
         curl --silent --location --output "${BASE_DIR}/${ICON_REL}" "$ICON"
-        echo "${curl --silent --location --output "${BASE_DIR}/${ICON_REL}" "$ICON"}"
         ERR=$?
         set -e # <--- Re-enables the 'exit immediately on error' setting
 
@@ -123,7 +122,7 @@ do
     fi
   done
 
-  echo ""
+  echo "✅ ALL CHECKS SUCCEEDED!!!!"
 done
 
 # Clean up
