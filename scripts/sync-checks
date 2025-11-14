@@ -102,9 +102,9 @@ do
         ICON_REL=icons/${NAME}/${VERSION}-${ICON_FILE}
         rm -f ${BASE_DIR}/${ICON_REL}
         
-        # Download the icon using curl (available everywhere) - ignore errors temporarily
+        # Download the icon using curl
         set +e
-        curl --silent --location --output "${BASE_DIR}/${ICON_REL}" "$ICON"
+        curl --location --output "${BASE_DIR}/${ICON_REL}" "$ICON"
         ERR=$?
         set -e # <--- Re-enables the 'exit immediately on error' setting
 
