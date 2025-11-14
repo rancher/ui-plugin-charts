@@ -98,9 +98,8 @@ do
   echo -e "  .. Cloning repository"
   rm -rf ${TMP}/${NAME}
   pushd ${TMP} > /dev/null
-  git clone https://github.com/${REPO}.git ${NAME}
+  git clone -b ${EXT_BRANCH} --single-branch https://github.com/${REPO}.git ${NAME}
   cd ${NAME}
-  git checkout ${EXT_BRANCH}
   pwd
   popd > /dev/null
 
@@ -122,25 +121,45 @@ do
     echo "     + Fetching and patching icon"
     CHART_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/Chart.yaml
     ICON=$(yq eval '.icon' ${CHART_FILE})
-    
-    if [[ -n "${ICON}" ]]; then
-      ICON_FILE=$(ls -1 "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img" | head -n 1)
-      NEW_ICON=${ENDPOINT}/plugin/img/${ICON_FILE}
 
+    if [ -n "${ICON}" ]; then
+        # Downloading icon
+        ICON_FILE=$(basename $ICON)
+        ICON_EXTENSION="${ICON_FILE##*.}"
+        NEW_ICON_NAME="copy-app-icon-${NAME}.${ICON_EXTENSION}"
+        echo "     + Fetching icon: ${ICON}"
+        
+        # Download the icon using curl
+        set +e
+        curl --location --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
+        ERR=$?
+        set -e # <--- Re-enables the 'exit immediately on error' setting
 
-      # Check if '>-' exists in the icon property to remove the second line
-      if grep -q 'icon: >-' "${CHART_FILE}"; then
-        SECOND_LINE=$(sed -n '/^icon: >-/{n;p;q}' "${CHART_FILE}")
-        sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
-        sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
-      else
-        sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+        if [ ${ERR} -eq 0 ]; then
+          # Icon downloaded okay... Let's patch the icon properly
+          echo " ::: Icon ${ICON} downloaded fine!!! will be using ${NEW_ICON}"
+
+          NEW_ICON=${ENDPOINT}/plugin/img/${NEW_ICON_NAME}
+        else
+          # Let's use the old code as fallback... better than failing with nothing...
+          echo " ::: Icon ${ICON} failed to download.... Fallback"
+          
+          ICON_FILE=$(ls -1 "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img" | head -n 1)
+          NEW_ICON=${ENDPOINT}/plugin/img/${ICON_FILE}
+        fi
+
+        # Check if '>-' exists in the icon property to remove the second line
+        if grep -q 'icon: >-' "${CHART_FILE}"; then
+          sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
+          sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+        else
+          sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+        fi
+
+        PKG_FILE=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/package.json
+        sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"${NEW_ICON}"'\"@' ${PKG_FILE}
+        rm -f ${PKG_FILE}.bak ${CHART_FILE}.bak
       fi
-
-      PKG_FILE=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/package.json
-      sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"${NEW_ICON}"'\"@' ${PKG_FILE}
-      rm -f ${PKG_FILE}.bak ${CHART_FILE}.bak
-    fi
 
     echo "     + Packaging Helm chart"
     helm package ${CONTAINER_TMP}/charts/${NAME}/${VERSION} -d ${CONTAINER_TMP}/assets/${NAME}
