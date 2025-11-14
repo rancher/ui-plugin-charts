@@ -81,6 +81,7 @@ REPOSITORY=${ORG}/ui-plugin-charts
 echo "GitHub Repository: ${REPOSITORY}"
 echo "GitHub Branch:     ${BRANCH}"
 
+# syncing new charts into this repo
 for NAME in ${EXTS}
 do
   echo -e "${CYAN} + Syncing: ${BOLD}${NAME}${RESET}"
@@ -201,6 +202,50 @@ do
 
   echo ""
 done
+
+echo -e "  .. Checking versions that are published but are not in the manifest. We will remove those"
+
+# Remove versions that are published but aren't on the manifest
+REMOVED_EXTS=false
+
+for DIR in ./charts/*/; do
+  SYNCED_EXT=$(basename "$DIR")
+
+  # check if extension exists in manifest
+  REPO_FOUND=$(jq -r ".extensions.\"${SYNCED_EXT}\".repo" manifest.json)
+
+  if [[ "$REPO_FOUND" = "null" ]]; then
+    echo "Extension ${SYNCED_EXT} does not exist in manifest! we can skip it"
+  else
+    for SUBDIR_V in ./charts/${SYNCED_EXT}/*/; do
+      EXT_V=$(basename "$SUBDIR_V")
+      echo "found synced extension ${SYNCED_EXT} version: $EXT_V"
+
+      # Get versions that should be synced from manifest      
+      VERSIONS=$(jq -r ".extensions.\"${SYNCED_EXT}\".versions[]" manifest.json)
+      VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
+
+      if [[ $VFORMAT == *"${EXT_V}"* ]]; then
+        echo "No removal action for ${EXT_V} of extension ${SYNCED_EXT}."
+      else
+        REMOVED_EXTS=true
+        echo -e "***** REMOVE ****** ${EXT_V} of extension ${SYNCED_EXT} to be removed!"
+
+        # remove files and update ./index.yaml
+        rm -rf ${BASE_DIR}/charts/${SYNCED_EXT}/${EXT_V}
+        rm -rf ${BASE_DIR}/extensions/${SYNCED_EXT}/${EXT_V}
+        rm -rf ${BASE_DIR}/assets/${SYNCED_EXT}/${SYNCED_EXT}-${EXT_V}.tgz
+      fi
+    done
+  fi
+done
+
+if [[ $REMOVED_EXTS == true ]]; then
+  echo "extensions were removed... let's regenerate index.yaml"
+  helm repo index ./assets/ --url assets
+  cp ./assets/index.yaml ${HELM_INDEX}
+  rm -rf ./assets/index.yaml
+fi
 
 # Clean up
 rm -rf ${CHART_TMP}
