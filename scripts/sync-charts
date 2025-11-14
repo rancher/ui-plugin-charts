@@ -8,8 +8,6 @@ CYAN="\033[96m"
 YELLOW="\033[93m"
 RESET="\033[0m"
 BOLD="\033[1m"
-NORMAL="\033[22m"
-CHECK="\xE2\x9C\x94"
 
 ORG=rancher
 BRANCH=main
@@ -81,6 +79,8 @@ REPOSITORY=${ORG}/ui-plugin-charts
 echo "GitHub Repository: ${REPOSITORY}"
 echo "GitHub Branch:     ${BRANCH}"
 
+# syncing new charts into this repo
+# let's go over all the extensions in the manifest to check what's synced and what's not...
 for NAME in ${EXTS}
 do
   echo -e "${CYAN} + Syncing: ${BOLD}${NAME}${RESET}"
@@ -101,12 +101,12 @@ do
   echo -e "     Versions  : ${VFORMAT}"
   echo ""
 
+  # clone extension repository
   echo -e "  .. Cloning repository"
   rm -rf ./tmp/${NAME}
   pushd tmp > /dev/null
-  git clone https://github.com/${REPO}.git ${NAME}
+  git clone -b ${EXT_BRANCH} --single-branch https://github.com/${REPO}.git ${NAME}
   cd ${NAME}
-  git checkout ${EXT_BRANCH}
   pwd
   popd > /dev/null
 
@@ -155,7 +155,6 @@ do
 
           # Check if '>-' exists in the icon property to remove the second line
           if grep -q 'icon: >-' "${CHART_FILE}"; then
-            SECOND_LINE=$(sed -n '/^icon: >-/{n;p;q}' "${CHART_FILE}")
             sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
             sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
           else
@@ -169,9 +168,11 @@ do
           rm -rf ${PKG_FILE}.bak
         else
           echo -e "${YELLOW}${BOLD}Warning: Could not download icon - check URL${RESET}"
+
+          # IS THIS TO DELETE SINCE ICON IS NOW MANDATORY!?!?? MAKES SENSE TO ME...
           # Rename the 'icon' property to 'ignored' so the icon is not used
           sed -i.bak -e 's@icon:@ignored:@' ${CHART_FILE}
-         fi
+        fi
       fi
 
       echo "     + Packaging Helm chart"
@@ -201,6 +202,50 @@ do
 
   echo ""
 done
+
+echo -e "  .. Checking versions that are published but are not in the manifest. We will remove those"
+
+# Remove versions that are published but aren't on the manifest
+REMOVED_EXTS=false
+
+for DIR in ./charts/*/; do
+  SYNCED_EXT=$(basename "$DIR")
+
+  # check if extension exists in manifest
+  REPO_FOUND=$(jq -r ".extensions.\"${SYNCED_EXT}\".repo" manifest.json)
+
+  if [[ "$REPO_FOUND" = "null" ]]; then
+    echo "Extension ${SYNCED_EXT} does not exist in manifest! we can skip it"
+  else
+    for SUBDIR_V in ./charts/${SYNCED_EXT}/*/; do
+      EXT_V=$(basename "$SUBDIR_V")
+      echo "found synced extension ${SYNCED_EXT} version: $EXT_V"
+
+      # Get versions that should be synced from manifest      
+      VERSIONS=$(jq -r ".extensions.\"${SYNCED_EXT}\".versions[]" manifest.json)
+      VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
+
+      if [[ $VFORMAT == *"${EXT_V}"* ]]; then
+        echo "No removal action for ${EXT_V} of extension ${SYNCED_EXT}."
+      else
+        REMOVED_EXTS=true
+        echo -e "***** REMOVE ****** ${EXT_V} of extension ${SYNCED_EXT} to be removed!"
+
+        # remove files
+        rm -rf ${BASE_DIR}/charts/${SYNCED_EXT}/${EXT_V}
+        rm -rf ${BASE_DIR}/extensions/${SYNCED_EXT}/${EXT_V}
+        rm -rf ${BASE_DIR}/assets/${SYNCED_EXT}/${SYNCED_EXT}-${EXT_V}.tgz
+      fi
+    done
+  fi
+done
+
+if [[ $REMOVED_EXTS == true ]]; then
+  echo "extensions were removed... let's regenerate index.yaml"
+  helm repo index ./assets/ --url assets
+  cp ./assets/index.yaml ${HELM_INDEX}
+  rm -rf ./assets/index.yaml
+fi
 
 # Clean up
 rm -rf ${CHART_TMP}
