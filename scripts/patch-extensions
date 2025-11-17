@@ -1,0 +1,419 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+BASE_DIR="$( cd $SCRIPT_DIR && cd .. & pwd)"
+
+CYAN="\033[96m"
+YELLOW="\033[93m"
+GREEN="\033[32m"
+PURPLE="\033[35m"
+RED="\033[31m"
+RESET="\033[0m"
+BOLD="\033[1m"
+
+ORG=rancher
+BRANCH=main
+
+echo -e "${CYAN}${BOLD}Patch mechanism for extensions${RESET}"
+
+EXTS_ARRAY=()
+while IFS= read -r EXT; do
+    EXTS_ARRAY+=("$EXT")
+done < <(jq -r ".extensions | keys[]" manifest.json)
+
+TMP=${BASE_DIR}/tmp
+rm -rf ${TMP}
+mkdir -p ${TMP}
+
+REPOSITORY=${ORG}/ui-plugin-charts
+
+
+# --- Function to convert SemVer to sortable format ---
+semver_to_sortable() {
+  local version=$(echo "$1" | tr '+' '-' | cut -d '-' -f 1)
+  
+  [[ -z "$version" ]] && return 1
+
+  local PADDED_VERSION
+  
+  # Read components into an array
+  IFS='.' read -r -a V_PARTS <<< "$version"
+  
+  for part in "${V_PARTS[@]}"; do
+    PADDED_VERSION+="$(printf '%03d' "$part")."
+  done
+  
+  echo "${PADDED_VERSION%.}"
+}
+
+# --- Function to compare two versions (V1 operator V2) ---
+semver_check() {
+  local V1="$1"
+  local OP="$2"
+  local V2="$3" 
+  
+  local SV1=$(semver_to_sortable "$V1")
+  local SV2=$(semver_to_sortable "$V2")
+
+  if [[ "$OP" == "=" ]]; then
+    [[ "$SV1" == "$SV2" ]]
+  elif [[ "$OP" == ">" ]]; then
+    [[ "$SV1" > "$SV2" ]]
+  elif [[ "$OP" == "<" ]]; then
+    [[ "$SV1" < "$SV2" ]]
+  elif [[ "$OP" == ">=" ]]; then
+    [[ "$SV1" == "$SV2" || "$SV1" > "$SV2" ]]
+  elif [[ "$OP" == "<=" ]]; then
+    [[ "$SV1" == "$SV2" || "$SV1" < "$SV2" ]]
+  else
+    echo "Error: Invalid operator $OP" >&2
+    return 1
+  fi
+}
+
+
+echo "GitHub Repository: ${REPOSITORY}"
+echo "GitHub Branch:     ${BRANCH}"
+
+# syncing new charts into this repo
+for NAME in "${EXTS_ARRAY[@]}" 
+do
+  echo -e "${CYAN} + Syncing: ${BOLD}${NAME}${RESET}"
+
+  # Make diretories for assets, charts, and extensions
+  mkdir -p ./assets/${NAME}
+  mkdir -p ./charts/${NAME}
+  mkdir -p ./extensions/${NAME}
+
+  # Get repository name, branch, and versions
+  REPO=$(jq -r ".extensions.\"${NAME}\".repo" manifest.json)
+  EXT_BRANCH=$(jq -r ".extensions.\"${NAME}\".branch" manifest.json)
+  
+  VERSIONS_ARRAY=()
+  while IFS= read -r V; do
+    VERSIONS_ARRAY+=("$V")
+  done < <(jq -r ".extensions.\"${NAME}\".versions[]" manifest.json)
+
+  # Display versions for user
+  VFORMAT=$(IFS=$' '; echo "${VERSIONS_ARRAY[*]}")
+
+  echo -e "     Repository: ${REPO}"
+  echo -e "     Branch: ${EXT_BRANCH}"
+  echo -e "     Versions  : ${VFORMAT}"
+  echo ""
+
+  for VERSION in "${VERSIONS_ARRAY[@]}" 
+  do
+    echo -e "${CYAN}     Syncing: ${BOLD}${NAME}@${VERSION}${RESET}"
+
+    if [ -d "./patches/${NAME}" ]; then
+      echo -e "${YELLOW}      Patching structure found in repo for chart ${NAME}${RESET}"
+      echo -e "${YELLOW}      Checking if we need to re-patch it ${RESET}"
+
+      BASE_PATCH_DIR="./patches/${NAME}"
+
+      JSON_PATCH="${BASE_PATCH_DIR}/patches.json"
+      echo -e "${BOLD}(1) :::::: Checking if ${JSON_PATCH} exists ${RESET}"
+      
+      if [ -f "$JSON_PATCH" ]; then
+        echo -e "${GREEN}The file $JSON_PATCH exists and is a regular file${RESET}"
+
+        # variables to control tgz part so that we do all operations at onces
+        APPLY_README="false"
+        APPLY_ANNOTATIONS="false"
+
+        # These are related to the JQ query below... If we change the defaults on the query
+        # we should change these variables as well
+        NO_VERSION="N/A"
+        NO_NAME="No Name"
+        NO_DESCRIPTION="No Description"
+        NO_ANNOTATIONS="N/A"
+
+        JQ_QUERY='
+        .patches[] | 
+          [
+            .dir // "N/A",
+            .versions // "N/A",
+            .name // "No Name", 
+            .description // "No Description",
+            (
+              if .annotations then
+                [ (.annotations | to_entries[] | "\(.key)=\(.value)") ] | join("|")
+              else
+                "N/A"
+              end
+            )
+          ] | @csv
+        '
+
+        # Store the original IFS *before* the while loop starts
+        OLD_IFS="$IFS"
+
+        # Use process substitution to read all JQ output
+        while IFS=',' read -r DIR_QUOTED VERSION_RANGE_QUOTED PATCH_NAME_QUOTED PATCH_DESCRIPTION_QUOTED ANNO_STRING_QUOTED; do
+          echo "--- Starting Patch Traversal ---"
+
+          # 1. Strip quotes and clean variables
+          ANNO_BLOCK="${ANNO_STRING_QUOTED#?}"
+          ANNO_BLOCK="${ANNO_BLOCK%?}"
+          
+          ANNO_STRING=$(echo "$ANNO_BLOCK" | tr -d '\r')
+
+          DIR="${DIR_QUOTED//\"/}"
+          VERSION_RANGE="${VERSION_RANGE_QUOTED//\"/}"
+          PATCH_NAME="${PATCH_NAME_QUOTED//\"/}"
+          PATCH_DESCRIPTION="${PATCH_DESCRIPTION_QUOTED//\"/}"
+
+          echo "---------------------------------------------------------"
+          echo "Processing Patch for Directory: **$DIR**"
+          echo "Required Versions: $VERSION_RANGE"
+          echo "Name: $PATCH_NAME"
+          echo "Description: $PATCH_DESCRIPTION"
+          
+          # Status tracker for compound conditions (logical AND)
+          REQUIRED_STATUS=0 # 0 means TRUE (patch is required)
+          
+          if [[ "$VERSION_RANGE" == "$NO_VERSION" ]]; then
+            echo -e "${PURPLE}⚠️ Patch skipped, invalid version range 'N/A'${RESET}"
+            continue
+          fi
+
+          # Split the VERSION_RANGE string by space into an array of conditions
+          IFS=' ' read -r -a CONDITIONS <<< "$VERSION_RANGE"
+          
+          for CONDITION in "${CONDITIONS[@]}"; do
+            # 1. Determine operator ($OP) and version ($V2) from the single CONDITION
+            if [[ "$CONDITION" == ">="* ]]; then
+              OP=">="
+              V2="${CONDITION:2}"
+            elif [[ "$CONDITION" == "<="* ]]; then
+              OP="<="
+              V2="${CONDITION:2}"
+            elif [[ "$CONDITION" == ">"* ]]; then
+              OP=">"
+              V2="${CONDITION:1}"
+            elif [[ "$CONDITION" == "<"* ]]; then
+              OP="<"
+              V2="${CONDITION:1}"
+            elif [[ "$CONDITION" == "="* ]]; then
+              OP="="
+              V2="${CONDITION:1}"
+            elif [[ "$CONDITION" =~ ^[0-9] ]]; then
+              OP="="
+              V2="$CONDITION"
+            else
+              echo "⚠️ Sub-condition failed due to unparseable version range: $CONDITION" >&2
+              REQUIRED_STATUS=1 # Treat unparseable as failure
+              break
+            fi
+            
+            # 2. Call the function for this single condition
+            if ! semver_check "$VERSION" "$OP" "$V2"; then
+              REQUIRED_STATUS=1 # Condition failed (Logical AND)
+              break
+            fi
+          done
+
+          # 3. Report final status
+          if [[ $REQUIRED_STATUS -eq 0 ]]; then
+            echo -e "${BOLD}✅✅✅✅ Patch can be applied for target version $VERSION${RESET}"
+          else
+            echo -e "${RED}❌ Patch is SKIPPED for target version $VERSION${RESET}"
+            echo -e "${RED}----------------------------------${RESET}"
+            echo -e "${RED}----------------------------------${RESET}"
+            continue
+          fi
+
+          # apply new PATCH_NAME
+          # TODO:::what about display-name? I think that's what we want to change...
+          if [[ -n "$PATCH_NAME" && "$PATCH_NAME" != "$NO_NAME" ]]; then
+            CURR_PACKAGE_JSON="${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json"
+
+            if [[ ! -f "$CURR_PACKAGE_JSON" ]]; then
+              echo -e "${RED}${BOLD}PATCH_NAME ::: There's no PACKAGE.JSON on the extension!!!! something is seriously wrong!!! let's terminate this operation!${RESET}"
+              exit 1
+            else
+              jq --arg key "name" --arg value "$PATCH_NAME" '.[$key] = $value' "$CURR_PACKAGE_JSON" > "$CURR_PACKAGE_JSON.tmp" && mv "$CURR_PACKAGE_JSON.tmp" "$CURR_PACKAGE_JSON"
+              
+              echo -e "${BOLD}${GREEN} =>=>=> New 'name' ${PATCH_NAME} should have been successfully applied${RESET}"
+            fi
+          else
+            echo -e "${PURPLE}The Patch 'Name' is empty OR is ${NO_NAME}. Let's skip the 'name' change...${RESET}"
+          fi
+
+          # apply new PATCH_DESCRIPTION
+          if [[ -n "$PATCH_DESCRIPTION" && "$PATCH_DESCRIPTION" != "$NO_DESCRIPTION" ]]; then
+            CURR_PACKAGE_JSON="${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json"
+
+            if [[ ! -f "$CURR_PACKAGE_JSON" ]]; then
+              echo -e "${RED}${BOLD}PATCH_DESCRIPTION ::: There's no PACKAGE.JSON on the extension!!!! something is seriously wrong!!! let's terminate this operation!${RESET}"
+              exit 1
+            else
+              jq --arg key "description" --arg value "$PATCH_DESCRIPTION" '.[$key] = $value' "$CURR_PACKAGE_JSON" > "$CURR_PACKAGE_JSON.tmp" && mv "$CURR_PACKAGE_JSON.tmp" "$CURR_PACKAGE_JSON"
+              
+              echo -e "${BOLD}${GREEN} =>=>=> New 'description' ${PATCH_DESCRIPTION} should have been successfully applied${RESET}"
+            fi
+          else
+            echo -e "${PURPLE}The Patch 'description' is empty OR is ${NO_DESCRIPTION}. Let's skip the 'description' change...${RESET}"
+          fi
+
+          echo "Annotations:"
+          echo "--- Annotation Details ---"
+
+          # 4. Split the annotation string by the pipe delimiter (|)
+          if [[ "$ANNO_STRING" == "$NO_ANNOTATIONS" ]]; then
+            echo -e "${PURPLE}ANNOTATIONS :::  No annotations found... Let's skip the annotations change...${RESET}"
+          else
+            # Store the current IFS value
+            CURRENT_IFS="$IFS"
+            
+            # Set IFS to pipe for splitting the key-value pairs
+            IFS='|' read -r -a ANNO_ARRAY <<< "$ANNO_STRING"
+            
+            for ANNO_PAIR in "${ANNO_ARRAY[@]}"; do
+              # Set IFS to equal sign for splitting the key=value pair
+              IFS='=' read -r ANN_KEY ANN_VALUE <<< "$ANNO_PAIR"
+              
+              # Optional: Clean up inner quotes if needed
+              ANN_KEY="${ANN_KEY//\"/}"
+              ANN_VALUE="${ANN_VALUE//\"/}"
+
+              echo "  **$ANN_KEY** = $ANN_VALUE"
+            done
+            
+            # Restore the IFS to its previous value
+            IFS="$CURRENT_IFS"
+          fi
+
+          # check apply new README
+          if [ -d "${BASE_PATCH_DIR}/${DIR}" ]; then
+            NEW_README="${BASE_PATCH_DIR}/${DIR}/README.md"
+            CURR_README="${BASE_DIR}/charts/${NAME}/${VERSION}/README.md"
+
+            # Check if both files exist before attempting the comparison
+            if [[ ! -f "$NEW_README" ]]; then
+              echo -e "${PURPLE}README ::: There is no README to apply as patch... let's skip it...${RESET}"
+            else
+              if [[ ! -f "$CURR_README" ]]; then
+                echo -e "${YELLOW}${BOLD}README ::: There's no README on this extension version. We need to apply one...${RESET}"
+                APPLY_README="true"
+              else
+                # The 'cmp -s' command compares the files.
+                # It returns an exit status of 0 if the contents are identical.
+                if cmp -s "$NEW_README" "$CURR_README"; then
+                  echo -e "${PURPLE}README ::: The content of $NEW_README and $CURR_README are identical. we can skip it....${RESET}"
+                else
+                  echo -e "${YELLOW}${BOLD}README ::: README files are different... Let's apply it then${RESET}"
+                  APPLY_README="true"           
+                fi
+              fi
+            fi
+          else
+            echo "${PURPLE}There's no folder for the README or ICON file... let's skip these steps..."
+          fi
+
+          #TODO:::handle icon
+          # here we manage the changes that also impacts /assets/.tgz
+          if [[ "$APPLY_README" == "true" || "$APPLY_ANNOTATIONS" == "true" ]]; then
+            # handle TGZ file (copy it to TMP folder)
+            CURR_TGZ_FOLDER="${BASE_DIR}/assets/${NAME}"
+            CURR_TGZ="${CURR_TGZ_FOLDER}/${NAME}-${VERSION}.tgz"
+
+            cp "$CURR_TGZ" "$TMP"
+            echo "Copied $CURR_TGZ to $TMP"
+
+            TGZ_FILENAME="${NAME}-${VERSION}.tgz"
+            TMP_TGZ="${TMP}/${TGZ_FILENAME}"
+
+            echo "Extracting contents..."
+            
+            # The 'z' flag is for g-zip, 'x' for extract, 'f' for file, 'v' for verbose output
+            tar -xzf "$TMP_TGZ" -C $TMP
+
+            EXTRACTED_FOLDER="${TMP}/${NAME}"
+
+            # Check if extraction created the expected folder
+            if [ ! -d "${EXTRACTED_FOLDER}" ]; then
+              echo -e "${BOLD}${RED}Error: Extraction did not create the expected folder ${TMP}/${NAME}. Check the contents of $TMP_TGZ.${RESET}"
+              exit 1
+            fi
+
+            echo "Contents extracted to ${TMP}/$NAME folder"
+
+            # handle README
+            if [[ "$APPLY_README" == "true" ]]; then
+              # copy README to /charts folder
+              #TODO:::uncomment this!
+              # cp -fr $NEW_README ${BASE_DIR}/charts/${NAME}/${VERSION}
+              echo -e "${GREEN}README ::: README file successfully copied to /charts folder!!!${RESET}"
+              
+              # copy README to TGZ temp folder assets
+              cp -fr $NEW_README ${TMP}/${NAME}
+              echo -e "${GREEN}README ::: README file successfully updated on temp tgz folder!!!${RESET}"
+            fi
+
+            # handle ANNOTATIONS
+            if [[ "$APPLY_ANNOTATIONS" == "true" ]]; then
+              echo -e "${GREEN}ANNOTATIONS ::: ANNOTATIONS to be handled here....${RESET}"
+            fi
+
+            # delete old temp TGZ
+            rm -rf "$TMP_TGZ"
+
+            pushd "$TMP" > /dev/null
+
+            #repackage TGZ, apply correct permissions and move it to the correct folder
+            # Use 'p' flag for permissions (preserve), 'c' for create, 'z' for g-zip, 'f' for file
+            # compress only the /${NAME} dir
+            tar -czpf "$TGZ_FILENAME" "$NAME"
+
+            popd > /dev/null
+
+            echo "Created new TGZ: $TMP_TGZ"
+
+            # Get the permissions and ownership from the original file
+            if stat -c "" /dev/null > /dev/null 2>&1; then
+              # GNU Stat (Linux) - Supports -c
+              ORIG_PERM=$(stat -c "%a" "$CURR_TGZ")
+              ORIG_OWNER=$(stat -c "%u:%g" "$CURR_TGZ")
+            else
+              # BSD Stat (macOS) - Requires -f
+              ORIG_PERM=$(stat -f "%A" "$CURR_TGZ")
+              ORIG_OWNER=$(stat -f "%u:%g" "$CURR_TGZ")
+            fi
+
+            echo "Original permissions: ${ORIG_PERM}"
+            echo "Original owner: ${ORIG_OWNER}"
+
+            # Move the new archive to the desired target location
+            mv -f "$TMP_TGZ" "$CURR_TGZ_FOLDER"
+            echo "Moved new archive to $CURR_TGZ_FOLDER"
+
+            # Apply the permissions and ownership to the new archive
+            chmod "$ORIG_PERM" "$CURR_TGZ"
+            chown "$ORIG_OWNER" "$CURR_TGZ"
+            echo "Preserved original permissions and ownership."
+
+            # --- Cleanup ---
+            rm -rf "$TMP"
+            echo "Cleaned up temporary directory: $TMP"
+          else
+            echo -e "${PURPLE}Nothing to do with assets/.tgz file...${RESET}"
+          fi
+
+          echo "---------------------------------------------------------"
+          echo "--- Traversal Complete ---"
+            
+        done < <(jq -r "$JQ_QUERY" "$JSON_PATCH")
+
+        # Restore the original IFS after the loop finishes
+        IFS="$OLD_IFS"
+
+        
+      else
+        echo -e "${PURPLE}The JSON file $JSON_PATCH does not exist. we can skip it...${RESET}"
+      fi
+    fi
+  done
+done
