@@ -145,6 +145,13 @@
       "versions": [
         "1.0.0"
       ]
+    },
+    "ali": {
+      "repo": "rancher/ali-ui",
+      "branch": "gh-pages",
+      "versions": [
+        "1.0.0"
+      ]
     }
   }
 }
