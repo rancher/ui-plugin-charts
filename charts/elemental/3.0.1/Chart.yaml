@@ -9,6 +9,9 @@ annotations:
   catalog.cattle.io/rancher-version: '>= 2.10.0-0'
   catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
   catalog.cattle.io/ui-version: '>= 2.7.2'
+  catalog.cattle.io/display-name: some-new-name-for-extension
+  a-demo-annotation111: some-value-for-the-annotation111
+  a-demo-annotation11122: some-value-for-the-annotation11122
 apiVersion: v2
 appVersion: 3.0.1
 description: OS Management extension

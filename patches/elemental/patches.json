@@ -1,0 +1,14 @@
+{
+  "patches": [
+    {
+      "versions": ">3.0.0 <4.0.0",
+      "dir": "3.0.1",
+      "name": "some-new-name-for-extension",
+      "description": "some-new-description-for-extension",
+      "annotations": {
+        "a-demo-annotation111": "some-value-for-the-annotation111",
+        "a-demo-annotation11122": "some-value-for-the-annotation11122"
+      }
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "name": "elemental",
-  "description": "OS Management extension",
+  "description": "some-new-description-for-extension",
   "version": "3.0.1",
   "private": false,
   "rancher": true,
-  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/3.0.1-icon-v2.svg",
+  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/patched-icon-elemental-3.0.1.svg",
   "engines": {
     "node": ">=12"
   },
