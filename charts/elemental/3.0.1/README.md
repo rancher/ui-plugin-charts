@@ -13,3 +13,5 @@ For more details take a look at the documentation regarding [Elemental](https://
 
 
 **IMPORTANT NOTE**: In order to have access to OS Management in Rancher Manager, installation of the Elemental Operator is required. Instructions for installing it can be found [here](https://elemental.docs.rancher.com/quickstart-cli#install-elemental-operator).
+
+Alex change here!
