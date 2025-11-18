@@ -4,7 +4,7 @@
   "version": "3.0.1",
   "private": false,
   "rancher": true,
-  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/patched-icon-elemental-3.0.1.svg",
+  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/15917-test-metadata-change/icons/elemental/patched-icon-elemental-3.0.1.svg",
   "engines": {
     "node": ">=12"
   },

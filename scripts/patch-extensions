@@ -13,7 +13,7 @@ RESET="\033[0m"
 BOLD="\033[1m"
 
 ORG=rancher
-BRANCH=main
+BRANCH=15917-test-metadata-change
 
 echo -e "${CYAN}${BOLD}Patch mechanism for extensions${RESET}"
 
