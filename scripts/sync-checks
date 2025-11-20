@@ -6,11 +6,15 @@ BASE_DIR="$( cd $SCRIPT_DIR && cd .. & pwd)"
 
 CYAN="\033[96m"
 YELLOW="\033[93m"
+RED="\033[31m"
+GREEN="\033[32m"
 RESET="\033[0m"
 BOLD="\033[1m"
 
 ORG=rancher
 BRANCH=main
+
+OVERALL_ERROR="false"
 
 echo -e "${CYAN}${BOLD}Sync Extensions checks${RESET}"
 
@@ -54,6 +58,8 @@ do
     if [ -d "./charts/${NAME}/${VERSION}" ]; then
       echo "      Version already synced"
     else
+      WITH_ERROR="false"
+
       # clone extension repository
       echo -e "  .. Cloning repository ${REPO} on branch ${EXT_BRANCH}"
       rm -rf ./tmp/${NAME}
@@ -63,32 +69,44 @@ do
       pwd
       popd > /dev/null
 
+      echo -e "${BOLD}${YELLOW}  .. Starting checks for extension ${NAME} version ${VERSION}${RESET}"
+
+      # check if description exists and is non-empty in package.json
       PKG_JSON_DESCRIPTION=$(jq -r ".description" ./tmp/${NAME}/extensions/${NAME}/${VERSION}/plugin/package.json)
       PKG_JSON_VERSION=$(jq -r ".version" ./tmp/${NAME}/extensions/${NAME}/${VERSION}/plugin/package.json)
 
-      # check if description exists and is non-empty in package.json
       if [[ ! -n "$PKG_JSON_DESCRIPTION" ]] || [[ "$PKG_JSON_DESCRIPTION" == null ]]; then
-        echo "Missing description is package.json! Description is a mandatory field!"
-        exit 1
+        echo "❌ Missing description in package.json for extension ${NAME} version ${VERSION}! Description is a mandatory field!"
+        WITH_ERROR="true"
+        OVERALL_ERROR="true"
+      fi
+
+      # check if description exists and is non-empty in Chart.yaml
+      CHART_YAML_DESCRIPTION=$(yq -r ".description" ./tmp/${NAME}/charts/${NAME}/${VERSION}/Chart.yaml)
+
+      if [[ ! -n "$CHART_YAML_DESCRIPTION" ]] || [[ "$CHART_YAML_DESCRIPTION" == null ]]; then
+        echo "❌ Missing description in Chart.yaml for extension ${NAME} version ${VERSION}! Description is a mandatory field!"
+        WITH_ERROR="true"
+        OVERALL_ERROR="true"
       fi
 
       # check if version exists and is non-empty in package.json
       if [[ ! -n "$PKG_JSON_VERSION" ]] || [[ "$PKG_JSON_VERSION" == null ]]; then
-        echo "Missing version is package.json! Version is a mandatory field!"
-        exit 1
+        echo "❌ Missing version in package.json for extension ${NAME} version ${VERSION}! Version is a mandatory field!"
+        WITH_ERROR="true"
+        OVERALL_ERROR="true"
       fi
 
+      # check if README exists and it's content is not empty
       README_FILE=./tmp/${NAME}/charts/${NAME}/${VERSION}/README.md
 
-      # check if README exists and it's content contains something...
       # -f "$README_FILE": The file exists AND is a regular file.
       # $(grep -q '[^[:space:]]' "$README_FILE"): Grep finds a non-whitespace character (returns exit 0)
       if [[ ! -f "$README_FILE" ]] || ! grep -q '[^[:space:]]' "$README_FILE"; then
         echo "❌ Error: README file doesn't exist or is empty!"
-        exit 1
+        WITH_ERROR="true"
+        OVERALL_ERROR="true"
       fi
-
-      echo "✅ README, description and version checks succeeded"
 
       # Check the chart file for an icon
       CHART_FILE=./tmp/${NAME}/charts/${NAME}/${VERSION}/Chart.yaml
@@ -110,20 +128,33 @@ do
 
         # Icon downloaded okay
         if ! [ ${ERR} -eq 0 ]; then
-          echo -e "${YELLOW}${BOLD}Warning: Could not download icon - check URL${RESET}"
-          exit 1
+          echo "❌ Warning: Could not download icon - check URL for icon in Chart.yaml"
+          WITH_ERROR="true"
+          OVERALL_ERROR="true"
         else
           echo "✅ Icon check succeeded"
         fi
       else
-        echo -e "${YELLOW}${BOLD}Warning: Icon not found! Icon presence is mandatory!"
-        exit 1
+        echo "❌ Warning: Icon not found in Chart.yaml! Icon presence is mandatory!"
+        WITH_ERROR="true"
+        OVERALL_ERROR="true"
       fi
 
-      echo "✅ ALL CHECKS SUCCEEDED!!!!"
+      if [[ "$WITH_ERROR" == "true" ]]; then
+        echo -e "${RED}  .. Some checks failed for extension ${NAME} version ${VERSION}${RESET}"
+      else
+        echo -e "${GREEN}  .. ✅ ALL CHECKS SUCCEEDED for extension ${NAME} version ${VERSION}${RESET}"
+      fi
     fi
   done
 done
+
+if [[ "$OVERALL_ERROR" == "true" ]]; then
+  echo -e "${BOLD}${RED}  .. Some checks failed for the extensions this PR brings in. Check this script logs for more information${RESET}"
+  exit 1
+else
+  exit 0
+fi
 
 # Clean up
 rm -rf ${TMP}

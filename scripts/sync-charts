@@ -169,7 +169,6 @@ do
         else
           echo -e "${YELLOW}${BOLD}Warning: Could not download icon - check URL${RESET}"
 
-          # IS THIS TO DELETE SINCE ICON IS NOW MANDATORY!?!?? MAKES SENSE TO ME...
           # Rename the 'icon' property to 'ignored' so the icon is not used
           sed -i.bak -e 's@icon:@ignored:@' ${CHART_FILE}
         fi
