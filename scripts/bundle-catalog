@@ -10,6 +10,7 @@ BOLD="\033[1m"
 NORMAL="\033[22m"
 CHECK="\xE2\x9C\x94"
 
+DOCKERHUB_REPO="rancher/ui-plugin-catalog"
 DEST_IMAGE_NAME="ui-plugin-catalog"
 DEST_TAG="latest"
 DEST_REGISTRY=""
@@ -97,9 +98,8 @@ do
   echo -e "  .. Cloning repository"
   rm -rf ${TMP}/${NAME}
   pushd ${TMP} > /dev/null
-  git clone https://github.com/${REPO}.git ${NAME}
+  git clone -b ${EXT_BRANCH} --single-branch https://github.com/${REPO}.git ${NAME}
   cd ${NAME}
-  git checkout ${EXT_BRANCH}
   pwd
   popd > /dev/null
 
@@ -121,25 +121,45 @@ do
     echo "     + Fetching and patching icon"
     CHART_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/Chart.yaml
     ICON=$(yq eval '.icon' ${CHART_FILE})
-    
-    if [[ -n "${ICON}" ]]; then
-      ICON_FILE=$(ls -1 "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img" | head -n 1)
-      NEW_ICON=${ENDPOINT}/plugin/img/${ICON_FILE}
 
+    if [ -n "${ICON}" ]; then
+        # Downloading icon
+        ICON_FILE=$(basename $ICON)
+        ICON_EXTENSION="${ICON_FILE##*.}"
+        NEW_ICON_NAME="copy-app-icon-${NAME}.${ICON_EXTENSION}"
+        echo "     + Fetching icon: ${ICON}"
+        
+        # Download the icon using curl
+        set +e
+        curl --location --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
+        ERR=$?
+        set -e # <--- Re-enables the 'exit immediately on error' setting
 
-      # Check if '>-' exists in the icon property to remove the second line
-      if grep -q 'icon: >-' "${CHART_FILE}"; then
-        SECOND_LINE=$(sed -n '/^icon: >-/{n;p;q}' "${CHART_FILE}")
-        sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
-        sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
-      else
-        sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+        if [ ${ERR} -eq 0 ]; then
+          # Icon downloaded okay... Let's patch the icon properly
+          echo " ::: Icon ${ICON} downloaded fine!!! will be using ${NEW_ICON}"
+
+          NEW_ICON=${ENDPOINT}/plugin/img/${NEW_ICON_NAME}
+        else
+          # Let's use the old code as fallback... better than failing with nothing...
+          echo " ::: Icon ${ICON} failed to download.... Fallback"
+          
+          ICON_FILE=$(ls -1 "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img" | head -n 1)
+          NEW_ICON=${ENDPOINT}/plugin/img/${ICON_FILE}
+        fi
+
+        # Check if '>-' exists in the icon property to remove the second line
+        if grep -q 'icon: >-' "${CHART_FILE}"; then
+          sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
+          sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+        else
+          sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+        fi
+
+        PKG_FILE=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/package.json
+        sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"${NEW_ICON}"'\"@' ${PKG_FILE}
+        rm -f ${PKG_FILE}.bak ${CHART_FILE}.bak
       fi
-
-      PKG_FILE=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/package.json
-      sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"${NEW_ICON}"'\"@' ${PKG_FILE}
-      rm -f ${PKG_FILE}.bak ${CHART_FILE}.bak
-    fi
 
     echo "     + Packaging Helm chart"
     helm package ${CONTAINER_TMP}/charts/${NAME}/${VERSION} -d ${CONTAINER_TMP}/assets/${NAME}
@@ -170,6 +190,39 @@ do
 
   rm -rf ./tmp/${NAME}
 done
+
+# if no tag is passed, get the latest version from dockerhub and bump the minor version
+if [[ "${DEST_TAG}" == "latest" ]]; then
+  echo "No tag argument passed. Fetching tags for Docker Hub repo: $DOCKERHUB_REPO"
+
+  # Get latest semver tag
+  TAGS=$(curl -s "https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=100" | jq -r '.results[].name')
+
+  LATEST_TAG=$(echo "$TAGS" \
+    | grep -v '^latest$' \
+    | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?$' \
+    | sort -Vr \
+    | head -n 1)
+
+  if [[ -z "$LATEST_TAG" ]]; then
+    echo "No semantic version tags found."
+    exit 1
+  fi
+
+  echo "Latest tag: $LATEST_TAG"
+
+  # Extract version parts
+  IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_TAG"
+
+  # Calculate next minor version
+  NEXT_MINOR=$((MINOR + 1))
+  NEXT_TAG="${MAJOR}.${NEXT_MINOR}.0"
+
+  echo "Next tag: $NEXT_TAG"
+  echo "GH_RELEASE_TAG=${NEXT_TAG}" >> $GITHUB_OUTPUT
+  
+  DEST_TAG="${NEXT_TAG}"
+fi
 
 # ============================================
 # Bundle extension assets into catalog image
