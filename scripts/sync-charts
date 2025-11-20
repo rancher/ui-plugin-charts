@@ -8,8 +8,6 @@ CYAN="\033[96m"
 YELLOW="\033[93m"
 RESET="\033[0m"
 BOLD="\033[1m"
-NORMAL="\033[22m"
-CHECK="\xE2\x9C\x94"
 
 ORG=rancher
 BRANCH=main
@@ -82,6 +80,7 @@ echo "GitHub Repository: ${REPOSITORY}"
 echo "GitHub Branch:     ${BRANCH}"
 
 # syncing new charts into this repo
+# let's go over all the extensions in the manifest to check what's synced and what's not...
 for NAME in ${EXTS}
 do
   echo -e "${CYAN} + Syncing: ${BOLD}${NAME}${RESET}"
@@ -102,12 +101,12 @@ do
   echo -e "     Versions  : ${VFORMAT}"
   echo ""
 
+  # clone extension repository
   echo -e "  .. Cloning repository"
   rm -rf ./tmp/${NAME}
   pushd tmp > /dev/null
-  git clone https://github.com/${REPO}.git ${NAME}
+  git clone -b ${EXT_BRANCH} --single-branch https://github.com/${REPO}.git ${NAME}
   cd ${NAME}
-  git checkout ${EXT_BRANCH}
   pwd
   popd > /dev/null
 
@@ -156,7 +155,6 @@ do
 
           # Check if '>-' exists in the icon property to remove the second line
           if grep -q 'icon: >-' "${CHART_FILE}"; then
-            SECOND_LINE=$(sed -n '/^icon: >-/{n;p;q}' "${CHART_FILE}")
             sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
             sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
           else
@@ -170,9 +168,10 @@ do
           rm -rf ${PKG_FILE}.bak
         else
           echo -e "${YELLOW}${BOLD}Warning: Could not download icon - check URL${RESET}"
+
           # Rename the 'icon' property to 'ignored' so the icon is not used
           sed -i.bak -e 's@icon:@ignored:@' ${CHART_FILE}
-         fi
+        fi
       fi
 
       echo "     + Packaging Helm chart"
@@ -231,7 +230,7 @@ for DIR in ./charts/*/; do
         REMOVED_EXTS=true
         echo -e "***** REMOVE ****** ${EXT_V} of extension ${SYNCED_EXT} to be removed!"
 
-        # remove files and update ./index.yaml
+        # remove files
         rm -rf ${BASE_DIR}/charts/${SYNCED_EXT}/${EXT_V}
         rm -rf ${BASE_DIR}/extensions/${SYNCED_EXT}/${EXT_V}
         rm -rf ${BASE_DIR}/assets/${SYNCED_EXT}/${SYNCED_EXT}-${EXT_V}.tgz

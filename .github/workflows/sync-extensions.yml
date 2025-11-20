@@ -18,7 +18,7 @@ env:
 
 jobs:
   sync:
-    if: github.repository_owner == 'rancher' && github.event.pull_request.merged != true
+    if: github.repository_owner == 'rancher' && github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.pull_request.merged != true
     name: Sync and Release Extensions
     runs-on: ubuntu-latest
     permissions: write-all
