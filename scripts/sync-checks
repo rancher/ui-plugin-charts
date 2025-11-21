@@ -12,7 +12,7 @@ RESET="\033[0m"
 BOLD="\033[1m"
 
 ORG=rancher
-BRANCH=main
+BRANCH=test-mechanisms
 
 OVERALL_ERROR="false"
 
