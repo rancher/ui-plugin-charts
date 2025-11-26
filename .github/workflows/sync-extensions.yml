@@ -124,7 +124,7 @@ jobs:
 
       - name: Sync Catalog Image with Registry (tagged release)
         if: github.ref_type == 'tag'
-        id: sync_catalog_script
+        id: sync_catalog_script_tagged
         run: |
           chmod +x ./scripts/bundle-catalog
           ./scripts/bundle-catalog -t ${{ github.ref_name }}
