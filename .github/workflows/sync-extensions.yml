@@ -1,9 +1,11 @@
 name: Sync and Release Extensions
 
 on:
-  # trigger for "Sync and Release Extension Catalog" job which is gated to a specific PR title
+  # triggers for "Sync and Release Extension Catalog" job which is gated to a specific PR title
   pull_request:
     types: [closed]
+  release:
+    types: [released]
   # trigger for "Sync and Release Extensions" job
   push:
     branches:
@@ -18,7 +20,7 @@ env:
 
 jobs:
   sync:
-    if: github.repository_owner == 'rancher' && github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.pull_request.merged != true
+    if: github.repository_owner == 'rancher' && github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.pull_request.merged != true && github.ref_type != 'tag'
     name: Sync and Release Extensions
     runs-on: ubuntu-latest
     permissions: write-all
@@ -83,7 +85,7 @@ jobs:
           CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           CR_SKIP_EXISTING: true
   sync-catalogs:
-    if: github.repository_owner == 'rancher' && github.event.pull_request.merged == true
+    if: (github.repository_owner == 'rancher' && github.event.pull_request.merged == true) || github.ref_type == 'tag'
     name: Sync and Release Extension Catalog
     runs-on: ubuntu-latest
     permissions:
@@ -93,6 +95,7 @@ jobs:
 
     steps:
       - name: Check PR title
+        if: github.ref_type != 'tag'
         id: check_title
         run: |
           title="${{ github.event.pull_request.title }}"
@@ -103,31 +106,38 @@ jobs:
           fi
 
       - name: Checkout repository
-        if: steps.check_title.outputs.match == 'true'
+        if: steps.check_title.outputs.match == 'true' || github.ref_type == 'tag'
         uses: actions/checkout@v4
 
       - name: Configure Git
-        if: steps.check_title.outputs.match == 'true'
+        if: steps.check_title.outputs.match == 'true' || github.ref_type == 'tag'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Login to Container Registry
-        if: steps.check_title.outputs.match == 'true'
+        if: steps.check_title.outputs.match == 'true' || github.ref_type == 'tag'
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Sync Catalog Image with Registry
-        if: steps.check_title.outputs.match == 'true'
+      - name: Sync Catalog Image with Registry (tagged release)
+        if: github.ref_type == 'tag'
+        id: sync_catalog_script
+        run: |
+          chmod +x ./scripts/bundle-catalog
+          ./scripts/bundle-catalog -t ${{ github.ref_name }}
+
+      - name: Sync Catalog Image with Registry (non-tag path)
+        if: steps.check_title.outputs.match == 'true' && github.ref_type != 'tag'
         id: sync_catalog_script
         run: |
           chmod +x ./scripts/bundle-catalog
           ./scripts/bundle-catalog
       
       - name: Create Release tag in repo
-        if: steps.check_title.outputs.match == 'true'
+        if: steps.check_title.outputs.match == 'true' && github.ref_type != 'tag'
         id: create-release-tag
         run: |
           gh release create ${{ steps.sync_catalog_script.outputs.GH_RELEASE_TAG }} \
