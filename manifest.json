@@ -43,7 +43,6 @@
       "repo": "rancher/elemental-ui",
       "branch": "gh-pages",
       "versions": [
-        "1.2.0",
         "1.3.0",
         "1.3.1",
         "2.0.0",
