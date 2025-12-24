@@ -1,0 +1,12 @@
+plugin/ali-1.0.1.umd.min.37.js
+plugin/ali-1.0.1.umd.min.37.js.map
+plugin/ali-1.0.1.umd.min.60.js
+plugin/ali-1.0.1.umd.min.60.js.map
+plugin/ali-1.0.1.umd.min.cloud-credential.js
+plugin/ali-1.0.1.umd.min.cloud-credential.js.map
+plugin/ali-1.0.1.umd.min.js
+plugin/ali-1.0.1.umd.min.js.map
+plugin/img/generic-catalog.1842a50e.svg
+plugin/img/harvester.20240f8a.png
+plugin/img/icon.a4745e82.svg
+plugin/package.json
