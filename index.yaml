@@ -926,4 +926,27 @@ entries:
     urls:
     - https://github.com/rancher/ui-plugin-charts/releases/download/observability-0.2.1/observability-0.2.1.tgz
     version: 0.2.1
-generated: "2025-12-24T20:34:53.831019395Z"
+  virtual-clusters:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Virtual Clusters
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/prime-only: "true"
+      catalog.cattle.io/rancher-version: '>=2.12.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.5-rc.6'
+    apiVersion: v2
+    appVersion: 1.0.1
+    created: "2026-01-21T21:11:32.517522537Z"
+    description: Virtual cluster provisioning using K3K (Prime only)
+    digest: 09b750e46cd11b20bf2756d531bfcfc315e605cac4ddbaca110b8c00b4a3a94d
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/virtual-clusters/1.0.1-icon-k3k.svg
+    name: virtual-clusters
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/virtual-clusters-1.0.1/virtual-clusters-1.0.1.tgz
+    version: 1.0.1
+generated: "2026-01-21T21:11:32.517646779Z"
