@@ -1011,6 +1011,29 @@ entries:
     urls:
     - https://github.com/rancher/ui-plugin-charts/releases/download/observability-0.2.1/observability-0.2.1.tgz
     version: 0.2.1
+  rancher-ai-ui:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: AI Assistant
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/prime-only: "true"
+      catalog.cattle.io/rancher-version: '>= 2.13.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-03-23T09:54:55.879476217Z"
+    description: AI Assistant extension
+    digest: f5683f1d94e38c81a2cac1fc368680ec9d3f2bd33580313404dc3fc6c52a9a6b
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/rancher-ai-ui/1.0.0-extension-icon.svg
+    name: rancher-ai-ui
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/rancher-ai-ui-1.0.0/rancher-ai-ui-1.0.0.tgz
+    version: 1.0.0
   virtual-clusters:
   - annotations:
       catalog.cattle.io/certified: rancher
@@ -1056,4 +1079,4 @@ entries:
     urls:
     - https://github.com/rancher/ui-plugin-charts/releases/download/virtual-clusters-1.0.1/virtual-clusters-1.0.1.tgz
     version: 1.0.1
-generated: "2026-03-09T12:53:26.694595934Z"
+generated: "2026-03-23T09:54:55.879566507Z"
