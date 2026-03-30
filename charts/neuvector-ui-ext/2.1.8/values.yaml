@@ -1,0 +1,16 @@
+nameOverride: ""
+fullnameOverride: ""
+plugin:
+  enabled: true
+  versionOverride: ""
+  endpoint: >-
+    https://raw.githubusercontent.com/neuvector/manager-ext/gh-pages/extensions/neuvector-ui-ext/2.1.8
+  compressedEndpoint: >-
+    https://raw.githubusercontent.com/neuvector/manager-ext/gh-pages/extensions/neuvector-ui-ext/2.1.8.tgz
+  noCache: false
+  noAuth: false
+  metadata:
+    catalog.cattle.io/kube-version: ">= v1.16.0-0"
+    catalog.cattle.io/display-name: NeuVector UI Extension
+    catalog.cattle.io/rancher-version: ">= 2.10.0-0"
+    catalog.cattle.io/ui-extensions-version: ">= 3.0.0 < 4.0.0"
