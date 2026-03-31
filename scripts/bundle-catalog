@@ -11,6 +11,50 @@ NORMAL="\033[22m"
 CHECK="\xE2\x9C\x94"
 
 DOCKERHUB_REPO="rancher/ui-plugin-catalog"
+
+# Validate that a URL is safe to download from (SSRF prevention):
+# - Must use HTTPS
+# - Must be hosted on raw.githubusercontent.com or github.com
+# - Must come from an allowed repository
+validate_icon_url() {
+  local url="$1"
+
+  if [[ ! "$url" =~ ^https:// ]]; then
+    echo "Rejected icon URL (not HTTPS): $url"
+    return 1
+  fi
+
+  local host
+  host=$(echo "$url" | sed -E 's|^https://([^/:]+).*|\1|')
+
+  if [[ "$host" != "raw.githubusercontent.com" && "$host" != "github.com" ]]; then
+    echo "Rejected icon URL (host not allowed, must be raw.githubusercontent.com or github.com): $url"
+    return 1
+  fi
+
+  local path
+  path=$(echo "$url" | sed -E 's|^https://[^/]+(/.*)|\1|')
+
+  # rancher/* wildcard
+  if [[ "$path" =~ ^/rancher/ ]]; then
+    return 0
+  fi
+
+  local -a allowed_repos=(
+    "StackVista/rancher-extension-stackstate"
+    "neuvector/manager-ext"
+    "harvester/harvester-ui-extension"
+  )
+
+  for repo in "${allowed_repos[@]}"; do
+    if [[ "$path" == "/${repo}/"* ]]; then
+      return 0
+    fi
+  done
+
+  echo "Rejected icon URL (repository not in allowlist): $url"
+  return 1
+}
 DEST_IMAGE_NAME="ui-plugin-catalog"
 DEST_TAG="latest"
 DEST_REGISTRY=""
@@ -129,10 +173,13 @@ do
         NEW_ICON_NAME="copy-app-icon-${NAME}.${ICON_EXTENSION}"
         echo "     + Fetching icon: ${ICON}"
         
-        # Download the icon using curl
+        # Validate icon URL and download (SSRF prevention, HTTPS-only, no redirects)
         set +e
-        curl --location --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
-        ERR=$?
+        ERR=1
+        if validate_icon_url "$ICON"; then
+          curl --proto '=https' --proto-redir '=https' --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
+          ERR=$?
+        fi
         set -e # <--- Re-enables the 'exit immediately on error' setting
 
         if [ ${ERR} -eq 0 ]; then
@@ -196,7 +243,7 @@ if [[ "${DEST_TAG}" == "latest" ]]; then
   echo "No tag argument passed. Fetching tags for Docker Hub repo: $DOCKERHUB_REPO"
 
   # Get latest semver tag
-  TAGS=$(curl -s "https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=100" | jq -r '.results[].name')
+  TAGS=$(curl --proto '=https' --proto-redir '=https' -s "https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=100" | jq -r '.results[].name')
 
   LATEST_TAG=$(echo "$TAGS" \
     | grep -v '^latest$' \

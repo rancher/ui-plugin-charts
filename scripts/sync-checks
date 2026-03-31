@@ -16,6 +16,50 @@ BRANCH=main
 
 OVERALL_ERROR="false"
 
+# Validate that a URL is safe to download from (SSRF prevention):
+# - Must use HTTPS
+# - Must be hosted on raw.githubusercontent.com or github.com
+# - Must come from an allowed repository
+validate_icon_url() {
+  local url="$1"
+
+  if [[ ! "$url" =~ ^https:// ]]; then
+    echo "Rejected icon URL (not HTTPS): $url"
+    return 1
+  fi
+
+  local host
+  host=$(echo "$url" | sed -E 's|^https://([^/:]+).*|\1|')
+
+  if [[ "$host" != "raw.githubusercontent.com" && "$host" != "github.com" ]]; then
+    echo "Rejected icon URL (host not allowed, must be raw.githubusercontent.com or github.com): $url"
+    return 1
+  fi
+
+  local path
+  path=$(echo "$url" | sed -E 's|^https://[^/]+(/.*)|\1|')
+
+  # rancher/* wildcard
+  if [[ "$path" =~ ^/rancher/ ]]; then
+    return 0
+  fi
+
+  local -a allowed_repos=(
+    "StackVista/rancher-extension-stackstate"
+    "neuvector/manager-ext"
+    "harvester/harvester-ui-extension"
+  )
+
+  for repo in "${allowed_repos[@]}"; do
+    if [[ "$path" == "/${repo}/"* ]]; then
+      return 0
+    fi
+  done
+
+  echo "Rejected icon URL (repository not in allowlist): $url"
+  return 1
+}
+
 echo -e "${CYAN}${BOLD}Sync Extensions checks${RESET}"
 
 EXTS=$(jq -r ".extensions | keys[]" manifest.json)
@@ -121,19 +165,26 @@ do
         rm -f ${BASE_DIR}/${ICON_REL}
         mkdir -p ${BASE_DIR}/icons/${NAME}
         
-        # Download the icon using curl
-        set +e
-        curl --location --output "${BASE_DIR}/${ICON_REL}" "$ICON"
-        ERR=$?
-        set -e # <--- Re-enables the 'exit immediately on error' setting
-
-        # Icon downloaded okay
-        if ! [ ${ERR} -eq 0 ]; then
-          echo "❌ Warning: Could not download icon - check URL for icon in Chart.yaml"
+        # Validate icon URL before downloading (SSRF prevention)
+        if ! validate_icon_url "$ICON"; then
+          echo "❌ Warning: Icon URL failed validation - check URL for icon in Chart.yaml"
           WITH_ERROR="true"
           OVERALL_ERROR="true"
         else
-          echo "✅ Icon check succeeded"
+          # Download the icon using curl (HTTPS-only, safe redirect handling)
+          set +e
+          curl --proto '=https' --proto-redir '=https' --output "${BASE_DIR}/${ICON_REL}" "$ICON"
+          ERR=$?
+          set -e # <--- Re-enables the 'exit immediately on error' setting
+
+          # Icon downloaded okay
+          if ! [ ${ERR} -eq 0 ]; then
+            echo "❌ Warning: Could not download icon - check URL for icon in Chart.yaml"
+            WITH_ERROR="true"
+            OVERALL_ERROR="true"
+          else
+            echo "✅ Icon check succeeded"
+          fi
         fi
       else
         echo "❌ Warning: Icon not found in Chart.yaml! Icon presence is mandatory!"
