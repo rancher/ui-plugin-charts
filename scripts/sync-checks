@@ -115,7 +115,7 @@ do
 
       ICON=$(yq eval '.icon' ${CHART_FILE})
 
-      if [ -n "${ICON}" ]; then
+      if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
         ICON_FILE=$(basename $ICON)
         echo "     + Fetching icon: ${ICON}"
@@ -131,7 +131,7 @@ do
         else
           # Download the icon using curl (HTTPS-only, safe redirect handling)
           set +e
-          curl --proto '=https' --proto-redir '=https' --fail --location --output "${BASE_DIR}/${ICON_REL}" "$ICON"
+          curl --proto '=https' --proto-redir '=https' --fail --output "${BASE_DIR}/${ICON_REL}" "$ICON"
           ERR=$?
           set -e # <--- Re-enables the 'exit immediately on error' setting
 

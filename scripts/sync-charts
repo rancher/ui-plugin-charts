@@ -138,7 +138,7 @@ do
 
       ICON=$(yq eval '.icon' ${CHART_FILE})
 
-      if [ -n "${ICON}" ]; then
+      if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
         ICON_FILE=$(basename $ICON)
         echo "     + Fetching icon: ${ICON}"
@@ -149,7 +149,7 @@ do
         set +e
         ERR=1
         if validate_icon_url "$ICON"; then
-          curl --proto '=https' --proto-redir '=https' --silent --fail --location --output "${BASE_DIR}/${ICON_REL}" "${ICON}"
+          curl --proto '=https' --proto-redir '=https' --silent --fail --output "${BASE_DIR}/${ICON_REL}" "${ICON}"
           ERR=$?
         fi
         set -e

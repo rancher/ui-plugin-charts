@@ -124,7 +124,7 @@ do
     CHART_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/Chart.yaml
     ICON=$(yq eval '.icon' ${CHART_FILE})
 
-    if [ -n "${ICON}" ]; then
+    if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
         ICON_FILE=$(basename $ICON)
         ICON_EXTENSION="${ICON_FILE##*.}"
@@ -135,7 +135,7 @@ do
         set +e
         ERR=1
         if validate_icon_url "$ICON"; then
-          curl --proto '=https' --proto-redir '=https' --fail --location --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
+          curl --proto '=https' --proto-redir '=https' --fail --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
           ERR=$?
         fi
         set -e # <--- Re-enables the 'exit immediately on error' setting
