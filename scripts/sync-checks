@@ -131,7 +131,7 @@ do
         else
           # Download the icon using curl (HTTPS-only, safe redirect handling)
           set +e
-          curl --proto '=https' --proto-redir '=https' --fail --output "${BASE_DIR}/${ICON_REL}" "$ICON"
+          FINAL_URL=$(curl --silent --show-error --proto '=https' --proto-redir '=https' --fail --location --output "${BASE_DIR}/${ICON_REL}" --write-out "%{url_effective}" "$ICON")
           ERR=$?
           set -e # <--- Re-enables the 'exit immediately on error' setting
 
@@ -141,7 +141,18 @@ do
             WITH_ERROR="true"
             OVERALL_ERROR="true"
           else
-            echo "✅ Icon check succeeded"
+            if [ "$FINAL_URL" != "$ICON" ]; then
+              if ! validate_icon_url "$FINAL_URL"; then
+                echo "❌ Warning: Redirected icon URL failed validation: $FINAL_URL"
+                WITH_ERROR="true"
+                OVERALL_ERROR="true"
+                rm -f "${BASE_DIR}/${ICON_REL}"
+              else
+                echo "✅ Icon check succeeded"
+              fi
+            else
+              echo "✅ Icon check succeeded"
+            fi
           fi
         fi
       else

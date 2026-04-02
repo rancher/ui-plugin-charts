@@ -149,8 +149,15 @@ do
         set +e
         ERR=1
         if validate_icon_url "$ICON"; then
-          curl --proto '=https' --proto-redir '=https' --silent --fail --output "${BASE_DIR}/${ICON_REL}" "${ICON}"
+          FINAL_URL=$(curl --proto '=https' --proto-redir '=https' --silent --fail --location --output "${BASE_DIR}/${ICON_REL}" --write-out "%{url_effective}" "${ICON}")
           ERR=$?
+          if [ ${ERR} -eq 0 ] && [ "$FINAL_URL" != "$ICON" ]; then
+            if ! validate_icon_url "$FINAL_URL"; then
+              echo "❌ Warning: Redirected icon URL failed validation: $FINAL_URL"
+              ERR=1
+              rm -f "${BASE_DIR}/${ICON_REL}"
+            fi
+          fi
         fi
         set -e
 

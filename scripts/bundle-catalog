@@ -135,8 +135,15 @@ do
         set +e
         ERR=1
         if validate_icon_url "$ICON"; then
-          curl --proto '=https' --proto-redir '=https' --fail --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
+          FINAL_URL=$(curl --silent --show-error --proto '=https' --proto-redir '=https' --fail --location --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" --write-out "%{url_effective}" "$ICON")
           ERR=$?
+          if [ ${ERR} -eq 0 ] && [ "$FINAL_URL" != "$ICON" ]; then
+            if ! validate_icon_url "$FINAL_URL"; then
+              echo "❌ Warning: Redirected icon URL failed validation: $FINAL_URL"
+              ERR=1
+              rm -f "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}"
+            fi
+          fi
         fi
         set -e # <--- Re-enables the 'exit immediately on error' setting
 
@@ -201,7 +208,19 @@ if [[ "${DEST_TAG}" == "latest" ]]; then
   echo "No tag argument passed. Fetching tags for Docker Hub repo: $DOCKERHUB_REPO"
 
   # Get latest semver tag
-  TAGS=$(curl --proto '=https' --proto-redir '=https' -s "https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=100" | jq -r '.results[].name')
+  DOCKER_URL="https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=100"
+  FINAL_URL=$(curl --proto '=https' --proto-redir '=https' --fail --location -s --output "${TMP}/tags.json" --write-out "%{url_effective}" "$DOCKER_URL")
+  
+  if [ "$FINAL_URL" != "$DOCKER_URL" ]; then
+    if ! validate_icon_url "$FINAL_URL"; then
+      echo "❌ Error: Redirected DockerHub URL failed validation: $FINAL_URL"
+      rm -f "${TMP}/tags.json"
+      exit 1
+    fi
+  fi
+
+  TAGS=$(jq -r '.results[].name' "${TMP}/tags.json")
+  rm -f "${TMP}/tags.json"
 
   LATEST_TAG=$(echo "$TAGS" \
     | grep -v '^latest$' \
