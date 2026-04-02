@@ -117,7 +117,7 @@ do
 
       if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
-        ICON_FILE=$(basename $ICON)
+        ICON_FILE=$(basename "$ICON")
         echo "     + Fetching icon: ${ICON}"
         ICON_REL=icons/${NAME}/${VERSION}-${ICON_FILE}
         rm -f ${BASE_DIR}/${ICON_REL}

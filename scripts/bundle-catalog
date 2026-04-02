@@ -126,12 +126,12 @@ do
 
     if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
-        ICON_FILE=$(basename $ICON)
+        ICON_FILE=$(basename "$ICON")
         ICON_EXTENSION="${ICON_FILE##*.}"
         NEW_ICON_NAME="copy-app-icon-${NAME}.${ICON_EXTENSION}"
         echo "     + Fetching icon: ${ICON}"
         
-        # Validate icon URL and download (SSRF prevention, HTTPS-only, no redirects)
+        # Validate icon URL and download (SSRF prevention, HTTPS-only)
         set +e
         ERR=1
         if validate_icon_url "$ICON"; then
@@ -208,19 +208,7 @@ if [[ "${DEST_TAG}" == "latest" ]]; then
   echo "No tag argument passed. Fetching tags for Docker Hub repo: $DOCKERHUB_REPO"
 
   # Get latest semver tag
-  DOCKER_URL="https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=100"
-  FINAL_URL=$(curl --proto '=https' --proto-redir '=https' --fail --location -s --output "${TMP}/tags.json" --write-out "%{url_effective}" "$DOCKER_URL")
-  
-  if [ "$FINAL_URL" != "$DOCKER_URL" ]; then
-    if ! validate_icon_url "$FINAL_URL"; then
-      echo "❌ Error: Redirected DockerHub URL failed validation: $FINAL_URL"
-      rm -f "${TMP}/tags.json"
-      exit 1
-    fi
-  fi
-
-  TAGS=$(jq -r '.results[].name' "${TMP}/tags.json")
-  rm -f "${TMP}/tags.json"
+  TAGS=$(curl --proto '=https' --proto-redir '=https' -s "https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/?page_size=100" | jq -r '.results[].name')
 
   LATEST_TAG=$(echo "$TAGS" \
     | grep -v '^latest$' \

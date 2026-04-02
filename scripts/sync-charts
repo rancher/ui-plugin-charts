@@ -140,12 +140,12 @@ do
 
       if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
-        ICON_FILE=$(basename $ICON)
+        ICON_FILE=$(basename "$ICON")
         echo "     + Fetching icon: ${ICON}"
         ICON_REL=icons/${NAME}/${VERSION}-${ICON_FILE}
         mkdir -p ${BASE_DIR}/icons/${NAME}
         rm -f ${BASE_DIR}/${ICON_REL}
-        # Validate icon URL and download (SSRF prevention, HTTPS-only, no redirects)
+        # Validate icon URL and download (SSRF prevention, HTTPS-only)
         set +e
         ERR=1
         if validate_icon_url "$ICON"; then
