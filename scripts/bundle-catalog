@@ -12,49 +12,7 @@ CHECK="\xE2\x9C\x94"
 
 DOCKERHUB_REPO="rancher/ui-plugin-catalog"
 
-# Validate that a URL is safe to download from (SSRF prevention):
-# - Must use HTTPS
-# - Must be hosted on raw.githubusercontent.com or github.com
-# - Must come from an allowed repository
-validate_icon_url() {
-  local url="$1"
-
-  if [[ ! "$url" =~ ^https:// ]]; then
-    echo "Rejected icon URL (not HTTPS): $url"
-    return 1
-  fi
-
-  local host
-  host=$(echo "$url" | sed -E 's|^https://([^/:]+).*|\1|')
-
-  if [[ "$host" != "raw.githubusercontent.com" && "$host" != "github.com" ]]; then
-    echo "Rejected icon URL (host not allowed, must be raw.githubusercontent.com or github.com): $url"
-    return 1
-  fi
-
-  local path
-  path=$(echo "$url" | sed -E 's|^https://[^/]+(/.*)|\1|')
-
-  # rancher/* wildcard
-  if [[ "$path" =~ ^/rancher/ ]]; then
-    return 0
-  fi
-
-  local -a allowed_repos=(
-    "StackVista/rancher-extension-stackstate"
-    "neuvector/manager-ext"
-    "harvester/harvester-ui-extension"
-  )
-
-  for repo in "${allowed_repos[@]}"; do
-    if [[ "$path" == "/${repo}/"* ]]; then
-      return 0
-    fi
-  done
-
-  echo "Rejected icon URL (repository not in allowlist): $url"
-  return 1
-}
+source "$SCRIPT_DIR/validate-icon-url.sh"
 DEST_IMAGE_NAME="ui-plugin-catalog"
 DEST_TAG="latest"
 DEST_REGISTRY=""
@@ -177,7 +135,7 @@ do
         set +e
         ERR=1
         if validate_icon_url "$ICON"; then
-          curl --proto '=https' --proto-redir '=https' --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
+          curl --proto '=https' --proto-redir '=https' --fail --location --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" "$ICON"
           ERR=$?
         fi
         set -e # <--- Re-enables the 'exit immediately on error' setting
