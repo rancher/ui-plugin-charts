@@ -16,6 +16,8 @@ BRANCH=main
 
 OVERALL_ERROR="false"
 
+source "$SCRIPT_DIR/validate-icon-url.sh"
+
 echo -e "${CYAN}${BOLD}Sync Extensions checks${RESET}"
 
 EXTS=$(jq -r ".extensions | keys[]" manifest.json)
@@ -113,27 +115,45 @@ do
 
       ICON=$(yq eval '.icon' ${CHART_FILE})
 
-      if [ -n "${ICON}" ]; then
+      if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
-        ICON_FILE=$(basename $ICON)
+        ICON_FILE=$(basename "$ICON")
         echo "     + Fetching icon: ${ICON}"
         ICON_REL=icons/${NAME}/${VERSION}-${ICON_FILE}
         rm -f ${BASE_DIR}/${ICON_REL}
         mkdir -p ${BASE_DIR}/icons/${NAME}
         
-        # Download the icon using curl
-        set +e
-        curl --location --output "${BASE_DIR}/${ICON_REL}" "$ICON"
-        ERR=$?
-        set -e # <--- Re-enables the 'exit immediately on error' setting
-
-        # Icon downloaded okay
-        if ! [ ${ERR} -eq 0 ]; then
-          echo "❌ Warning: Could not download icon - check URL for icon in Chart.yaml"
+        # Validate icon URL before downloading (SSRF prevention)
+        if ! validate_icon_url "$ICON"; then
+          echo "❌ Warning: Icon URL failed validation - check URL for icon in Chart.yaml"
           WITH_ERROR="true"
           OVERALL_ERROR="true"
         else
-          echo "✅ Icon check succeeded"
+          # Download the icon using curl (HTTPS-only, safe redirect handling)
+          set +e
+          FINAL_URL=$(curl --silent --show-error --proto '=https' --proto-redir '=https' --fail --location --output "${BASE_DIR}/${ICON_REL}" --write-out "%{url_effective}" "$ICON")
+          ERR=$?
+          set -e # <--- Re-enables the 'exit immediately on error' setting
+
+          # Icon downloaded okay
+          if ! [ ${ERR} -eq 0 ]; then
+            echo "❌ Warning: Could not download icon - check URL for icon in Chart.yaml"
+            WITH_ERROR="true"
+            OVERALL_ERROR="true"
+          else
+            if [ "$FINAL_URL" != "$ICON" ]; then
+              if ! validate_icon_url "$FINAL_URL"; then
+                echo "❌ Warning: Redirected icon URL failed validation: $FINAL_URL"
+                WITH_ERROR="true"
+                OVERALL_ERROR="true"
+                rm -f "${BASE_DIR}/${ICON_REL}"
+              else
+                echo "✅ Icon check succeeded"
+              fi
+            else
+              echo "✅ Icon check succeeded"
+            fi
+          fi
         fi
       else
         echo "❌ Warning: Icon not found in Chart.yaml! Icon presence is mandatory!"
@@ -150,12 +170,12 @@ do
   done
 done
 
+# Clean up
+rm -rf ${TMP}
+
 if [[ "$OVERALL_ERROR" == "true" ]]; then
   echo -e "${BOLD}${RED}  .. Some checks failed for the extensions this PR brings in. Check this script logs for more information${RESET}"
   exit 1
 else
   exit 0
 fi
-
-# Clean up
-rm -rf ${TMP}

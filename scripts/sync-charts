@@ -13,6 +13,8 @@ ORG=rancher
 BRANCH=main
 CLEAN=false
 
+source "$SCRIPT_DIR/validate-icon-url.sh"
+
 usage() {
   echo "Usage: $0 [<options>]"
   echo " options:"
@@ -136,18 +138,28 @@ do
 
       ICON=$(yq eval '.icon' ${CHART_FILE})
 
-      if [ -n "${ICON}" ]; then
+      if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
-        ICON_FILE=$(basename $ICON)
+        ICON_FILE=$(basename "$ICON")
         echo "     + Fetching icon: ${ICON}"
         ICON_REL=icons/${NAME}/${VERSION}-${ICON_FILE}
         mkdir -p ${BASE_DIR}/icons/${NAME}
         rm -f ${BASE_DIR}/${ICON_REL}
-        # Download the icon - ignore errors, we will handle those
+        # Validate icon URL and download (SSRF prevention, HTTPS-only)
         set +e
-        wget --quiet -O ${BASE_DIR}/${ICON_REL} ${ICON}
-        ERR=$?
-        set -1
+        ERR=1
+        if validate_icon_url "$ICON"; then
+          FINAL_URL=$(curl --proto '=https' --proto-redir '=https' --silent --fail --location --output "${BASE_DIR}/${ICON_REL}" --write-out "%{url_effective}" "${ICON}")
+          ERR=$?
+          if [ ${ERR} -eq 0 ] && [ "$FINAL_URL" != "$ICON" ]; then
+            if ! validate_icon_url "$FINAL_URL"; then
+              echo "❌ Warning: Redirected icon URL failed validation: $FINAL_URL"
+              ERR=1
+              rm -f "${BASE_DIR}/${ICON_REL}"
+            fi
+          fi
+        fi
+        set -e
 
         # Icon downloaded okay
         if [ ${ERR} -eq 0 ]; then
