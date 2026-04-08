@@ -1,0 +1,34 @@
+apiVersion: management.cattle.io/v3
+kind: RoleTemplate
+displayName: SUSE Observability Instance Recommended Access
+description: Recommended permissions for accessing SUSE Observability
+builtin: false
+hidden: false
+external: false
+context: project
+metadata:
+  name: suse-observability-instance-recommended-access
+  namespace: {{ .Release.Namespace }}
+  labels: {{ include "extension-server.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - apitokens
+      - stackpacks
+    verbs:
+      - get
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - visualizationsettings
+    verbs:
+      - update
+  - apiGroups:
+      - instance.observability.cattle.io
+    resources:
+      - favoriteviews
+      - favoritedashboards
+    verbs:
+      - delete
+      - create
