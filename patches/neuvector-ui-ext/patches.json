@@ -1,0 +1,10 @@
+{
+  "patches": [
+    {
+      "versions": "2.1.8",
+      "dir": "files",
+      "name": "SUSE Security",
+      "description": "Provides and integrates security dashboards for vulnerability scanning and risk assessment"
+    }
+  ]
+}

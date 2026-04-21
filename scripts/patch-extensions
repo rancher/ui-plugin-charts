@@ -598,6 +598,7 @@ do
 
             # --- Cleanup ---
             rm -rf "$TMP"
+            mkdir -p "$TMP"
             echo "Cleaned up temporary directory: $TMP"
 
             # since we've updated annotations, we need to regenerate index.yaml

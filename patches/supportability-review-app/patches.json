@@ -1,0 +1,9 @@
+{
+  "patches": [
+    {
+      "versions": "3.0.2",
+      "dir": "files",
+      "name": "SUSE Supportability Review"
+    }
+  ]
+}
