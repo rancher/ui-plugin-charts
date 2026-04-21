@@ -10,7 +10,8 @@ plugin:
   noCache: false
   noAuth: false
   metadata:
-    catalog.cattle.io/display-name: Virtual Clusters
+    catalog.cattle.io/display-name: SUSE Virtual Clusters
     catalog.cattle.io/ui-extensions-version: ">= 3.0.5-rc.6"
     catalog.cattle.io/rancher-version: ">=2.12.0"
     catalog.cattle.io/prime-only: "true"
+    isolated K3s clusters within existing Kubernetes environments,N/A: ""

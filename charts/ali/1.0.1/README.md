@@ -1,12 +1,23 @@
-# Alibaba Cloud (ACK) Provisioning Extension
+# Alibaba Cloud (ACK) Provisioning
 
-## Overview
+**Provisions and manages Alibaba Cloud (ACK) clusters for integrated cloud resource management.**
 
-This Rancher UI extension adds support for Alibaba Cloud Kubernetes Service (ACK), enabling users to provision, import, and manage ACK clusters directly from the Rancher Dashboard.
+### Vision & Value
+The Alibaba Cloud (ACK) extension provides a native bridge between Rancher Prime and Alibaba Cloud's Container Service. It eliminates the friction of managing disparate cloud console environments by centralizing the lifecycle of ACK clusters alongside your on-premise and multi-cloud workloads.
 
-## Features
+### Core Architecture
+This extension leverages the Alibaba Cloud Cloud-API to translate Rancher cluster definitions into ACK resources. It handles the orchestration of the control plane, worker nodes (ECS), and networking components (VPC/SLB) through a single declarative workflow.
 
-*   **Cloud Credential Management**: Create and manage the Alibaba Cloud credentials required for all cluster operations.
-*   **ACK Cluster Provisioning**: Provision new managed Kubernetes clusters (ACK).
-*   **Cluster Import**: Import existing ACK clusters into Rancher for centralized management.
-*   **Cluster Lifecycle Management**: Edit and upgrade existing ACK clusters that are managed by Rancher.
+### Key Technical Features
+* **Native ACK Lifecycle**: Create, upgrade, and scale Alibaba Cloud clusters directly from the Rancher UI.
+* **Integrated Identity (RAM)**: Seamlessly maps Rancher RBAC to Alibaba Resource Access Management (RAM) for secure, audited access.
+* **Global Region Support**: Deploy clusters across all Alibaba Cloud global regions, including specialized China regions.
+* **Optimized Networking**: Automatic configuration of VPC, Terway, and SLB (Server Load Balancer) for container workloads.
+
+### Target Use Cases
+* **Asia-Pacific Expansion**: Organizations scaling their cloud footprint into China or Southeast Asia.
+* **Multi-Cloud Operations**: Maintaining a consistent management plane across Alibaba Cloud, AWS, and Azure.
+
+### Deployment Path
+* **Prerequisites**: Rancher Prime subscription; Alibaba Cloud RAM credentials (AccessKey/Secret).
+* **First Step**: Go to **Cluster Management** > **Cloud Credentials** to link your Alibaba account.

@@ -11,7 +11,7 @@ annotations:
   catalog.cattle.io/prime-only: 'true'
 apiVersion: v2
 appVersion: 1.0.1
-description: Create Alibaba Cloud clusters in Rancher
+description: Provisions and manages Alibaba Cloud (ACK) clusters for integrated cloud resource management
 name: ali
 type: application
 version: 1.0.1
