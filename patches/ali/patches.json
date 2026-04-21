@@ -1,0 +1,9 @@
+{
+  "patches": [
+    {
+      "versions": ">=1.0.0 <1.999.0",
+      "dir": "files",
+      "description": "Provisions and manages Alibaba Cloud (ACK) clusters for integrated cloud resource management"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "patches": [
+    {
+      "versions": ">=1.0.0 <3.999.0",
+      "dir": "files",
+      "name": "SUSE OS Management",
+      "description": "Manages and automates cloud-native operating system lifecycles as native Kubernetes resources"
+    }
+  ]
+}

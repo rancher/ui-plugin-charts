@@ -130,8 +130,11 @@ We now provide the ability to change metadata on published extensions in this re
 ```
 - the `versions` semver check will only apply the changes to the interval (or simple condition) that you want to
 - the `dir` folder is the name of the folder **inside** `elemental` folder, where file assets like `README` and `icon` will live, which will be applied as patch
-- **Caveat**: for the **ICON** change, the icon file must be called `icon` (it doesn't care about the file extension, since it can be a `svg` or `png`) in order for it to be considered as change
-- **Caveat**: for the **README** change: the file content must be different than the `README` originally present on the extension in order to be applied, otherwise it's ignored
+
+### Caveats
+
+- For the **ICON** change, the icon file must be called `icon` (it doesn't care about the file extension, since it can be a `svg` or `png`) in order for it to be considered as change
+- For the **README** change: the file content must be different than the `README` originally present on the extension in order to be applied, otherwise it's ignored
 
 
 ### How does the script work

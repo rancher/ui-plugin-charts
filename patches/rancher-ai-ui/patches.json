@@ -1,0 +1,10 @@
+{
+  "patches": [
+    {
+      "versions": ">1.0.0 <3.99.0",
+      "dir": "files",
+      "name": "SUSE AI Assistant",
+      "description": "Delivers context-aware guidance and real-time troubleshooting for cluster workloads"
+    }
+  ]
+}

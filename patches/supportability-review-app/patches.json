@@ -1,0 +1,9 @@
+{
+  "patches": [
+    {
+      "versions": ">=1.0.0 <5.999.0",
+      "dir": "files",
+      "name": "SUSE Supportability Review"
+    }
+  ]
+}
