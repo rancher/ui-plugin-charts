@@ -1077,6 +1077,29 @@ entries:
     urls:
     - https://github.com/rancher/ui-plugin-charts/releases/download/rancher-ai-ui-1.0.0/rancher-ai-ui-1.0.0.tgz
     version: 1.0.0
+  supportability-review-app:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Supportability Review
+      catalog.cattle.io/kube-version: '>= 1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 3.0.3
+    created: "2026-04-22T08:38:14.97826668Z"
+    description: Collects and analyses cluster data for supportability assessment
+    digest: 18a84d76ec3777cef070714c3fa792c0f835f6107d621c80a92b4a49641a4428
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/3.0.3-icon.png
+    name: supportability-review-app
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/supportability-review-app-3.0.3/supportability-review-app-3.0.3.tgz
+    version: 3.0.3
   virtual-clusters:
   - annotations:
       catalog.cattle.io/certified: rancher
@@ -1122,4 +1145,4 @@ entries:
     urls:
     - https://github.com/rancher/ui-plugin-charts/releases/download/virtual-clusters-1.0.1/virtual-clusters-1.0.1.tgz
     version: 1.0.1
-generated: "2026-04-08T09:44:00.890242916Z"
+generated: "2026-04-22T08:38:14.978370419Z"
