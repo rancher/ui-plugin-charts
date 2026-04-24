@@ -2,7 +2,7 @@
 
 **Provisions and manages Alibaba Cloud (ACK) clusters for integrated cloud resource management.**
 
-### Vision & Value
+### Overview
 The Alibaba Cloud (ACK) extension provides a native bridge between Rancher Prime and Alibaba Cloud's Container Service. It eliminates the friction of managing disparate cloud console environments by centralizing the lifecycle of ACK clusters alongside your on-premise and multi-cloud workloads.
 
 ### Core Architecture

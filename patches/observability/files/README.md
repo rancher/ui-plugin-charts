@@ -2,7 +2,7 @@
 
 **Analyzes multi-cluster telemetry with AI-powered insights for accelerated incident resolution.**
 
-### Vision & Value
+### Overview
 Standard monitoring tells you *that* something is broken; SUSE Observability tells you *why*. This extension moves beyond simple dashboards to provide a correlated view of your entire stack, using AI to connect the dots between a slow database in one cluster and a failing pod in another.
 
 ### Core Architecture
