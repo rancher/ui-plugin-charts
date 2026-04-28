@@ -8,6 +8,50 @@ entries:
       catalog.cattle.io/os: linux
       catalog.cattle.io/permits-os: linux, windows
       catalog.cattle.io/prime-only: "true"
+      catalog.cattle.io/rancher-version: '>= 2.14.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 1.1.0
+    created: "2026-04-28T08:30:45.433232102Z"
+    description: Create Alibaba Cloud clusters in Rancher
+    digest: 02439adf1cfcaa548f9ac08c443b2263d7d90007079d9d8c161aa997998b9983
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/ali/1.1.0-alibaba.svg
+    name: ali
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/ali-1.1.0/ali-1.1.0.tgz
+    version: 1.1.0
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Alibaba Cloud (ACK) Provisioning
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/prime-only: "true"
+      catalog.cattle.io/rancher-version: '>= 2.13.0-0 < 2.14.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 1.0.2
+    created: "2026-04-28T08:30:45.175935431Z"
+    description: Create Alibaba Cloud clusters in Rancher
+    digest: 9942413aa16c1b88613d9a48989abcaa3dc4637b8805ccae88ade7fd14c7ae20
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/ali/1.0.2-alibaba.svg
+    name: ali
+    type: application
+    urls:
+    - https://github.com/rancher/ui-plugin-charts/releases/download/ali-1.0.2/ali-1.0.2.tgz
+    version: 1.0.2
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Alibaba Cloud (ACK) Provisioning
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/prime-only: "true"
       catalog.cattle.io/rancher-version: '>= 2.13.0-0'
       catalog.cattle.io/scope: management
       catalog.cattle.io/ui-component: plugins
@@ -1167,4 +1211,4 @@ entries:
     urls:
     - https://github.com/rancher/ui-plugin-charts/releases/download/virtual-clusters-1.0.1/virtual-clusters-1.0.1.tgz
     version: 1.0.1
-generated: "2026-04-24T15:39:23.811422902Z"
+generated: "2026-04-28T08:30:45.433367494Z"
