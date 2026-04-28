@@ -1,0 +1,21 @@
+{
+  "name": "ali",
+  "description": "Create Alibaba Cloud clusters in Rancher",
+  "version": "1.1.0",
+  "private": false,
+  "rancher": true,
+  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/ali/1.1.0-alibaba.svg",
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "5.0.8",
+    "@vue/cli-service": "5.0.8",
+    "@vue/cli-plugin-typescript": "5.0.8",
+    "@vue/eslint-config-typescript": "9.1.0"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "ali-1.1.0.umd.min.js"
+}
