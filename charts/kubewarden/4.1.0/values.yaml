@@ -13,3 +13,4 @@ plugin:
     catalog.cattle.io/kube-version: ">= v1.16.0-0"
     catalog.cattle.io/rancher-version: ">= 2.11.0-0"
     catalog.cattle.io/ui-extensions-version: ">= 3.0.0 < 4.0.0"
+    catalog.cattle.io/deprecated: "true"
