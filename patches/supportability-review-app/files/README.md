@@ -20,3 +20,6 @@ This tool runs non-invasive scanners (using the SURE engine) across your managem
 
 ### Deployment Path
 * **First Step**: Click the **SUSE Supportability Review** sidebar item and select **Run New Review** to generate your first report.
+
+### Documentation
+Documentation for SUSE Observability can be found [here](https://support.scc.suse.com/s/kb/Rancher-Supportability-Review-FAQ).

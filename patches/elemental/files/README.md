@@ -21,3 +21,6 @@ SUSE OS Management uses a "containerized" build of SLE Micro. The entire OS stac
 ### Deployment Path
 * **Prerequisites**: A cluster running the SUSE OS Management Operator.
 * **First Step**: Create a **Machine Registration** in the SUSE OS Management sidebar to generate your initial boot ISO.
+
+### Documentation
+Documentation for SUSE OS Management can be found [here](https://documentation.suse.com/cloudnative/os-manager/latest/en/index.html).

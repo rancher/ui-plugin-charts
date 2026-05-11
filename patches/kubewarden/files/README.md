@@ -21,3 +21,6 @@ SUSE Security Admission Controller policies are distributed as container images.
 ### Deployment Path
 * **Prerequisites**: Cert-manager and the "SUSE Security Admission Controller" Controller installed via Apps & Marketplace.
 * **First Step**: Open the **SUSE Security Admission Controller** sidebar and deploy a **Policy Server**.
+
+### Documentation
+Documentation for SUSE Security Admission Controller can be found [here](https://docs.kubewarden.io/).

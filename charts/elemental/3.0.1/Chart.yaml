@@ -17,4 +17,4 @@ description: Manages and automates cloud-native operating system lifecycles as n
 name: elemental
 type: application
 version: 3.0.1
-icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/3.0.1-icon-v2.svg
+icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/patched-icon-elemental-3.0.1.svg

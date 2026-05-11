@@ -21,3 +21,6 @@ Liz utilizes a **Multi-Agent AI** architecture. When you ask a question, differe
 ### Deployment Path
 * **Prerequisites**: Rancher Prime subscription; API key for an LLM provider (OpenAI, Gemini, or a local Ollama instance).
 * **First Step**: Click the **SUSE AI Assistant** icon in the sidebar to configure your model and start a conversation.
+
+### Documentation
+Documentation for SUSE Observability can be found [here](https://documentation.suse.com/cloudnative/rancher-ai/latest/en/introduction.html).

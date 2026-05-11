@@ -15,4 +15,4 @@ description: Provides and integrates security dashboards for vulnerability scann
 name: neuvector-ui-ext
 type: application
 version: 2.1.8
-icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.8-nv-icon.svg
+icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/patched-icon-neuvector-ui-ext-2.1.8.svg

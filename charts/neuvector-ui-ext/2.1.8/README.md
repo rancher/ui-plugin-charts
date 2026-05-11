@@ -21,3 +21,6 @@ SUSE Security uses "Enforcers" on every node to perform Deep Packet Inspection (
 ### Deployment Path
 * **Prerequisites**: SUSE Security helm chart installed; Rancher SSO configured.
 * **First Step**: Click the **SUSE Security** icon in the sidebar to open the integrated Zero Trust dashboard.
+
+### Documentation
+Documentation for SUSE Security can be found [here](https://documentation.suse.com/cloudnative/security/5.4/en/overview.html).

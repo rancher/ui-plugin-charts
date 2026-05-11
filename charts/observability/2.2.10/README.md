@@ -21,3 +21,6 @@ Powered by the Opni and StackState engines, this extension aggregates logs, metr
 ### Deployment Path
 * **Prerequisites**: Rancher Prime subscription; connectivity to the SUSE Observability backend.
 * **First Step**: Enable the extension and use the **Topology** view to discover your cluster dependencies.
+
+### Documentation
+Documentation for SUSE Observability can be found [here](https://documentation.suse.com/cloudnative/suse-observability/latest/en/classic.html).

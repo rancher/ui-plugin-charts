@@ -21,3 +21,6 @@ K3k (Kubernetes-in-Kubernetes) runs a K3s control plane as a set of Pods within 
 ### Deployment Path
 * **Prerequisites**: Rancher Prime subscription; a host cluster with sufficient capacity (RKE2 or K3s).
 * **First Step**: Navigate to **SUSE Virtual Clusters** in the sidebar and click **Create** to deploy your first K3k instance.
+
+### Documentation
+Documentation for SUSE Observability can be found [here](https://documentation.suse.com/cloudnative/suse-virtual-clusters/latest/en/introduction.html).

@@ -21,3 +21,6 @@ Built on KubeVirt and Longhorn, SUSE Virtualization turns bare-metal servers int
 ### Deployment Path
 * **Prerequisites**: At least one SUSE Virtualization HCI cluster installed on bare metal.
 * **First Step**: Navigate to **Virtualization Management** and click **Import** to link your SUSE Virtualization cluster.
+
+### Documentation
+Documentation for SUSE Virtualization can be found [here](https://docs.harvesterhci.io/).
