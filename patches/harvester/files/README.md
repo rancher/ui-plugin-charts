@@ -2,7 +2,7 @@
 
 **Integrates and manages hyperconverged infrastructure for unified container and VM operations.**
 
-### Vision & Value
+### Overview
 SUSE Virtualization is the modern, open-source alternative to legacy virtualization stacks. This extension integrates SUSE Virtualization directly into Rancher, allowing you to manage Virtual Machines (VMs) and Containers side-by-side, sharing the same networking and storage backend.
 
 ### Core Architecture

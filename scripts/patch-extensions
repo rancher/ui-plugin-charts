@@ -398,10 +398,16 @@ do
               
               # Perform the copy and rename operation
               if cp -fr "$SOURCE_PATH" "$DEST_PATH"; then
-                echo -e "${GREEN}ICON ::: Icon file copied and renamed to $NEW_ICON_NAME.${EXTENSION} in temp folder.${RESET}"
+                echo -e "${GREEN}ICON ::: Icon file copied and renamed to $NEW_ICON_NAME.${EXTENSION} in icons folder.${RESET}"
               else
                 echo -e "${RED}ICON ::: Failed to copy icon file from $SOURCE_PATH to $DEST_PATH.${RESET}"
               fi
+
+              # Update icon inside the extracted tgz folder (keep original name)
+              TMP_ICON_DIR="${TMP}/${NAME}"
+              find "$TMP_ICON_DIR" -maxdepth 1 -name "icon.*" -delete
+              cp -fr "$SOURCE_PATH" "${TMP_ICON_DIR}/icon.${EXTENSION}"
+              echo -e "${GREEN}ICON ::: Icon file updated in extracted tgz folder.${RESET}"
 
               # new icon path
               NEW_ICON_PATH="https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/icons/${NAME}/${NEW_ICON_NAME}.${EXTENSION}"

@@ -2,7 +2,7 @@
 
 **Automates and manages cloud-native OS lifecycles for immutable infrastructure deployments.**
 
-### Vision & Value
+### Overview
 SUSE OS Management revolutionizes node management by treating the Operating System as just another Kubernetes resource. It enables a "bare-metal-to-cluster" workflow that removes the need for traditional, complex configuration management tools (like Ansible or Salt) by using a cloud-native, image-based approach.
 
 ### Core Architecture

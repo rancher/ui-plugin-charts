@@ -2,7 +2,7 @@
 
 **Provisions and isolates lightweight K3s clusters within shared environments for multi-tenancy.**
 
-### Vision & Value
+### Overview
 SUSE Virtual Clusters solve the "Cluster Sprawl" problem. Instead of provisioning 50 heavy, expensive cloud clusters for 50 developers, you can spin up 50 virtual K3s clusters inside a single "Host" cluster. This provides full API isolation at a fraction of the infrastructure cost.
 
 ### Core Architecture

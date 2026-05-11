@@ -2,7 +2,7 @@
 
 **Automates policy enforcement and security validation for cluster-wide admission requests.**
 
-### Vision & Value
+### Overview
 SUSE Security Admission Controller provides a universal "guardrail" system for Kubernetes. It allows security teams to write and enforce policies that inspect every request coming into the cluster (like "no root containers" or "only pull from our registry"), ensuring compliance before any code actually runs.
 
 ### Core Architecture
