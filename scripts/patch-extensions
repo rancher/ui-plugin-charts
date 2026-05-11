@@ -379,9 +379,8 @@ do
             # handle ICON
             if [[ "$APPLY_ICON" == "true" ]]; then
               # copy ICON to icons folder
-              SOURCE_FOLDER="${BASE_PATCH_DIR}/${DIR}" 
-              DEST_FOLDER="./icons/${NAME}"             
-              NEW_ICON_NAME="patched-icon-${NAME}-${VERSION}"               
+              SOURCE_FOLDER="${BASE_PATCH_DIR}/${DIR}"
+              DEST_FOLDER="./icons/${NAME}"
 
               # Use the glob pattern to reliably capture the full filename
               MAPFILE=("${SOURCE_FOLDER}/${BASE_ICON_NAME}."*)
@@ -392,13 +391,25 @@ do
               EXTENSION="${SOURCE_PATH##*.}"
               echo "Extracted extension of ICON: .${EXTENSION}"
 
+              # Detect icon naming pattern from existing icons in the folder
+              EXISTING_ICON=$(ls "$DEST_FOLDER" | grep -v patched | head -1)
+              if [[ -n "$EXISTING_ICON" ]]; then
+                # Extract suffix from existing icon name (e.g., from "1.6.0-icon.svg" extract "-icon")
+                ICON_SUFFIX=$(echo "$EXISTING_ICON" | sed "s/^[0-9.]*//" | sed "s/\.[^.]*$//")
+                echo "Detected icon suffix pattern: $ICON_SUFFIX"
+              else
+                # Fallback to generic pattern if no existing icons found
+                ICON_SUFFIX="-icon"
+              fi
+
+              NEW_ICON_NAME="${VERSION}${ICON_SUFFIX}"
+
               # Construct the full destination path
-              # Example: /tmp/elemental/icon.svg
               DEST_PATH="${DEST_FOLDER}/${NEW_ICON_NAME}.${EXTENSION}"
-              
+
               # Perform the copy and rename operation
               if cp -fr "$SOURCE_PATH" "$DEST_PATH"; then
-                echo -e "${GREEN}ICON ::: Icon file copied and renamed to $NEW_ICON_NAME.${EXTENSION} in icons folder.${RESET}"
+                echo -e "${GREEN}ICON ::: Icon file copied to $NEW_ICON_NAME.${EXTENSION} in icons folder.${RESET}"
               else
                 echo -e "${RED}ICON ::: Failed to copy icon file from $SOURCE_PATH to $DEST_PATH.${RESET}"
               fi
