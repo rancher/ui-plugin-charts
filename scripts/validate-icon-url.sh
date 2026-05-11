@@ -27,7 +27,7 @@ validate_icon_url() {
   fi
 
   local -a allowed_repos=(
-    "StackVista/rancher-extension-stackstate"
+    "stackvista/rancher-extension-stackstate"
     "neuvector/manager-ext"
     "harvester/harvester-ui-extension"
   )
