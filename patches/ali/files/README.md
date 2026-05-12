@@ -5,7 +5,7 @@
 ### Overview
 The Alibaba Cloud (ACK) extension provides a native bridge between Rancher Prime and Alibaba Cloud's Container Service. It eliminates the friction of managing disparate cloud console environments by centralizing the lifecycle of ACK clusters alongside your on-premise and multi-cloud workloads.
 
-Documentation for Alibaba Cloud (ACK) Provisioning can be found [here](https://scc.suse.com/rancher-docs/rancherprime/latest/en/suse-rancher-prime/alibaba-hosted-clusters/setting-up-rancher.html).
+Documentation for Alibaba Cloud (ACK) Provisioning can be found [**here**](https://scc.suse.com/rancher-docs/rancherprime/latest/en/suse-rancher-prime/alibaba-hosted-clusters/setting-up-rancher.html).
 
 ### Core Architecture
 This extension leverages the Alibaba Cloud Cloud-API to translate Rancher cluster definitions into ACK resources. It handles the orchestration of the control plane, worker nodes (ECS), and networking components (VPC/SLB) through a single declarative workflow.

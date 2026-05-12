@@ -5,7 +5,7 @@
 ### Overview
 SUSE Virtual Clusters solve the "Cluster Sprawl" problem. Instead of provisioning 50 heavy, expensive cloud clusters for 50 developers, you can spin up 50 virtual K3s clusters inside a single "Host" cluster. This provides full API isolation at a fraction of the infrastructure cost.
 
-Documentation for SUSE Virtual Clusters can be found [here](https://documentation.suse.com/cloudnative/suse-virtual-clusters/latest/en/introduction.html).
+Documentation for SUSE Virtual Clusters can be found [**here**](https://documentation.suse.com/cloudnative/suse-virtual-clusters/latest/en/introduction.html).
 
 ### Core Architecture
 K3k (Kubernetes-in-Kubernetes) runs a K3s control plane as a set of Pods within a namespace of a host cluster. It supports **Shared Mode** (pods run on host nodes) for maximum efficiency or **Isolated Mode** for high-security environments, using virtualized networking to separate traffic.

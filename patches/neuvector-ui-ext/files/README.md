@@ -5,7 +5,7 @@
 ### Overview
 NeuVector is the industry's only 100% open-source, Zero Trust container security platform. This extension embeds NeuVector's deep-visibility tools into Rancher, moving your security posture from "reactionary" (logs/alerts) to "preventative" (blocking threats in real-time).
 
-Documentation for NeuVector can be found [here](https://documentation.suse.com/cloudnative/security/5.4/en/overview.html).
+Documentation for NeuVector can be found [**here**](https://documentation.suse.com/cloudnative/security/5.4/en/overview.html).
 
 ### Core Architecture
 NeuVector uses "Enforcers" on every node to perform Deep Packet Inspection (DPI) on container traffic. It learns your application's normal behavior and automatically creates a Zero Trust firewall that blocks anything outside that "known-good" baseline.
