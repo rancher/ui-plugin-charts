@@ -15,4 +15,4 @@ description: Centralizes and manages SUSE hyperconverged infrastructure and virt
 name: harvester
 type: application
 version: 1.7.1
-icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.7.1-icon.svg
+icon: https://raw.githubusercontent.com/aalves08/ui-plugin-charts/main/icons/harvester/1.7.1-icon.svg
