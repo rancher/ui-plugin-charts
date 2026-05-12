@@ -145,3 +145,24 @@ We now provide the ability to change metadata on published extensions in this re
 - if it matches, then it starts by doing checks on whether to apply any of the above changes and creates "APPLY" flags for each different metadata change
 - after all checks are done, it's time to apply them. Starts by unpacking the TGZ and changing all the metadata we've check before both outside the TGZ assets and inside them as well
 - once all changes are done, repacks the TGZ, applies the same permissions as the original file and regens the `index.yaml`
+
+## Running the patch-extensions script
+
+The `patch-extensions` script can be run with optional arguments to override the default repository organization and branch:
+
+```bash
+# Default: uses rancher organization and main branch
+./scripts/patch-extensions
+
+# Custom organization and branch (useful for testing/previewing on forks)
+./scripts/patch-extensions aalves08 15413-update-names-extensions-test
+
+# Only override organization
+./scripts/patch-extensions your-github-username
+```
+
+**Parameters:**
+- `$1` (optional): GitHub organization name (default: `rancher`)
+- `$2` (optional): Branch name (default: `main`)
+
+This is useful when testing changes on a fork before merging to the official repository. The script will generate icon URLs pointing to your fork/branch instead of the official `rancher/ui-plugin-charts` repository.

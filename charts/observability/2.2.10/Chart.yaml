@@ -15,4 +15,4 @@ description: Analyzes multi-cluster telemetry with AI-powered insights for accel
 name: observability
 type: application
 version: 2.2.10
-icon: https://raw.githubusercontent.com/aalves08/ui-plugin-charts/main/icons/observability/2.2.10-rancher-observability.svg
+icon: https://raw.githubusercontent.com/aalves08/ui-plugin-charts/15413-update-names-extensions-test/icons/observability/2.2.10-rancher-observability.svg

@@ -15,4 +15,4 @@ description: Automates policy enforcement and security validation for cluster-wi
 name: kubewarden
 type: application
 version: 4.1.1
-icon: https://raw.githubusercontent.com/aalves08/ui-plugin-charts/main/icons/kubewarden/4.1.1-icon-kubewarden.svg
+icon: https://raw.githubusercontent.com/aalves08/ui-plugin-charts/15413-update-names-extensions-test/icons/kubewarden/4.1.1-icon-kubewarden.svg

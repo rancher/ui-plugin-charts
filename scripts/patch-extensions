@@ -12,10 +12,12 @@ RED="\033[31m"
 RESET="\033[0m"
 BOLD="\033[1m"
 
-ORG=rancher
-BRANCH=main
+# Default values (can be overridden via command-line arguments)
+ORG="${1:-rancher}"
+BRANCH="${2:-main}"
 
 echo -e "${CYAN}${BOLD}Patch mechanism for extensions${RESET}"
+echo -e "${CYAN}ORG: ${ORG}, BRANCH: ${BRANCH}${RESET}"
 
 EXTS_ARRAY=()
 while IFS= read -r EXT; do
@@ -417,7 +419,7 @@ do
               # Update icon inside the extracted tgz folder (keep original name)
               TMP_ICON_DIR="${TMP}/${NAME}"
               find "$TMP_ICON_DIR" -maxdepth 1 -name "icon.*" -delete
-              cp -fr "$SOURCE_PATH" "${TMP_ICON_DIR}/icon.${EXTENSION}"
+              cp -f "$SOURCE_PATH" "${TMP_ICON_DIR}/icon.${EXTENSION}"
               echo -e "${GREEN}ICON ::: Icon file updated in extracted tgz folder.${RESET}"
 
               # new icon path
