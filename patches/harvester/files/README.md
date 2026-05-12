@@ -5,6 +5,8 @@
 ### Overview
 SUSE Virtualization is the modern, open-source alternative to legacy virtualization stacks. This extension integrates SUSE Virtualization directly into Rancher, allowing you to manage Virtual Machines (VMs) and Containers side-by-side, sharing the same networking and storage backend.
 
+Documentation for SUSE Virtualization can be found [here](https://docs.harvesterhci.io/).
+
 ### Core Architecture
 Built on KubeVirt and Longhorn, SUSE Virtualization turns bare-metal servers into a hyperconverged cluster. The Rancher extension allows you to manage these SUSE Virtualization clusters as "Virtualization Management" nodes, enabling VM operations through the standard Kubernetes API.
 
@@ -21,6 +23,3 @@ Built on KubeVirt and Longhorn, SUSE Virtualization turns bare-metal servers int
 ### Deployment Path
 * **Prerequisites**: At least one SUSE Virtualization HCI cluster installed on bare metal.
 * **First Step**: Navigate to **Virtualization Management** and click **Import** to link your SUSE Virtualization cluster.
-
-### Documentation
-Documentation for SUSE Virtualization can be found [here](https://docs.harvesterhci.io/).

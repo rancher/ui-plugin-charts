@@ -1,12 +1,14 @@
-# SUSE Security Extension
+# NeuVector Extension
 
 **Centralizes security dashboards and vulnerability scanning for full-lifecycle container protection.**
 
 ### Overview
-SUSE Security is the industry's only 100% open-source, Zero Trust container security platform. This extension embeds SUSE Security's deep-visibility tools into Rancher, moving your security posture from "reactionary" (logs/alerts) to "preventative" (blocking threats in real-time).
+NeuVector is the industry's only 100% open-source, Zero Trust container security platform. This extension embeds NeuVector's deep-visibility tools into Rancher, moving your security posture from "reactionary" (logs/alerts) to "preventative" (blocking threats in real-time).
+
+Documentation for NeuVector can be found [here](https://documentation.suse.com/cloudnative/security/5.4/en/overview.html).
 
 ### Core Architecture
-SUSE Security uses "Enforcers" on every node to perform Deep Packet Inspection (DPI) on container traffic. It learns your application's normal behavior and automatically creates a Zero Trust firewall that blocks anything outside that "known-good" baseline.
+NeuVector uses "Enforcers" on every node to perform Deep Packet Inspection (DPI) on container traffic. It learns your application's normal behavior and automatically creates a Zero Trust firewall that blocks anything outside that "known-good" baseline.
 
 ### Key Technical Features
 * **Layer 7 Container Firewall**: Inspects over 30 protocols (HTTP, MySQL, MongoDB, etc.) to block lateral movement and SQL injection.
@@ -19,8 +21,5 @@ SUSE Security uses "Enforcers" on every node to perform Deep Packet Inspection (
 * **Network Segmentation**: Implementing strict "micro-segmentation" without complex firewall hardware.
 
 ### Deployment Path
-* **Prerequisites**: SUSE Security helm chart installed; Rancher SSO configured.
-* **First Step**: Click the **SUSE Security** icon in the sidebar to open the integrated Zero Trust dashboard.
-
-### Documentation
-Documentation for SUSE Security can be found [here](https://documentation.suse.com/cloudnative/security/5.4/en/overview.html).
+* **Prerequisites**: NeuVector helm chart installed; Rancher SSO configured.
+* **First Step**: Click the **NeuVector** icon in the sidebar to open the integrated Zero Trust dashboard.

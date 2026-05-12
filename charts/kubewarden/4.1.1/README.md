@@ -5,6 +5,8 @@
 ### Overview
 SUSE Security Admission Controller provides a universal "guardrail" system for Kubernetes. It allows security teams to write and enforce policies that inspect every request coming into the cluster (like "no root containers" or "only pull from our registry"), ensuring compliance before any code actually runs.
 
+Documentation for SUSE Security Admission Controller can be found [here](https://docs.kubewarden.io/).
+
 ### Core Architecture
 SUSE Security Admission Controller policies are distributed as container images. When a user tries to deploy a workload, the SUSE Security Admission Controller Policy Server intercepts the request, runs it against the selected policies, and either allows, denies, or "mutates" (fixes) the request.
 
@@ -21,6 +23,3 @@ SUSE Security Admission Controller policies are distributed as container images.
 ### Deployment Path
 * **Prerequisites**: Cert-manager and the "SUSE Security Admission Controller" Controller installed via Apps & Marketplace.
 * **First Step**: Open the **SUSE Security Admission Controller** sidebar and deploy a **Policy Server**.
-
-### Documentation
-Documentation for SUSE Security Admission Controller can be found [here](https://docs.kubewarden.io/).

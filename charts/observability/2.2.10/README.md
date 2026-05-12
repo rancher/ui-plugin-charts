@@ -5,6 +5,8 @@
 ### Overview
 Standard monitoring tells you *that* something is broken; SUSE Observability tells you *why*. This extension moves beyond simple dashboards to provide a correlated view of your entire stack, using AI to connect the dots between a slow database in one cluster and a failing pod in another.
 
+Documentation for SUSE Observability can be found [here](https://documentation.suse.com/cloudnative/suse-observability/latest/en/classic.html).
+
 ### Core Architecture
 Powered by the Opni and StackState engines, this extension aggregates logs, metrics, and traces into a "Global Topology Map." It uses AIOps algorithms to baseline "normal" performance and flags anomalies that human operators might miss.
 
@@ -21,6 +23,3 @@ Powered by the Opni and StackState engines, this extension aggregates logs, metr
 ### Deployment Path
 * **Prerequisites**: Rancher Prime subscription; connectivity to the SUSE Observability backend.
 * **First Step**: Enable the extension and use the **Topology** view to discover your cluster dependencies.
-
-### Documentation
-Documentation for SUSE Observability can be found [here](https://documentation.suse.com/cloudnative/suse-observability/latest/en/classic.html).

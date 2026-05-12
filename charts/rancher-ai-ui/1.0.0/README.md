@@ -5,6 +5,8 @@
 ### Overview
 The SUSE AI Assistant is your dedicated AI Site Reliability Engineer. Unlike generic chatbots, Liz is built with deep "platform-context," meaning she has real-time access to your cluster state, logs, and events, allowing her to provide tailored advice that generic AI simply cannot.
 
+Documentation for SUSE AI Assistant can be found [here](https://documentation.suse.com/cloudnative/rancher-ai/latest/en/introduction.html).
+
 ### Core Architecture
 Liz utilizes a **Multi-Agent AI** architecture. When you ask a question, different "specialist" agents (one for Security, one for Networking, one for Diagnostics) collaborate to provide a verified answer. It supports the Model Context Protocol (MCP) to pull in data from your specific Rancher environment securely.
 
@@ -21,6 +23,3 @@ Liz utilizes a **Multi-Agent AI** architecture. When you ask a question, differe
 ### Deployment Path
 * **Prerequisites**: Rancher Prime subscription; API key for an LLM provider (OpenAI, Gemini, or a local Ollama instance).
 * **First Step**: Click the **SUSE AI Assistant** icon in the sidebar to configure your model and start a conversation.
-
-### Documentation
-Documentation for SUSE Observability can be found [here](https://documentation.suse.com/cloudnative/rancher-ai/latest/en/introduction.html).
