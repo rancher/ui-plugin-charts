@@ -19,6 +19,13 @@ BRANCH="${2:-main}"
 echo -e "${CYAN}${BOLD}Patch mechanism for extensions${RESET}"
 echo -e "${CYAN}ORG: ${ORG}, BRANCH: ${BRANCH}${RESET}"
 
+# Initialize or load .patched.json
+PATCHED_FILE="${BASE_DIR}/.patched.json"
+if [ ! -f "$PATCHED_FILE" ]; then
+  echo "{}" > "$PATCHED_FILE"
+  echo -e "${CYAN}Created $PATCHED_FILE${RESET}"
+fi
+
 EXTS_ARRAY=()
 while IFS= read -r EXT; do
     EXTS_ARRAY+=("$EXT")
@@ -105,8 +112,16 @@ do
   echo -e "     Versions  : ${VFORMAT}"
   echo ""
 
-  for VERSION in "${VERSIONS_ARRAY[@]}" 
+  for VERSION in "${VERSIONS_ARRAY[@]}"
   do
+    EXTENSION_KEY="${NAME}@${VERSION}"
+
+    # Check if this extension@version has already been patched
+    if jq -e ".\"$EXTENSION_KEY\"" "$PATCHED_FILE" > /dev/null 2>&1; then
+      echo -e "${PURPLE}     Skipping: ${BOLD}${EXTENSION_KEY}${RESET} (already patched)${RESET}"
+      continue
+    fi
+
     echo -e "${CYAN}     Syncing: ${BOLD}${NAME}@${VERSION}${RESET}"
 
     if [ -d "./patches/${NAME}" ]; then
@@ -631,6 +646,11 @@ do
           else
             echo -e "${PURPLE}Nothing to do with assets/.tgz file...${RESET}"
           fi
+
+          # Log the patched extension with timestamp
+          TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          jq ".\"$EXTENSION_KEY\" = \"$TIMESTAMP\"" "$PATCHED_FILE" > "${PATCHED_FILE}.tmp" && mv "${PATCHED_FILE}.tmp" "$PATCHED_FILE"
+          echo -e "${GREEN}Logged ${EXTENSION_KEY} to ${PATCHED_FILE}${RESET}"
 
           echo "---------------------------------------------------------"
           echo "--- Traversal Complete ---"
