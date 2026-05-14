@@ -130,8 +130,11 @@ We now provide the ability to change metadata on published extensions in this re
 ```
 - the `versions` semver check will only apply the changes to the interval (or simple condition) that you want to
 - the `dir` folder is the name of the folder **inside** `elemental` folder, where file assets like `README` and `icon` will live, which will be applied as patch
-- **Caveat**: for the **ICON** change, the icon file must be called `icon` (it doesn't care about the file extension, since it can be a `svg` or `png`) in order for it to be considered as change
-- **Caveat**: for the **README** change: the file content must be different than the `README` originally present on the extension in order to be applied, otherwise it's ignored
+
+### Caveats
+
+- For the **ICON** change, the icon file must be called `icon` (it doesn't care about the file extension, since it can be a `svg` or `png`) in order for it to be considered as change
+- For the **README** change: the file content must be different than the `README` originally present on the extension in order to be applied, otherwise it's ignored
 
 
 ### How does the script work
@@ -142,3 +145,22 @@ We now provide the ability to change metadata on published extensions in this re
 - if it matches, then it starts by doing checks on whether to apply any of the above changes and creates "APPLY" flags for each different metadata change
 - after all checks are done, it's time to apply them. Starts by unpacking the TGZ and changing all the metadata we've check before both outside the TGZ assets and inside them as well
 - once all changes are done, repacks the TGZ, applies the same permissions as the original file and regens the `index.yaml`
+
+## Running the patch-extensions script
+
+The `patch-extensions` script can be run with optional arguments to override the default repository organization and branch:
+
+```bash
+# Default: uses rancher organization and main branch
+./scripts/patch-extensions
+
+# Custom organization and branch (useful for testing/previewing on forks)
+./scripts/patch-extensions aalves08 15413-update-names-extensions-test
+
+# Only override organization
+./scripts/patch-extensions your-github-username
+```
+
+**Parameters:**
+- `$1` (optional): GitHub organization name (default: `rancher`)
+- `$2` (optional): Branch name (default: `main`)

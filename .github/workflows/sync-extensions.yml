@@ -46,6 +46,14 @@ jobs:
         run: |
           chmod +x ./scripts/sync-charts
           ./scripts/sync-charts
+      
+
+      - name: Run patch extensions script
+        shell: bash
+        id: patch_extensions_script
+        run: |
+          chmod +x ./scripts/patch-extensions
+          ./scripts/patch-extensions
 
       - name: Generate branch name based on date and time
         run: echo "NOW=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
