@@ -130,8 +130,11 @@ We now provide the ability to change metadata on published extensions in this re
 ```
 - the `versions` semver check will only apply the changes to the interval (or simple condition) that you want to
 - the `dir` folder is the name of the folder **inside** `elemental` folder, where file assets like `README` and `icon` will live, which will be applied as patch
-- **Caveat**: for the **ICON** change, the icon file must be called `icon` (it doesn't care about the file extension, since it can be a `svg` or `png`) in order for it to be considered as change
-- **Caveat**: for the **README** change: the file content must be different than the `README` originally present on the extension in order to be applied, otherwise it's ignored
+
+### Caveats
+
+- For the **ICON** change, the icon file must be called `icon` (it doesn't care about the file extension, since it can be a `svg` or `png`) in order for it to be considered as change
+- For the **README** change: the file content must be different than the `README` originally present on the extension in order to be applied, otherwise it's ignored
 
 
 ### How does the script work
@@ -142,3 +145,79 @@ We now provide the ability to change metadata on published extensions in this re
 - if it matches, then it starts by doing checks on whether to apply any of the above changes and creates "APPLY" flags for each different metadata change
 - after all checks are done, it's time to apply them. Starts by unpacking the TGZ and changing all the metadata we've check before both outside the TGZ assets and inside them as well
 - once all changes are done, repacks the TGZ, applies the same permissions as the original file and regens the `index.yaml`
+
+## Running the patch-extensions script
+
+The `patch-extensions` script can be run with optional arguments to override the default repository organization and branch:
+
+```bash
+# Default: uses rancher organization and main branch
+./scripts/patch-extensions
+
+# Custom organization and branch (useful for testing/previewing on forks)
+./scripts/patch-extensions aalves08 15413-update-names-extensions-test
+
+# Only override organization
+./scripts/patch-extensions your-github-username
+```
+
+**Parameters:**
+- `$1` (optional): GitHub organization name (default: `rancher`)
+- `$2` (optional): Branch name (default: `main`)
+
+## Patching as Part of the Sync Mechanism
+
+The `patch-extensions` script is now automatically executed as part of the sync workflow. This means that whenever extensions are synced into the repository, any patches defined for those extensions are applied immediately.
+
+### Automated Sync Workflow
+
+1. When `manifest.json` is updated on the `main` branch, a GitHub Actions workflow triggers automatically
+2. The workflow syncs extension assets from upstream repositories
+3. The `patch-extensions` script runs automatically to apply any configured patches
+4. All changes (synced assets + patches) are committed together in a single PR
+
+This ensures that patches are always applied consistently and are never missed during the sync process.
+
+## Preventing Duplicate Patching with `.patched.json`
+
+To prevent the same extension@version from being patched multiple times across syncs, the system maintains a `.patched.json` file that tracks which extensions have already been patched.
+
+### How `.patched.json` Works
+
+When patches are applied, an entry is automatically added to `.patched.json` with a timestamp:
+
+```json
+{
+  "observability@2.3.1": "2026-05-14T16:38:04Z",
+  "stackvista@1.0.0": "2026-05-14T16:38:04Z",
+  "kubewarden@4.1.1": "2026-05-14T12:00:00Z"
+}
+```
+
+**Behavior:**
+- **First sync**: Extensions matching patch conditions are patched and logged to `.patched.json`
+- **Subsequent syncs**: Extensions already in `.patched.json` are skipped (not re-patched)
+- The `.patched.json` file is committed as part of the workflow, ensuring all environments stay in sync
+
+### Re-patching an Extension
+
+If you need to re-patch an extension that was previously patched:
+
+1. **Remove the entry** from `.patched.json`:
+   ```bash
+   # Edit .patched.json and remove the line:
+   # "observability@2.3.1": "2026-05-14T16:38:04Z",
+   ```
+
+2. **Update your patch definition** in `patches/[extension]/patches.json` as needed
+
+3. **Commit both changes** and push
+   ```bash
+   git add .patched.json patches/[extension]/patches.json
+   git commit -m "Re-patch observability@2.3.1"
+   git push
+   ```
+
+4. The next sync will re-apply the patches to that extension@version
+
+This explicit removal approach ensures that re-patching is intentional and visible in git history.

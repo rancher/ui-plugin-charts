@@ -12,10 +12,19 @@ RED="\033[31m"
 RESET="\033[0m"
 BOLD="\033[1m"
 
-ORG=rancher
-BRANCH=main
+# Default values (can be overridden via command-line arguments)
+ORG="${1:-rancher}"
+BRANCH="${2:-main}"
 
 echo -e "${CYAN}${BOLD}Patch mechanism for extensions${RESET}"
+echo -e "${CYAN}ORG: ${ORG}, BRANCH: ${BRANCH}${RESET}"
+
+# Initialize or load .patched.json
+PATCHED_FILE="${BASE_DIR}/.patched.json"
+if [ ! -f "$PATCHED_FILE" ]; then
+  echo "{}" > "$PATCHED_FILE"
+  echo -e "${CYAN}Created $PATCHED_FILE${RESET}"
+fi
 
 EXTS_ARRAY=()
 while IFS= read -r EXT; do
@@ -103,8 +112,16 @@ do
   echo -e "     Versions  : ${VFORMAT}"
   echo ""
 
-  for VERSION in "${VERSIONS_ARRAY[@]}" 
+  for VERSION in "${VERSIONS_ARRAY[@]}"
   do
+    EXTENSION_KEY="${NAME}@${VERSION}"
+
+    # Check if this extension@version has already been patched
+    if jq -e ".\"$EXTENSION_KEY\"" "$PATCHED_FILE" > /dev/null 2>&1; then
+      echo -e "${PURPLE}     Skipping: ${BOLD}${EXTENSION_KEY}${RESET} (already patched)${RESET}"
+      continue
+    fi
+
     echo -e "${CYAN}     Syncing: ${BOLD}${NAME}@${VERSION}${RESET}"
 
     if [ -d "./patches/${NAME}" ]; then
@@ -379,9 +396,8 @@ do
             # handle ICON
             if [[ "$APPLY_ICON" == "true" ]]; then
               # copy ICON to icons folder
-              SOURCE_FOLDER="${BASE_PATCH_DIR}/${DIR}" 
-              DEST_FOLDER="./icons/${NAME}"             
-              NEW_ICON_NAME="patched-icon-${NAME}-${VERSION}"               
+              SOURCE_FOLDER="${BASE_PATCH_DIR}/${DIR}"
+              DEST_FOLDER="./icons/${NAME}"
 
               # Use the glob pattern to reliably capture the full filename
               MAPFILE=("${SOURCE_FOLDER}/${BASE_ICON_NAME}."*)
@@ -392,16 +408,34 @@ do
               EXTENSION="${SOURCE_PATH##*.}"
               echo "Extracted extension of ICON: .${EXTENSION}"
 
+              # Detect icon naming pattern from the most recent existing icon in the folder
+              EXISTING_ICON=$(ls "$DEST_FOLDER" | grep -v patched | sort -V | tail -1)
+              if [[ -n "$EXISTING_ICON" ]]; then
+                # Extract suffix from existing icon name (e.g., from "1.6.0-icon.svg" extract "-icon")
+                ICON_SUFFIX=$(echo "$EXISTING_ICON" | sed "s/^[0-9.]*//" | sed "s/\.[^.]*$//")
+                echo "Detected icon suffix pattern from latest icon: $ICON_SUFFIX"
+              else
+                # Fallback to generic pattern if no existing icons found
+                ICON_SUFFIX="-icon"
+              fi
+
+              NEW_ICON_NAME="${VERSION}${ICON_SUFFIX}"
+
               # Construct the full destination path
-              # Example: /tmp/elemental/icon.svg
               DEST_PATH="${DEST_FOLDER}/${NEW_ICON_NAME}.${EXTENSION}"
-              
+
               # Perform the copy and rename operation
-              if cp -fr "$SOURCE_PATH" "$DEST_PATH"; then
-                echo -e "${GREEN}ICON ::: Icon file copied and renamed to $NEW_ICON_NAME.${EXTENSION} in temp folder.${RESET}"
+              if cp -f "$SOURCE_PATH" "$DEST_PATH"; then
+                echo -e "${GREEN}ICON ::: Icon file copied to $NEW_ICON_NAME.${EXTENSION} in icons folder.${RESET}"
               else
                 echo -e "${RED}ICON ::: Failed to copy icon file from $SOURCE_PATH to $DEST_PATH.${RESET}"
               fi
+
+              # Update icon inside the extracted tgz folder (keep original name)
+              TMP_ICON_DIR="${TMP}/${NAME}"
+              find "$TMP_ICON_DIR" -maxdepth 1 -name "icon.*" -delete
+              cp -f "$SOURCE_PATH" "${TMP_ICON_DIR}/icon.${EXTENSION}"
+              echo -e "${GREEN}ICON ::: Icon file updated in extracted tgz folder.${RESET}"
 
               # new icon path
               NEW_ICON_PATH="https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/icons/${NAME}/${NEW_ICON_NAME}.${EXTENSION}"
@@ -598,6 +632,7 @@ do
 
             # --- Cleanup ---
             rm -rf "$TMP"
+            mkdir -p "$TMP"
             echo "Cleaned up temporary directory: $TMP"
 
             # since we've updated annotations, we need to regenerate index.yaml
@@ -611,6 +646,11 @@ do
           else
             echo -e "${PURPLE}Nothing to do with assets/.tgz file...${RESET}"
           fi
+
+          # Log the patched extension with timestamp
+          TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          jq ".\"$EXTENSION_KEY\" = \"$TIMESTAMP\"" "$PATCHED_FILE" > "${PATCHED_FILE}.tmp" && mv "${PATCHED_FILE}.tmp" "$PATCHED_FILE"
+          echo -e "${GREEN}Logged ${EXTENSION_KEY} to ${PATCHED_FILE}${RESET}"
 
           echo "---------------------------------------------------------"
           echo "--- Traversal Complete ---"
