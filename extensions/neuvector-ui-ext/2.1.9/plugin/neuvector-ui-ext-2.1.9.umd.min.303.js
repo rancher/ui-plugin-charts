@@ -1,0 +1,2 @@
+"use strict";(("undefined"!==typeof self?self:this)["webpackChunkneuvector_ui_ext_2_1_9"]=("undefined"!==typeof self?self:this)["webpackChunkneuvector_ui_ext_2_1_9"]||[]).push([[303],{66303:function(e,n,t){t.r(n),t.d(n,{default:function(){return i}});var o=t(9274);function u(e,n,t,u,r,c){const s=(0,o.resolveComponent)("ResourceDetail");return(0,o.openBlock)(),(0,o.createBlock)(s)}var r=t(76030),c={name:"ClusterResourcedId",components:{ResourceDetail:r.A}},s=t(47433);const f=(0,s.A)(c,[["render",u]]);var i=f}}]);
+//# sourceMappingURL=neuvector-ui-ext-2.1.9.umd.min.303.js.map
