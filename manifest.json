@@ -26,7 +26,8 @@
       "repo": "neuvector/security-ui-exts",
       "branch": "gh-pages",
       "versions": [
-        "0.8.0"
+        "0.8.0",
+        "0.8.1"
       ]
     },
     "neuvector-ui-ext": {
