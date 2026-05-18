@@ -2647,6 +2647,29 @@ entries:
       catalog.cattle.io/namespace: cattle-ui-plugin-system
       catalog.cattle.io/os: linux
       catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/prime-only: "true"
+      catalog.cattle.io/rancher-version: '>= 2.11.0-0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 0.8.1
+    created: "2026-05-18T10:04:51.490395279Z"
+    description: SUSE Security Vulnerability Scanner extension for Rancher Manager
+    digest: 9d24cd8460d5d30b83d8e12d67060bf945afc16d9cd6c64b8dcf176101a990d5
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/vulnerability-scanner/0.8.1-icon-vulnerability-scanner.svg
+    name: vulnerability-scanner
+    type: application
+    urls:
+    - assets/vulnerability-scanner/vulnerability-scanner-0.8.1.tgz
+    version: 0.8.1
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: SUSE Security Vulnerability Scanner
+      catalog.cattle.io/kube-version: '>= v1.16.0-0'
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
       catalog.cattle.io/rancher-version: '>= 2.11.0-0'
       catalog.cattle.io/scope: management
       catalog.cattle.io/ui-component: plugins
@@ -2662,4 +2685,4 @@ entries:
     urls:
     - assets/vulnerability-scanner/vulnerability-scanner-0.8.0.tgz
     version: 0.8.0
-generated: "2026-05-15T08:31:25.535193657Z"
+generated: "2026-05-18T10:04:51.48997013Z"
