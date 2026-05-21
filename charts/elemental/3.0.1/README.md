@@ -1,15 +1,26 @@
-# OS Management Extension
+# SUSE OS Management
 
-Adds support for OS Management to Rancher Manager through Elemental.
+**Automates and manages cloud-native OS lifecycles for immutable infrastructure deployments.**
 
+### Vision & Value
+SUSE OS Management revolutionizes node management by treating the Operating System as just another Kubernetes resource. It enables a "bare-metal-to-cluster" workflow that removes the need for traditional, complex configuration management tools (like Ansible or Salt) by using a cloud-native, image-based approach.
 
-Elemental is a software stack enabling a centralized, full cloud-native OS management with Kubernetes.
+### Core Architecture
+SUSE OS Management uses a "containerized" build of SLE Micro. The entire OS stack is stored as an OCI image in your container registry. When a node boots, it pulls its entire identity and system state from the registry, ensuring a 100% predictable, immutable system.
 
-Cluster Node OSes are built and maintained via container images through the Elemental Toolkit and installed on new hosts using the Elemental CLI.
+### Key Technical Features
+* **OCI-Based OS Delivery**: Ship your Operating System updates via the same registry you use for application containers.
+* **Zero-Touch Provisioning (ZTP)**: New hardware registers automatically with Rancher via `MachineRegistration` upon first boot.
+* **Immutable Infrastructure**: Prevents configuration drift by ensuring the system disk is read-only and state is managed declaratively.
+* **Full-Stack Upgrades**: Trigger rolling OS and Kubernetes upgrades simultaneously from the Rancher UI.
 
-The Elemental Operator and the Rancher System Agent enable Rancher Manager to fully control Elemental clusters, from the installation and management of the OS on the Nodes to the provisioning of new K3s or RKE2 clusters in a centralized way.
+### Target Use Cases
+* **Edge Computing**: Managing hundreds of remote, headless nodes with zero local IT staff.
+* **Secure Data Centers**: Enforcing immutable system states to prevent unauthorized persistent changes (malware/drift).
 
-For more details take a look at the documentation regarding [Elemental](https://elemental.docs.rancher.com/).
+### Deployment Path
+* **Prerequisites**: A cluster running the SUSE OS Management Operator.
+* **First Step**: Create a **Machine Registration** in the SUSE OS Management sidebar to generate your initial boot ISO.
 
-
-**IMPORTANT NOTE**: In order to have access to OS Management in Rancher Manager, installation of the Elemental Operator is required. Instructions for installing it can be found [here](https://elemental.docs.rancher.com/quickstart-cli#install-elemental-operator).
+### Documentation
+Documentation for SUSE OS Management can be found [here](https://documentation.suse.com/cloudnative/os-manager/latest/en/index.html).
