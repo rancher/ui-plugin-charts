@@ -1,0 +1,13 @@
+{
+  "patches": [
+    {
+      "versions": ">= 3.0.1",
+      "dir": "files",
+      "name": "SUSE OS Management",
+      "description": "Manages and automates cloud-native operating system lifecycles as native Kubernetes resources",
+      "annotations": {
+        "catalog.cattle.io/deprecated": "true"
+      }
+    }
+  ]
+}
