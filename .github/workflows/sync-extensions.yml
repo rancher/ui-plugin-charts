@@ -12,6 +12,7 @@ on:
       - main
     paths:
       - manifest.json
+      - patches/**
 
 env:
   ACTIONS_RUNNER_DEBUG: false
