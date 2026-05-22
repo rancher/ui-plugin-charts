@@ -9,11 +9,9 @@ annotations:
   catalog.cattle.io/rancher-version: '>= 2.10.0-0'
   catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
   catalog.cattle.io/ui-version: '>= 2.7.2'
-  catalog.cattle.io/display-name: SUSE OS Management
-  catalog.cattle.io/deprecated: "true"
 apiVersion: v2
 appVersion: 3.0.1
-description: Manages and automates cloud-native operating system lifecycles as native Kubernetes resources
+description: OS Management extension
 name: elemental
 type: application
 version: 3.0.1
