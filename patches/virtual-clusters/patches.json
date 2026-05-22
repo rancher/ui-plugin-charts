@@ -1,0 +1,10 @@
+{
+  "patches": [
+    {
+      "versions": ">= 1.1.0",
+      "dir": "files",
+      "name": "SUSE Virtual Clusters",
+      "description": "Provisions and isolates lightweight K3s clusters within shared environments for multi-tenancy"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "patches": [
+    {
+      "versions": ">= 1.8.0",
+      "dir": "files",
+      "name": "SUSE Virtualization",
+      "description": "Centralizes and manages SUSE hyperconverged infrastructure and virtual machine workloads"
+    }
+  ]
+}
