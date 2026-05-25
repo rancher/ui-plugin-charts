@@ -2407,6 +2407,28 @@ entries:
       catalog.cattle.io/ui-component: plugins
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
+    appVersion: 1.0.1
+    created: "2026-05-25T09:30:34.577754471Z"
+    description: AI Assistant extension
+    digest: 6f09b63ac7497803ceb702058b00b041c2a15fcca62c798b59adcdbbe33eed0d
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/rancher-ai-ui/1.0.1-extension-icon.svg
+    name: rancher-ai-ui
+    type: application
+    urls:
+    - assets/rancher-ai-ui/rancher-ai-ui-1.0.1.tgz
+    version: 1.0.1
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: AI Assistant
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/prime-only: "true"
+      catalog.cattle.io/rancher-version: '>= 2.13.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
     appVersion: 1.0.0
     created: "2026-05-19T09:28:50.120755345Z"
     description: AI Assistant extension
@@ -2706,4 +2728,4 @@ entries:
     urls:
     - assets/vulnerability-scanner/vulnerability-scanner-0.8.1.tgz
     version: 0.8.1
-generated: "2026-05-21T08:21:48.844640713Z"
+generated: "2026-05-25T09:30:34.577316762Z"
