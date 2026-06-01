@@ -1,0 +1,10 @@
+{
+  "patches": [
+    {
+      "versions": ">= 4.1.4",
+      "dir": "files",
+      "name": "SUSE Security Admission Controller",
+      "description": "Automates policy enforcement and security validation for cluster-wide admission requests"
+    }
+  ]
+}

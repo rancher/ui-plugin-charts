@@ -1,0 +1,10 @@
+{
+  "patches": [
+    {
+      "versions": ">= 2.3.1",
+      "dir": "files",
+      "name": "SUSE Observability",
+      "description": "Analyzes multi-cluster telemetry with AI-powered insights for accelerated incident resolution"
+    }
+  ]
+}

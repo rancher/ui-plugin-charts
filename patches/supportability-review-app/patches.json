@@ -1,0 +1,14 @@
+{
+  "patches": [
+    {
+      "versions": ">= 2.0.3",
+      "dir": "files",
+      "name": "SUSE Supportability Review"
+    },
+    {
+      "versions": ">= 3.0.3",
+      "dir": "files",
+      "name": "SUSE Supportability Review"
+    }
+  ]
+}
