@@ -21,5 +21,8 @@ Liz utilizes a **Multi-Agent AI** architecture. When you ask a question, differe
 * **Skill Leveling**: Helping junior engineers navigate the complexities of Kubernetes without leaving the Rancher Dashboard.
 
 ### Deployment Path
-* **Prerequisites**: Rancher Prime subscription; API key for an LLM provider (OpenAI, Gemini, or a local Ollama instance).
-* **First Step**: Click the **SUSE AI Assistant** icon in the sidebar to configure your model and start a conversation.
+* **Prerequisites**:
+  - Rancher Prime subscription; API key for an LLM provider (OpenAI, Gemini, or a local Ollama instance).
+  - The AI Assistant chart must be installed. GitHub repository: [https://github.com/rancher/ai-assistant](https://github.com/rancher/rancher-ai-agent).
+* **First Step**: After installation, configure the AI Assistant with your API key and preferred model in the **AI Assistant** settings page (Global Settings -> AI Assistant).
+* **Next Step**: Click the **SUSE AI Assistant** icon in the sidebar to start a conversation.
