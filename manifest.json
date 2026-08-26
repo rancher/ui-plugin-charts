@@ -199,6 +199,13 @@
         "1.0.0",
         "1.0.1"
       ]
+    },
+    "capa":{
+      "repo": "rancher/prov-capi-ui-extensions",
+      "branch": "gh-pages",
+      "versions": [
+        "0.0.1"
+      ]
     }
   }
 }
