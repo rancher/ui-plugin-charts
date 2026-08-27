@@ -90,6 +90,30 @@ entries:
     urls:
     - assets/ali/ali-1.0.0.tgz
     version: 1.0.0
+  capa:
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: SUSE CAPI CAPA UI
+      catalog.cattle.io/experimental: "true"
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/prime-only: "true"
+      catalog.cattle.io/rancher-version: '>= 2.15.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
+    appVersion: 0.0.1
+    created: "2026-08-27T15:31:07.323167112Z"
+    description: SUSE UI Extension to support Rancher v2 provisioning via CAPI CAPA
+    digest: 53227f2b4b203050a8de6a9d220b3c953821ba9ddf0b818ce361e457fb1c0407
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/capa/0.0.1-amazoncapa.svg
+    name: capa
+    type: application
+    urls:
+    - assets/capa/capa-0.0.1.tgz
+    version: 0.0.1
   elemental:
   - annotations:
       catalog.cattle.io/certified: rancher
@@ -3014,4 +3038,4 @@ entries:
     urls:
     - assets/vulnerability-scanner/vulnerability-scanner-0.8.1.tgz
     version: 0.8.1
-generated: "2026-08-27T15:25:46.110192322Z"
+generated: "2026-08-27T15:31:07.322814192Z"

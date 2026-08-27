@@ -1,0 +1,20 @@
+{
+  "name": "capa",
+  "description": "SUSE UI Extension to support Rancher v2 provisioning via CAPI CAPA",
+  "version": "0.0.1",
+  "private": false,
+  "icon": "https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/capa/0.0.1-amazoncapa.svg",
+  "rancher": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "5.0.9",
+    "@vue/cli-service": "5.0.8",
+    "@vue/cli-plugin-typescript": "5.0.9"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "capa-0.0.1.umd.min.js"
+}
