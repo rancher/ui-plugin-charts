@@ -14,7 +14,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.1.0
-    created: "2026-08-18T08:41:05.833104063Z"
+    created: "2026-08-27T15:25:46.111378167Z"
     description: Provisions and manages Alibaba Cloud (ACK) clusters for integrated
       cloud resource management
     digest: e64618000df80e358703c7c5cceaeb3a3d415b2b3055908cea92884181ee6429
@@ -37,7 +37,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.2
-    created: "2026-08-18T08:41:05.832843895Z"
+    created: "2026-08-27T15:25:46.111116919Z"
     description: Create Alibaba Cloud clusters in Rancher
     digest: f1380896d7cf7a6ee73cd86baecdfe2d15ce8fff4b575d26ad6230f57d78bc77
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/ali/1.0.2-alibaba.svg
@@ -59,7 +59,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.1
-    created: "2026-08-18T08:41:05.832603184Z"
+    created: "2026-08-27T15:25:46.110889204Z"
     description: Create Alibaba Cloud clusters in Rancher
     digest: 0dfb4b1956b0f4cceee5ad2ff8ed12492c20b55a94a9964e0f7c2ac2217e2fcf
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/ali/1.0.1-alibaba.svg
@@ -81,7 +81,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-08-18T08:41:05.832313301Z"
+    created: "2026-08-27T15:25:46.110590345Z"
     description: Create Alibaba Cloud clusters in Rancher
     digest: 3f4059f7b22498885e40f4b200f5c078962cb9a8e42bbb6399102cc7efa33deb
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/ali/1.0.0-alibaba.svg
@@ -105,7 +105,7 @@ entries:
       catalog.cattle.io/ui-version: '>= 2.7.2'
     apiVersion: v2
     appVersion: 3.0.1
-    created: "2026-08-18T08:41:05.834927149Z"
+    created: "2026-08-27T15:25:46.11322111Z"
     description: Manages and automates cloud-native operating system lifecycles as
       native Kubernetes resources
     digest: b399bc2f95114b58bfba52579a7d7858555d468601cb8bb9c4dfb796209dee8e
@@ -128,7 +128,7 @@ entries:
       catalog.cattle.io/ui-version: '>= 2.7.2'
     apiVersion: v2
     appVersion: 3.0.0
-    created: "2026-08-18T08:41:05.834654949Z"
+    created: "2026-08-27T15:25:46.11296952Z"
     description: OS Management extension
     digest: 4fd23fd7d6787cbba0629f32a3ade8a50eda2b1f54e2ed2f2f7c59f173eee535
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/3.0.0-icon-v2.svg
@@ -149,7 +149,7 @@ entries:
       catalog.cattle.io/ui-version: '>= 2.7.2'
     apiVersion: v2
     appVersion: 2.0.2
-    created: "2026-08-18T08:41:05.834419187Z"
+    created: "2026-08-27T15:25:46.112762243Z"
     description: OS Management extension
     digest: 25be522fe1992b20b6b9e55808b99ff042b3ab7c9340042f6b2228b25c1fbc38
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/2.0.2-icon-v2.svg
@@ -170,7 +170,7 @@ entries:
       catalog.cattle.io/ui-version: '>= 2.7.2'
     apiVersion: v2
     appVersion: 2.0.1
-    created: "2026-08-18T08:41:05.834222699Z"
+    created: "2026-08-27T15:25:46.112525591Z"
     description: OS Management extension
     digest: efa25eb062103323e8f0513aff0254d01b384f4c7d65b8c68b537b5e63b1a3f2
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/2.0.1-icon-v2.svg
@@ -191,7 +191,7 @@ entries:
       catalog.cattle.io/ui-version: '>= 2.7.2'
     apiVersion: v2
     appVersion: 2.0.0
-    created: "2026-08-18T08:41:05.834017895Z"
+    created: "2026-08-27T15:25:46.112328913Z"
     description: OS Management extension
     digest: 81b76bc86831f5a770ee32225dee1be531e08c8d80ac1887495a980f1e95b0e5
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/2.0.0-icon-v2.svg
@@ -212,7 +212,7 @@ entries:
       catalog.cattle.io/ui-version: '>= 2.7.2'
     apiVersion: v2
     appVersion: 1.3.1
-    created: "2026-08-18T08:41:05.833818492Z"
+    created: "2026-08-27T15:25:46.112127166Z"
     description: OS Management extension
     digest: 1dc835df925372bde621f8829bcdc3bb9cc65ffd91edc959f3f846489bcaa6a6
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/1.3.1-icon-v2.svg
@@ -233,7 +233,7 @@ entries:
       catalog.cattle.io/ui-version: '>= 2.7.2'
     apiVersion: v2
     appVersion: 1.3.0
-    created: "2026-08-18T08:41:05.833621452Z"
+    created: "2026-08-27T15:25:46.111939706Z"
     description: OS Management extension
     digest: 1973f5923d98396c4a9a5da97512a416a21ee781851922e4c5e86d3fa7089e25
     icon: https://raw.githubusercontent.com/rancher/elemental-ui/main/pkg/elemental/icon-v2.svg
@@ -254,7 +254,7 @@ entries:
       catalog.cattle.io/ui-version: '>= 2.7.2'
     apiVersion: v2
     appVersion: 1.2.0
-    created: "2026-08-18T08:41:05.833388546Z"
+    created: "2026-08-27T15:25:46.111722751Z"
     description: OS Management extension
     digest: 9623a0ce157799922c337b22da62c0970ca72ebf21e2de808858b44f0994e899
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/elemental/1.2.0-icon-v2.svg
@@ -277,7 +277,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.8.2
-    created: "2026-08-18T08:41:05.839827682Z"
+    created: "2026-08-27T15:25:46.118250964Z"
     description: Centralizes and manages SUSE hyperconverged infrastructure and virtual
       machine workloads
     digest: e3b7deb26ce232da8eacfa8d53f1eb5cad29d83c4af3306832e1cc5921b09fab
@@ -300,7 +300,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.8.1
-    created: "2026-08-18T08:41:05.839543159Z"
+    created: "2026-08-27T15:25:46.117962726Z"
     description: Centralizes and manages SUSE hyperconverged infrastructure and virtual
       machine workloads
     digest: 1958d9779f7b934a07aae91dffa1f142b470202d4d0aad309c64c640662595c4
@@ -323,7 +323,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.8.0
-    created: "2026-08-18T08:41:05.839233449Z"
+    created: "2026-08-27T15:25:46.117535668Z"
     description: Centralizes and manages SUSE hyperconverged infrastructure and virtual
       machine workloads
     digest: 1f9beafd6dcd51c1c13f7194b4635415ecf1e4c212579caa0f8a31848ab20a8a
@@ -346,7 +346,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.7.3
-    created: "2026-08-18T08:41:05.83870576Z"
+    created: "2026-08-27T15:25:46.117040706Z"
     description: Centralizes and manages SUSE hyperconverged infrastructure and virtual
       machine workloads
     digest: a6049d98eaa36b8086d1acac9ceef4717c1fcbf18b7ea0e2f7b768de46242f10
@@ -369,7 +369,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.7.2
-    created: "2026-08-18T08:41:05.837951597Z"
+    created: "2026-08-27T15:25:46.116321352Z"
     description: Centralizes and manages SUSE hyperconverged infrastructure and virtual
       machine workloads
     digest: a63d5b393047d0f9506020d6f2f39c3c542c19cd86f976da3890fbe8414c12db
@@ -392,7 +392,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.7.1
-    created: "2026-08-18T08:41:05.837699775Z"
+    created: "2026-08-27T15:25:46.11605251Z"
     description: Rancher UI Extension for Harvester
     digest: 18c18085b566c81880ec09df6f173ef068d1d46ead0781ba3fffad43ad569cf4
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.7.1-icon.svg
@@ -414,7 +414,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.7.0
-    created: "2026-08-18T08:41:05.837422896Z"
+    created: "2026-08-27T15:25:46.115785681Z"
     description: Rancher UI Extension for Harvester
     digest: 0bfd71de9c32a3839ae84b962184e27ad26d2e9e683431ffe96e6081d89e18b2
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.7.0-icon.svg
@@ -436,7 +436,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.6.1
-    created: "2026-08-18T08:41:05.83717447Z"
+    created: "2026-08-27T15:25:46.115469811Z"
     description: Rancher UI Extension for Harvester
     digest: 7a322b1c2276d1de10f94c64c81c066d070630706768172acef01fa90f1e8291
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.6.1-icon.svg
@@ -458,7 +458,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.6.0
-    created: "2026-08-18T08:41:05.836979034Z"
+    created: "2026-08-27T15:25:46.115264678Z"
     description: Rancher UI Extension for Harvester
     digest: 619a21717114dc9412b74d9859bca0d2cc10f8e624b6688fb22ad821bccd5991
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.6.0-icon.svg
@@ -480,7 +480,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.5.2
-    created: "2026-08-18T08:41:05.836780763Z"
+    created: "2026-08-27T15:25:46.115058172Z"
     description: Rancher UI Extension for Harvester
     digest: 05615ad08d19452f6bc615a62e47f39206e5d21b87e3910940e4c48acb139f68
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.5.2-icon.svg
@@ -502,7 +502,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.5.1
-    created: "2026-08-18T08:41:05.836591528Z"
+    created: "2026-08-27T15:25:46.114868197Z"
     description: Rancher UI Extension for Harvester
     digest: 13e3c1c0943f3a3344126d6b2411dad6ba05954783cc9dea2995953881aadf3b
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.5.1-icon.svg
@@ -524,7 +524,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.5.0
-    created: "2026-08-18T08:41:05.836371536Z"
+    created: "2026-08-27T15:25:46.114636204Z"
     description: Rancher UI Extension for Harvester
     digest: bafdecfeec44db620f0a904b15098685d0390e6e7c6fb9825ce432b090cc595f
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.5.0-icon.svg
@@ -546,7 +546,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.6
-    created: "2026-08-18T08:41:05.836170119Z"
+    created: "2026-08-27T15:25:46.114433214Z"
     description: Rancher UI Extension for Harvester
     digest: 6db06af1da337bb3b1d82f1ceff802c94e916d35f3cb07589382f76bcdd9484c
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.0.6-icon.svg
@@ -568,7 +568,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.5
-    created: "2026-08-18T08:41:05.835983068Z"
+    created: "2026-08-27T15:25:46.114244081Z"
     description: Rancher UI Extension for Harvester
     digest: a2d14c7a4f10ac548b59d0fd456f168f90a31f7ec6ad595d7a4734b59dc5a874
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.0.5-icon.svg
@@ -590,7 +590,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.4
-    created: "2026-08-18T08:41:05.835770179Z"
+    created: "2026-08-27T15:25:46.114056962Z"
     description: Rancher UI Extension for Harvester
     digest: f87f5c85cebe6805844a23fafa76fe76dfba3bf07157bd40f0134b9bd2bbdedd
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.0.4-icon.svg
@@ -612,7 +612,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.3
-    created: "2026-08-18T08:41:05.835562901Z"
+    created: "2026-08-27T15:25:46.113856868Z"
     description: Rancher UI Extension for Harvester
     digest: 618b559b92783c6b3c7d3fdc2eca9e20ed7c58bce427fa07859a71e6d3b4f864
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.0.3-icon.svg
@@ -634,7 +634,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.2
-    created: "2026-08-18T08:41:05.835310317Z"
+    created: "2026-08-27T15:25:46.113628561Z"
     description: Rancher UI Extension for Harvester
     digest: 285a992b1b26fcd6661bbafb423e9846d2e75e1a44c7c15772c68ad38b1aa299
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.0.2-icon.svg
@@ -656,7 +656,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.1
-    created: "2026-08-18T08:41:05.835121123Z"
+    created: "2026-08-27T15:25:46.113433838Z"
     description: Rancher UI Extension for Harvester
     digest: 7f06b3e882352833c6f6f784a122faaeddb757ad5bbf4ecadf30a708099bafa3
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/harvester/1.0.1-icon.svg
@@ -679,7 +679,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.2.0
-    created: "2026-08-18T08:41:05.853475184Z"
+    created: "2026-08-27T15:25:46.13186512Z"
     description: Automates policy enforcement and security validation for cluster-wide
       admission requests
     digest: 4e3c443e2e830fa8b424b46d3e2dad68a44396b2f3505e092829c603afac5d63
@@ -702,7 +702,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.1.5
-    created: "2026-08-18T08:41:05.853229954Z"
+    created: "2026-08-27T15:25:46.131613831Z"
     description: Automates policy enforcement and security validation for cluster-wide
       admission requests
     digest: b06cee71c4655c8aae086c02ab2a582ec389b4c160ceb5a63120773c64052e7e
@@ -725,7 +725,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.1.4
-    created: "2026-08-18T08:41:05.853006856Z"
+    created: "2026-08-27T15:25:46.131390123Z"
     description: Automates policy enforcement and security validation for cluster-wide
       admission requests
     digest: 6160f26fa066aaa0e19c2bad382d05c4b3ad047633469e851dbef89d567f0fd2
@@ -747,7 +747,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.1.3
-    created: "2026-08-18T08:41:05.852764412Z"
+    created: "2026-08-27T15:25:46.131144324Z"
     description: Kubewarden extension for Rancher Manager
     digest: b0cb4d72a074a2056a8357f98944ccd5921afc27ac9e0cb96b76b567339d7639
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/4.1.3-icon-kubewarden.svg
@@ -768,7 +768,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.1.1
-    created: "2026-08-18T08:41:05.852557284Z"
+    created: "2026-08-27T15:25:46.130940653Z"
     description: Kubewarden extension for Rancher Manager
     digest: 117629ffcf8b4d4f5eae43ce2808d31c9527f4592f375974cec7363a428f79a2
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/4.1.1-icon-kubewarden.svg
@@ -789,7 +789,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.1.0
-    created: "2026-08-18T08:41:05.852310441Z"
+    created: "2026-08-27T15:25:46.13073001Z"
     description: Kubewarden extension for Rancher Manager
     digest: 3f5acd088fc1fc5fdf4258e9dc8ce74c92076b697d47d9815ab03f363dde670f
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/4.1.0-icon-kubewarden.svg
@@ -810,7 +810,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.0.3
-    created: "2026-08-18T08:41:05.852100207Z"
+    created: "2026-08-27T15:25:46.130479051Z"
     description: Kubewarden extension for Rancher Manager
     digest: 7eb3d7306cf0297d230f1db77710fd71e220fd72bd9050c118c5163e17d8b2df
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/4.0.3-icon-kubewarden.svg
@@ -831,7 +831,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.0.2
-    created: "2026-08-18T08:41:05.851879133Z"
+    created: "2026-08-27T15:25:46.130009186Z"
     description: Kubewarden extension for Rancher Manager
     digest: 9a4db370de34f05aa7bc8166e67dbadb15a28b91e6bec9da04408768c4908b4d
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/4.0.2-icon-kubewarden.svg
@@ -852,7 +852,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.0.1
-    created: "2026-08-18T08:41:05.851283119Z"
+    created: "2026-08-27T15:25:46.129392865Z"
     description: Kubewarden extension for Rancher Manager
     digest: b507b889ec205c6a494c3e7bce978d999965a19ac8a957b97bcc4b4d96eea152
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/4.0.1-icon-kubewarden.svg
@@ -873,7 +873,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 4.0.0
-    created: "2026-08-18T08:41:05.850810594Z"
+    created: "2026-08-27T15:25:46.129206427Z"
     description: Kubewarden extension for Rancher Manager
     digest: cbd95bee45f874878dea233d9d600b0a12202cc9236206715ecc52a3640f0cc2
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/4.0.0-icon-kubewarden.svg
@@ -894,7 +894,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.1.3
-    created: "2026-08-18T08:41:05.850455027Z"
+    created: "2026-08-27T15:25:46.129018075Z"
     description: Kubewarden extension for Rancher Manager
     digest: 50a2b1e07028973402220a5d20268c185edcd7dbf13e3b0ae2a9c1f77c18e4a9
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/3.1.3-icon-kubewarden.svg
@@ -915,7 +915,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.1.2
-    created: "2026-08-18T08:41:05.85024827Z"
+    created: "2026-08-27T15:25:46.128827849Z"
     description: Kubewarden extension for Rancher Manager
     digest: 5e6691fc109511a94202f6ea75b961706f99da640366691734dc6e73d5f68cb8
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/3.1.2-icon-kubewarden.svg
@@ -936,7 +936,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.1.1
-    created: "2026-08-18T08:41:05.850050158Z"
+    created: "2026-08-27T15:25:46.128611796Z"
     description: Kubewarden extension for Rancher Manager
     digest: d52265bf2dd6171ef574c3bf3f9a008fff19bd18c3fe75bedaf8c7a241a4bfde
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/3.1.1-icon-kubewarden.svg
@@ -957,7 +957,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.1.0
-    created: "2026-08-18T08:41:05.849866594Z"
+    created: "2026-08-27T15:25:46.128420779Z"
     description: Kubewarden extension for Rancher Manager
     digest: 1d6641cde075bd6fbd151a65241d6d5b1d4c3b558107bd296b5d630449474804
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/3.1.0-icon-kubewarden.svg
@@ -978,7 +978,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.0.3
-    created: "2026-08-18T08:41:05.849680426Z"
+    created: "2026-08-27T15:25:46.1282285Z"
     description: Kubewarden extension for Rancher Manager
     digest: ea7d0c55ba56e9478f09bb3c725c1abecccc66d9b9aa63e5ac5eb4f775978695
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/3.0.3-icon-kubewarden.svg
@@ -999,7 +999,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.0.2
-    created: "2026-08-18T08:41:05.849480371Z"
+    created: "2026-08-27T15:25:46.128034968Z"
     description: Kubewarden extension for Rancher Manager
     digest: d393d90708e3ec73be79f2a0ca1abfa5ed1009a34b9a5f25cc223eace2b66c65
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/3.0.2-icon-kubewarden.svg
@@ -1020,7 +1020,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.0.1
-    created: "2026-08-18T08:41:05.849273032Z"
+    created: "2026-08-27T15:25:46.127810519Z"
     description: Kubewarden extension for Rancher Manager
     digest: 657140b26feafe36256063b45784950732491729e5da43c9de2a4cdfc55bcebc
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/3.0.1-icon-kubewarden.svg
@@ -1041,7 +1041,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0'
     apiVersion: v2
     appVersion: 3.0.0
-    created: "2026-08-18T08:41:05.849085611Z"
+    created: "2026-08-27T15:25:46.127588564Z"
     description: Kubewarden extension for Rancher Manager
     digest: 41beb9e9e992eb09c6c77c22d71e6ad9fb91ab3f0fd8b4f9808e5d71fc670fcd
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/3.0.0-icon-kubewarden.svg
@@ -1062,7 +1062,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.0 < 3.0.0'
     apiVersion: v2
     appVersion: 2.1.6
-    created: "2026-08-18T08:41:05.848898701Z"
+    created: "2026-08-27T15:25:46.127401585Z"
     description: Kubewarden extension for Rancher Manager
     digest: ef9b2666ffa4d1531834d8d883b490565a1d390da7d198e04f3492364c791d6e
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.1.6-icon-kubewarden.svg
@@ -1083,7 +1083,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.0 < 3.0.0'
     apiVersion: v2
     appVersion: 2.1.5
-    created: "2026-08-18T08:41:05.848707803Z"
+    created: "2026-08-27T15:25:46.12721154Z"
     description: Kubewarden extension for Rancher Manager
     digest: 63be389dc4a3f23cbe01bf0fd4d6d741328c2370baf6b4b3b27fe88ee7d2a417
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.1.5-icon-kubewarden.svg
@@ -1104,7 +1104,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.0 < 3.0.0'
     apiVersion: v2
     appVersion: 2.1.4
-    created: "2026-08-18T08:41:05.848515142Z"
+    created: "2026-08-27T15:25:46.127019571Z"
     description: Kubewarden extension for Rancher Manager
     digest: 5cc82d604331f4886a5948afba0f7c3deeae5daabaf88e6299049f82bd941ac7
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.1.4-icon-kubewarden.svg
@@ -1125,7 +1125,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.0 < 3.0.0'
     apiVersion: v2
     appVersion: 2.1.3
-    created: "2026-08-18T08:41:05.848286654Z"
+    created: "2026-08-27T15:25:46.126822934Z"
     description: Kubewarden extension for Rancher Manager
     digest: dfc5131af866f20018544f205d14840539859cb3f7a5d811a0ed2f3642d43f80
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.1.3-icon-kubewarden.svg
@@ -1146,7 +1146,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.0 < 3.0.0'
     apiVersion: v2
     appVersion: 2.1.2
-    created: "2026-08-18T08:41:05.848099133Z"
+    created: "2026-08-27T15:25:46.126584759Z"
     description: Kubewarden extension for Rancher Manager
     digest: e01cf62a003a1727bf450952bc2d7a32ac6947eb692b31cd92ec3ce1265d38dc
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.1.2-icon-kubewarden.svg
@@ -1167,7 +1167,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.0 < 3.0.0'
     apiVersion: v2
     appVersion: 2.1.1
-    created: "2026-08-18T08:41:05.847913384Z"
+    created: "2026-08-27T15:25:46.126392409Z"
     description: Kubewarden extension for Rancher Manager
     digest: b0c849cad8964f6d570daa954074a266a14518377c2f85ba4b63c48063082581
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.1.1-icon-kubewarden.svg
@@ -1188,7 +1188,7 @@ entries:
       catalog.cattle.io/ui-extension-version: '>= 2.0.0 < 3.0.0'
     apiVersion: v2
     appVersion: 2.1.0
-    created: "2026-08-18T08:41:05.847721705Z"
+    created: "2026-08-27T15:25:46.126196413Z"
     description: Kubewarden extension for Rancher Manager
     digest: ed7e228235c9b55facccca2b73c1d54a6726c5d9602ba5c7e0432d9f4ad6ccb8
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.1.0-icon-kubewarden.svg
@@ -1209,7 +1209,7 @@ entries:
       catalog.cattle.io/ui-extension-version: '>= 2.0.0'
     apiVersion: v2
     appVersion: 2.0.1
-    created: "2026-08-18T08:41:05.847528483Z"
+    created: "2026-08-27T15:25:46.125999676Z"
     description: Kubewarden extension for Rancher Manager
     digest: 9da4b2e4c2286cbcd02869b3eca5c1b63428e2044a56a3b26b8e2c11e4d744d0
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.0.1-icon-kubewarden.svg
@@ -1230,7 +1230,7 @@ entries:
       catalog.cattle.io/ui-extension-version: '>= 2.0.0'
     apiVersion: v2
     appVersion: 2.0.0
-    created: "2026-08-18T08:41:05.847316295Z"
+    created: "2026-08-27T15:25:46.125799913Z"
     description: Kubewarden extension for Rancher Manager
     digest: 5621d6655adbedafb6d200bd3ff57e4a6727e83172ddd7eb94c1a5219c39b731
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/2.0.0-icon-kubewarden.svg
@@ -1250,7 +1250,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.10
-    created: "2026-08-18T08:41:05.845512125Z"
+    created: "2026-08-27T15:25:46.124084568Z"
     description: Kubewarden extension for Rancher Manager
     digest: 37dd7dbfc4d9f2aed34433f7a6d8c2a9f10ca013d0cdf23aaf362c5953de1eb2
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.10-icon-kubewarden.svg
@@ -1270,7 +1270,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.9
-    created: "2026-08-18T08:41:05.847120729Z"
+    created: "2026-08-27T15:25:46.125554384Z"
     description: Kubewarden extension for Rancher Manager
     digest: 6e0b366844c519b57e9b005d989927490bde98a4ae00033bc733cfb7c63b7135
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.9-icon-kubewarden.svg
@@ -1290,7 +1290,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.8
-    created: "2026-08-18T08:41:05.846951291Z"
+    created: "2026-08-27T15:25:46.125377674Z"
     description: Kubewarden extension for Rancher Manager
     digest: b38ea65fe5b3788599ae169baefb65c6fd3099458c253cab9e301bdd4e10148a
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.8-icon-kubewarden.svg
@@ -1310,7 +1310,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.7
-    created: "2026-08-18T08:41:05.846784048Z"
+    created: "2026-08-27T15:25:46.125206835Z"
     description: Kubewarden extension for Rancher Manager
     digest: 7835e2b9a03bb994c4ac2f01a34900534a816e27412be235deabc31c120094e9
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.7-icon-kubewarden.svg
@@ -1330,7 +1330,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.6
-    created: "2026-08-18T08:41:05.846613278Z"
+    created: "2026-08-27T15:25:46.125033581Z"
     description: Kubewarden extension for Rancher Manager
     digest: 6085b7ebbaaa9e51c75b7eceaab21227106e767499825cda3e0e5647444d3a5a
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.6-icon-kubewarden.svg
@@ -1350,7 +1350,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.5
-    created: "2026-08-18T08:41:05.846394057Z"
+    created: "2026-08-27T15:25:46.124863573Z"
     description: Kubewarden extension for Rancher Manager
     digest: 99c864b4c1ba002ce73aeeb00ac1f669ed33c3d50bbafec6f562ac79642adddc
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.5-icon-kubewarden.svg
@@ -1370,7 +1370,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.4
-    created: "2026-08-18T08:41:05.846221234Z"
+    created: "2026-08-27T15:25:46.124676494Z"
     description: Kubewarden extension for Rancher Manager
     digest: 80eacd7710a4f3efb0998d5489aee1a815f9fba6b577f12684ca81be37f911d7
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.4-icon-kubewarden.svg
@@ -1390,7 +1390,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.3
-    created: "2026-08-18T08:41:05.846048991Z"
+    created: "2026-08-27T15:25:46.124474326Z"
     description: Kubewarden extension for Rancher Manager
     digest: e526a8eb486427a04d6837c3256c1f6acb51e7dcfdd8b604dd6e75c7bf0abf32
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.3-icon-kubewarden.svg
@@ -1410,7 +1410,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.2
-    created: "2026-08-18T08:41:05.845869334Z"
+    created: "2026-08-27T15:25:46.12428934Z"
     description: Kubewarden extension for Rancher Manager
     digest: f447b07425d2e6e52a8508faa3f4114119a1eb1084bed5eacf23e92726361ed5
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.2-icon-kubewarden.svg
@@ -1430,7 +1430,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.1
-    created: "2026-08-18T08:41:05.845100263Z"
+    created: "2026-08-27T15:25:46.123565783Z"
     description: Kubewarden extension for Rancher Manager
     digest: df4ecad43474820bb2dd5edc2673fd6f97cf09f0b97f9a5b745261e3c08af101
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.1-icon-kubewarden.svg
@@ -1450,7 +1450,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.6.0
-    created: "2026-08-18T08:41:05.844549911Z"
+    created: "2026-08-27T15:25:46.123061702Z"
     description: Kubewarden extension for Rancher Manager
     digest: aef139f7da301ab3ab1d85f0255e58ff8c451fdd1f09ff4b21d55c86a7de9bdc
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.6.0-icon-kubewarden.svg
@@ -1470,7 +1470,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.5.0
-    created: "2026-08-18T08:41:05.844359735Z"
+    created: "2026-08-27T15:25:46.122896132Z"
     description: Kubewarden extension for Rancher Manager
     digest: 97507b7ad994276e5b43714b14815e5efc826e95c51cc99b97de124251988383
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.5.0-icon-kubewarden.svg
@@ -1490,7 +1490,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.4.3
-    created: "2026-08-18T08:41:05.84418641Z"
+    created: "2026-08-27T15:25:46.122720234Z"
     description: Kubewarden extension for Rancher Manager
     digest: 2c194f7733657c93402b07ad0a43a3f8de30a04813f5b1c274524419bb492211
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.4.3-icon-kubewarden.svg
@@ -1510,7 +1510,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.4.2
-    created: "2026-08-18T08:41:05.844021271Z"
+    created: "2026-08-27T15:25:46.122496776Z"
     description: Kubewarden extension for Rancher Manager
     digest: ace34dc16384cc06d96b9822bf55b9962097506c4dbef5f41e158af83818efca
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.4.2-icon-kubewarden.svg
@@ -1530,7 +1530,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.4.1
-    created: "2026-08-18T08:41:05.843852845Z"
+    created: "2026-08-27T15:25:46.122330536Z"
     description: Kubewarden extension for Rancher Manager
     digest: e93a997b9352cf26e0fbc138d9c8a8ba621001a990a4ff53f6a08c75ce55b7e2
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.4.1-icon-kubewarden.svg
@@ -1550,7 +1550,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.4.0
-    created: "2026-08-18T08:41:05.843682156Z"
+    created: "2026-08-27T15:25:46.122157222Z"
     description: Kubewarden extension for Rancher Manager
     digest: d7704b520639abef6135b5b016e5ff4d496c887b3711eadc0c1a10f5cbd8fcf0
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.4.0-icon-kubewarden.svg
@@ -1570,7 +1570,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.3.6
-    created: "2026-08-18T08:41:05.843505314Z"
+    created: "2026-08-27T15:25:46.121976384Z"
     description: Kubewarden extension for Rancher Manager
     digest: 7ed1962b93729db6c5b286cc9c6191cecf14ffad75224881d01bcc064f11d628
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.3.6-icon-kubewarden.svg
@@ -1590,7 +1590,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.3.5
-    created: "2026-08-18T08:41:05.84330585Z"
+    created: "2026-08-27T15:25:46.121787551Z"
     description: Kubewarden extension for Rancher Manager
     digest: 28d624ff197f0322780bb7387cfd0f717fb6a4a261272dae6863b3838c2542ff
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.3.5-icon-kubewarden.svg
@@ -1610,7 +1610,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.3.4
-    created: "2026-08-18T08:41:05.843133868Z"
+    created: "2026-08-27T15:25:46.12158333Z"
     description: Kubewarden extension for Rancher Manager
     digest: ac179ae493838b8c67fe8c9aad703bcd95fbd1e9c3a5eaa855539ab5aa331659
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.3.4-icon-kubewarden.svg
@@ -1630,7 +1630,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.3.3
-    created: "2026-08-18T08:41:05.842969309Z"
+    created: "2026-08-27T15:25:46.121402702Z"
     description: Kubewarden extension for Rancher Manager
     digest: e4dbff398cbbaac499ddcd92b76b01d42a5e2172edffbb8f3d900924902be2ae
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.3.3-icon-kubewarden.svg
@@ -1650,7 +1650,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.3.2
-    created: "2026-08-18T08:41:05.842800012Z"
+    created: "2026-08-27T15:25:46.121225161Z"
     description: Kubewarden extension for Rancher Manager
     digest: ae8b8168d8caa972bc0f2c09fc1698f374e57ac30c70ac5ae29a2c876aaba38f
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.3.2-icon-kubewarden.svg
@@ -1670,7 +1670,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.3.1
-    created: "2026-08-18T08:41:05.842631306Z"
+    created: "2026-08-27T15:25:46.121046827Z"
     description: Kubewarden extension for Rancher Manager
     digest: c74d3fc752b695d7132a65272907525f220f12d3319fa0343124f2b512dd64e5
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.3.1-icon-kubewarden.svg
@@ -1690,7 +1690,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.3.0
-    created: "2026-08-18T08:41:05.842454956Z"
+    created: "2026-08-27T15:25:46.120848687Z"
     description: Kubewarden extension for Rancher Manager
     digest: 46d9d1c387640e562b821d97a8b775e1a76407c69c8241830248c24a10bf8d52
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.3.0-icon-kubewarden.svg
@@ -1710,7 +1710,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.2.1
-    created: "2026-08-18T08:41:05.842265882Z"
+    created: "2026-08-27T15:25:46.120649836Z"
     description: Kubewarden extension for Rancher Manager
     digest: 7050d9f10f794e30b2336f65436a92742dc79b5394cb4c7692bb0739f83f9430
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.2.1-icon-kubewarden.svg
@@ -1730,7 +1730,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.2.0
-    created: "2026-08-18T08:41:05.842096414Z"
+    created: "2026-08-27T15:25:46.120466123Z"
     description: Kubewarden extension for Rancher Manager
     digest: 67764d098eb368b092631ee34fb0a82295fc580ae0617f9d00da9fe3843be3dc
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.2.0-icon-kubewarden.svg
@@ -1750,7 +1750,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.1.0
-    created: "2026-08-18T08:41:05.841916517Z"
+    created: "2026-08-27T15:25:46.120286818Z"
     description: Kubewarden extension for Rancher Manager
     digest: 7a07cd7d4e096b2392c327a4b3027a9c9d276182cfc5cd40f24731157d207f33
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.1.0-icon-kubewarden.svg
@@ -1770,7 +1770,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.0.6
-    created: "2026-08-18T08:41:05.841738052Z"
+    created: "2026-08-27T15:25:46.12011163Z"
     description: Kubewarden extension for Rancher Manager
     digest: 410f6fad07140e449770138527997fcbc9d36b8a117d6cda4cb41e28fb8c1628
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.0.6-icon-kubewarden.svg
@@ -1790,7 +1790,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.0.5
-    created: "2026-08-18T08:41:05.841480951Z"
+    created: "2026-08-27T15:25:46.119864629Z"
     description: Kubewarden extension for Rancher Manager
     digest: a6d72c38e5dc32dd2e22df8c71ca999aa16f9b666d1de89d84b1a34f55c7f6ad
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.0.5-icon-kubewarden.svg
@@ -1810,7 +1810,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.0.4
-    created: "2026-08-18T08:41:05.841211947Z"
+    created: "2026-08-27T15:25:46.119574807Z"
     description: Kubewarden extension for Rancher Manager
     digest: 42fa9856b3d3c76973425ce15b5e39eb3176bdf5c444805a5dab8a14a6c427f4
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.0.4-icon-kubewarden.svg
@@ -1830,7 +1830,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.0.3
-    created: "2026-08-18T08:41:05.840961146Z"
+    created: "2026-08-27T15:25:46.119328267Z"
     description: Kubewarden extension for Rancher Manager
     digest: 53784b875266c625fe2dc31194db73c5e7de3bd4370523f66e5d1c4f9321cad5
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.0.3-icon-kubewarden.svg
@@ -1850,7 +1850,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.0.2
-    created: "2026-08-18T08:41:05.840612764Z"
+    created: "2026-08-27T15:25:46.119074813Z"
     description: Kubewarden extension for Rancher Manager
     digest: a1497977ca75c8c7a7f23cf75d19892f6d46174dc35d5949548e9626e189b329
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.0.2-icon-kubewarden.svg
@@ -1870,7 +1870,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.0.1
-    created: "2026-08-18T08:41:05.840339562Z"
+    created: "2026-08-27T15:25:46.118814337Z"
     description: Kubewarden extension for Rancher Manager
     digest: b23ed9ffabe35d292bb1ca92c6caa24cb5069291ad39bcdb7ec7f5b2eda4df1b
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.0.1-icon-kubewarden.svg
@@ -1890,7 +1890,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-08-18T08:41:05.840089112Z"
+    created: "2026-08-27T15:25:46.118513114Z"
     description: Kubewarden extension for Rancher Manager
     digest: 60b1af28b5cf3962e49225ebf1a57a87d4fbf7fdc31e24c66af590dbe1b694cc
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/1.0.0-icon-kubewarden.svg
@@ -1913,7 +1913,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.2.1
-    created: "2026-08-18T08:41:05.858196291Z"
+    created: "2026-08-27T15:25:46.136080796Z"
     description: Provides and integrates security dashboards for vulnerability scanning
       and risk assessment
     digest: ebf653222c97cab8709cb5cbd29e6c7e5f0c4e67645cfb278e2604a6758d06c9
@@ -1936,7 +1936,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.2.0
-    created: "2026-08-18T08:41:05.857178303Z"
+    created: "2026-08-27T15:25:46.135527502Z"
     description: Provides and integrates security dashboards for vulnerability scanning
       and risk assessment
     digest: 403419f13faa50b9ffd6ba02db1a66fdf4274f95e9f922eb6b47d49c28a22f09
@@ -1959,7 +1959,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.9
-    created: "2026-08-18T08:41:05.856645354Z"
+    created: "2026-08-27T15:25:46.134994647Z"
     description: Provides and integrates security dashboards for vulnerability scanning
       and risk assessment
     digest: ca75d7371d423e3bec706d04cda5322829c72a2086a90ce37d348b50695d0e03
@@ -1982,7 +1982,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.8
-    created: "2026-08-18T08:41:05.85608799Z"
+    created: "2026-08-27T15:25:46.134432296Z"
     description: NeuVector extension for Rancher Manager
     digest: de7d57eb50f6e738c8978b3ce051b07bd646bb6fc3f5992aa932bdd2f1124edf
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.8-nv-icon.svg
@@ -2004,7 +2004,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.5
-    created: "2026-08-18T08:41:05.855866786Z"
+    created: "2026-08-27T15:25:46.13422034Z"
     description: NeuVector extension for Rancher Manager
     digest: 1654239d0874c1ecc33d55db4406e9a5687bddb0bb8f7cb24e01f809546a32d4
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.5-nv-icon.svg
@@ -2026,7 +2026,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.4
-    created: "2026-08-18T08:41:05.855674475Z"
+    created: "2026-08-27T15:25:46.134033371Z"
     description: NeuVector extension for Rancher Manager
     digest: b14feca85a4c22e75271880e62ed43b70d81b44c4c7dd75bec55bb4125aea5c9
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.4-nv-icon.svg
@@ -2048,7 +2048,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.3
-    created: "2026-08-18T08:41:05.855469742Z"
+    created: "2026-08-27T15:25:46.133847464Z"
     description: NeuVector extension for Rancher Manager
     digest: 7bb16c2af5f0dbd12eca0ad71b7d43adbe1cc904ea723f87d08960995ed25a92
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.3-nv-icon.svg
@@ -2070,7 +2070,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.2
-    created: "2026-08-18T08:41:05.855256562Z"
+    created: "2026-08-27T15:25:46.133631811Z"
     description: NeuVector extension for Rancher Manager
     digest: 5c9191bb8aa49b10494345885dc709ec37c1ec8bfabc018c67023f7b5caa5221
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.2-nv-icon.svg
@@ -2092,7 +2092,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.1
-    created: "2026-08-18T08:41:05.855068049Z"
+    created: "2026-08-27T15:25:46.133445312Z"
     description: NeuVector extension for Rancher Manager
     digest: 0b654d20c45fd399c6fb47b12a83aecfcc75c31a009edf093c3d1f7ff1accc8c
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.1-nv-icon.svg
@@ -2114,7 +2114,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.0
-    created: "2026-08-18T08:41:05.854882641Z"
+    created: "2026-08-27T15:25:46.13325664Z"
     description: NeuVector extension for Rancher Manager
     digest: e090bd8b05fe7ead6734852429b7b3e9c3968640a3100baaba8a07866ddb037d
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.1.0-nv-icon.svg
@@ -2135,7 +2135,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 2.0.5
-    created: "2026-08-18T08:41:05.85468445Z"
+    created: "2026-08-27T15:25:46.133068368Z"
     description: NeuVector extension for Rancher Manager
     digest: b0b2b18029f71aa7f5e905d935d7d6e51f39597a4441421b9dc7053e95b9e73b
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.0.5-nv-icon.svg
@@ -2156,7 +2156,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 2.0.4
-    created: "2026-08-18T08:41:05.854519411Z"
+    created: "2026-08-27T15:25:46.132904172Z"
     description: NeuVector extension for Rancher Manager
     digest: 9136cb61e40b0147501a88b9d8f13a813994aa3f30a90c9b7d44605df9d503c1
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.0.4-nv-icon.svg
@@ -2177,7 +2177,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 2.0.3
-    created: "2026-08-18T08:41:05.854331949Z"
+    created: "2026-08-27T15:25:46.132738061Z"
     description: NeuVector extension for Rancher Manager
     digest: fc8df7df3484eb5e2601cc37b5b31104a94c85fefbeb62deed16f51379f42e8b
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.0.3-nv-icon.svg
@@ -2198,7 +2198,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 2.0.2
-    created: "2026-08-18T08:41:05.854167882Z"
+    created: "2026-08-27T15:25:46.132548227Z"
     description: NeuVector extension for Rancher Manager
     digest: 575a6ad03d1ac500dee55fa897e33f7aba055339590258080a5c0a106a140e43
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.0.2-nv-icon.svg
@@ -2219,7 +2219,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 2.0.1
-    created: "2026-08-18T08:41:05.85400145Z"
+    created: "2026-08-27T15:25:46.132381435Z"
     description: NeuVector extension for Rancher Manager
     digest: 625f822cf474d875aef1c4a3ec074947a112055a1d055295f4eb09bdf6052ea2
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.0.1-nv-icon.svg
@@ -2240,7 +2240,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 2.0.0
-    created: "2026-08-18T08:41:05.853827835Z"
+    created: "2026-08-27T15:25:46.132213561Z"
     description: NeuVector extension for Rancher Manager
     digest: 602e0369b854456f31454f5b8761257c1238c9f6a2674326b3f87a063ffa3014
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/2.0.0-nv-icon.svg
@@ -2261,7 +2261,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-08-18T08:41:05.853657806Z"
+    created: "2026-08-27T15:25:46.132043884Z"
     description: NeuVector extension for Rancher Manager
     digest: d2a6b7ec50c0baf317a819b7d7870666b49fa0395f74507c113b939dcc754750
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/neuvector-ui-ext/1.0.0-nv-icon.svg
@@ -2284,7 +2284,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.3.4
-    created: "2026-08-18T08:41:05.862859813Z"
+    created: "2026-08-27T15:25:46.141085305Z"
     description: Analyzes multi-cluster telemetry with AI-powered insights for accelerated
       incident resolution
     digest: 098122bfaf96eb78a78381c29f605005bc58012c5ebb374fb8d162d12fb96f1d
@@ -2307,7 +2307,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.3.3
-    created: "2026-08-18T08:41:05.86257516Z"
+    created: "2026-08-27T15:25:46.140804992Z"
     description: Analyzes multi-cluster telemetry with AI-powered insights for accelerated
       incident resolution
     digest: feff51ea5c42e41ae6a79cb719036dab4c5d8d00104cc75ead56ce3b3824eea4
@@ -2330,7 +2330,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.3.1
-    created: "2026-08-18T08:41:05.862267062Z"
+    created: "2026-08-27T15:25:46.140500303Z"
     description: Analyzes multi-cluster telemetry with AI-powered insights for accelerated
       incident resolution
     digest: a9b195df0fef9bebf83dd89d57cdd22b21e28dc807f6d9de3fe39be4937782a2
@@ -2352,7 +2352,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.2.10
-    created: "2026-08-18T08:41:05.860720775Z"
+    created: "2026-08-27T15:25:46.138991544Z"
     description: SUSE Rancher Prime Observability Extension
     digest: eba48e463d9d0f49a4306b0cacf128c5f994e89d33edbdd676c113ca6cdae2e8
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.2.10-rancher-observability.svg
@@ -2373,7 +2373,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.2.9
-    created: "2026-08-18T08:41:05.861989051Z"
+    created: "2026-08-27T15:25:46.140223926Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 1b17ada81fdd3bfb9660c31d61a40c0b1c55b9de450109656acca71a32fb2f8d
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.2.9-rancher-observability.svg
@@ -2394,7 +2394,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.2.8
-    created: "2026-08-18T08:41:05.861739333Z"
+    created: "2026-08-27T15:25:46.139978978Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 34b7bb6878e826fb03f69becd41ad22f27fdee0b5243d98fb34bbcf62960749d
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.2.8-rancher-observability.svg
@@ -2415,7 +2415,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.2.7
-    created: "2026-08-18T08:41:05.861449851Z"
+    created: "2026-08-27T15:25:46.139730925Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 3a5a6909c103f0b7418ec22836f2d2e89e5124351759b0f60c2b0b2d5c8022f9
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.2.7-rancher-observability.svg
@@ -2436,7 +2436,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.2.3
-    created: "2026-08-18T08:41:05.861184864Z"
+    created: "2026-08-27T15:25:46.139457404Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 5d652b3e2fa142350bd397218c33b4e6d9e127913a53b29cad7ce1533f5bd3e6
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.2.3-rancher-observability.svg
@@ -2457,7 +2457,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.2.2
-    created: "2026-08-18T08:41:05.860948371Z"
+    created: "2026-08-27T15:25:46.139222796Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 496121269eb2a3da4cbd46b5b15fad156de81647ed53cc547fb8e30e002a2461
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.2.2-rancher-observability.svg
@@ -2478,7 +2478,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.4
-    created: "2026-08-18T08:41:05.860454235Z"
+    created: "2026-08-27T15:25:46.138738732Z"
     description: SUSE Rancher Prime Observability Extension
     digest: e1077f7311b3cf51745a6c8a0f84bd16fb145e8a6f8c3995e9b557280b263e31
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.1.4-rancher-observability.svg
@@ -2499,7 +2499,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.1.0
-    created: "2026-08-18T08:41:05.860214305Z"
+    created: "2026-08-27T15:25:46.138495086Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 41e47498848d66164dfde9ae12049cf90246ee1316681a612384e5b71015f9be
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.1.0-rancher-observability.svg
@@ -2520,7 +2520,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.0.1
-    created: "2026-08-18T08:41:05.860027195Z"
+    created: "2026-08-27T15:25:46.138312305Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 55baae7fc845472146ce889718f7cda5e846aabb11b7003d9130774a5347c492
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.0.1-rancher-observability.svg
@@ -2541,7 +2541,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 2.0.0
-    created: "2026-08-18T08:41:05.859841577Z"
+    created: "2026-08-27T15:25:46.138116089Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 8f4c8c4b7ea656065d40a84d020515e69b68b13a8c18bb9ca77e240a4d0b0c2c
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/2.0.0-rancher-observability.svg
@@ -2562,7 +2562,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.1'
     apiVersion: v2
     appVersion: 1.0.2
-    created: "2026-08-18T08:41:05.859654917Z"
+    created: "2026-08-27T15:25:46.137867334Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 851739a790cf4fabb3bcc3c28106d91f78674e7663b31f37c827bea4a587f96a
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/1.0.2-rancher-observability.svg
@@ -2583,7 +2583,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.1'
     apiVersion: v2
     appVersion: 1.0.1
-    created: "2026-08-18T08:41:05.859459722Z"
+    created: "2026-08-27T15:25:46.137615293Z"
     description: SUSE Rancher Prime Observability Extension
     digest: 3270910400d7fbd96389a6d7490b183518505c3ac770853cac1a8b073f27ec76
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/1.0.1-rancher-observability.svg
@@ -2604,7 +2604,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.1'
     apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-08-18T08:41:05.859243506Z"
+    created: "2026-08-27T15:25:46.137124305Z"
     description: SUSE Rancher Prime Observability Extension
     digest: eaf5107f721e5c0a1ef76baec3cd1b32dc5e5cce15dd6ff958f1122b273d71ac
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/1.0.0-rancher-observability.svg
@@ -2625,7 +2625,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 2.0.1'
     apiVersion: v2
     appVersion: 0.5.0
-    created: "2026-08-18T08:41:05.859033343Z"
+    created: "2026-08-27T15:25:46.136687299Z"
     description: Tech Preview - Rancher Prime Observability Extension
     digest: 83ac6f0eeb6ab9c98d6e26b9e735b1b6af32c6dc8bd5f7169061b6330ce7ded1
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/0.5.0-rancher-observability.svg
@@ -2645,7 +2645,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
     apiVersion: v2
     appVersion: 0.2.1
-    created: "2026-08-18T08:41:05.85874919Z"
+    created: "2026-08-27T15:25:46.136252467Z"
     description: SUSE Rancher Prime Observability Extension
     digest: fa1ff70b800fb539024832c937fedcbcde2d6dfdc1e4d1af46c63c4014b3cbe7
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/observability/0.2.1-rancher-observability.svg
@@ -2668,7 +2668,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.1
-    created: "2026-08-18T08:41:05.863321087Z"
+    created: "2026-08-27T15:25:46.14154296Z"
     description: Delivers context-aware guidance and real-time troubleshooting for
       cluster workloads
     digest: fd70b0051ef8c2a2f0dd7c8fcfbf4591063e5efc9fb9954eefb6d5ce4d1a1598
@@ -2691,7 +2691,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-08-18T08:41:05.863090856Z"
+    created: "2026-08-27T15:25:46.141314554Z"
     description: AI Assistant extension
     digest: da88414d6d49693808a60714fccb61a13109d42a37706227f975483733d73fd4
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/rancher-ai-ui/1.0.0-extension-icon.svg
@@ -2714,7 +2714,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.0.3
-    created: "2026-08-18T08:41:05.865981012Z"
+    created: "2026-08-27T15:25:46.14367861Z"
     description: Collects and analyses cluster data for supportability assessment
     digest: a54ecb7cc43c72a5fb93cb3114888d255491ee37c5c6154b566b5f156d117912
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/3.0.3-icon.svg
@@ -2736,7 +2736,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.0.2
-    created: "2026-08-18T08:41:05.865279898Z"
+    created: "2026-08-27T15:25:46.143023156Z"
     description: Collects and analyses cluster data for supportability assessment
     digest: b55f527e90021b56bdef47f902e9aaa8801278d18501bfaf789725b9d997d52a
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/3.0.2-icon.png
@@ -2758,7 +2758,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.0.1
-    created: "2026-08-18T08:41:05.864626974Z"
+    created: "2026-08-27T15:25:46.142824785Z"
     description: Collects and analyses cluster data for supportability assessment
     digest: 0e3913cfd616abd8462e8f6f06ccfe2275cd1548009148080c974f9be400257c
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/3.0.1-icon.png
@@ -2780,7 +2780,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 3.0.0
-    created: "2026-08-18T08:41:05.86440551Z"
+    created: "2026-08-27T15:25:46.142594745Z"
     description: Collects and analyses cluster data for supportability assessment
     digest: 85b50289cafc1a0cc7ee0c6d6652b1534785fd774356915d2d328484cb077bd5
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/3.0.0-icon.png
@@ -2802,7 +2802,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: < 3.0.0
     apiVersion: v2
     appVersion: 2.0.3
-    created: "2026-08-18T08:41:05.864206647Z"
+    created: "2026-08-27T15:25:46.14239361Z"
     description: Collects and analyses cluster data for supportability assessment
     digest: 335ed93027ee9e51f63bc113fa540b4417e0fea8e3ee49cf81050143516bfbeb
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/2.0.3-icon.svg
@@ -2824,7 +2824,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: < 3.0.0
     apiVersion: v2
     appVersion: 2.0.2
-    created: "2026-08-18T08:41:05.863972438Z"
+    created: "2026-08-27T15:25:46.14215846Z"
     description: Collects and analyses cluster data for supportability assessment
     digest: cd1b8e01e268a641080cd56a3e7b749483f257cd229c853823d5d82ccd0d97fd
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/2.0.2-icon.png
@@ -2846,7 +2846,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: < 3.0.0
     apiVersion: v2
     appVersion: 2.0.1
-    created: "2026-08-18T08:41:05.863753207Z"
+    created: "2026-08-27T15:25:46.141963677Z"
     description: Collects and analyses cluster data for supportability assessment
     digest: 24f5c04f647c145c95aa264799e1ff50637aff623de85d989e8885e346a4bb9d
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/2.0.1-icon.png
@@ -2868,7 +2868,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: < 3.0.0
     apiVersion: v2
     appVersion: 2.0.0
-    created: "2026-08-18T08:41:05.863553503Z"
+    created: "2026-08-27T15:25:46.141765607Z"
     description: Collects and analyses cluster data for supportability assessment
     digest: a6c4b86317002361ffd7f8fca991f6a5f1cd807419b4b4e62c3c28e091f90c2a
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/supportability-review-app/2.0.0-icon.png
@@ -2890,8 +2890,31 @@ entries:
       catalog.cattle.io/ui-component: plugins
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
+    appVersion: 1.2.0
+    created: "2026-08-27T15:25:46.145220263Z"
+    description: Provisions and isolates lightweight K3s clusters within shared environments
+      for multi-tenancy
+    digest: 2fc16a1e09d1ab0c70ca5347d7f96d61764eef0f431d571354e951f56d5f67dc
+    icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/virtual-clusters/1.2.0-icon-k3k.svg
+    name: virtual-clusters
+    type: application
+    urls:
+    - assets/virtual-clusters/virtual-clusters-1.2.0.tgz
+    version: 1.2.0
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: SUSE Virtual Clusters
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/prime-only: "true"
+      catalog.cattle.io/rancher-version: '>=2.13.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
     appVersion: 1.1.0
-    created: "2026-08-18T08:41:05.866905454Z"
+    created: "2026-08-27T15:25:46.144987819Z"
     description: Provisions and isolates lightweight K3s clusters within shared environments
       for multi-tenancy
     digest: ea81cbbbb6cd14d8ac59940510e30fdc048c75dd9aef5c8e289b6a240c595e78
@@ -2914,7 +2937,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.5-rc.6'
     apiVersion: v2
     appVersion: 1.0.2
-    created: "2026-08-18T08:41:05.866671806Z"
+    created: "2026-08-27T15:25:46.144750275Z"
     description: Virtual cluster provisioning using K3K (Prime only)
     digest: c4b39f45f4717f8418601745b09926e3ccfd563edaedfc05d0362584fab3c9c1
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/virtual-clusters/1.0.2-icon-k3k.svg
@@ -2936,7 +2959,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.5-rc.6'
     apiVersion: v2
     appVersion: 1.0.1
-    created: "2026-08-18T08:41:05.866424042Z"
+    created: "2026-08-27T15:25:46.144502633Z"
     description: Virtual cluster provisioning using K3K (Prime only)
     digest: 7a290f5c1a35561896e22405deec34cf79748a088ece0aeef3ec2567b6ede056
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/virtual-clusters/1.0.1-icon-k3k.svg
@@ -2957,7 +2980,7 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.5-rc.6'
     apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-08-18T08:41:05.866205863Z"
+    created: "2026-08-27T15:25:46.144263646Z"
     description: Virtual cluster provisioning using K3K (Prime only)
     digest: 0784cc20dfa7d5cf04b49ddcf2a52587bde3e1e01c5c2d5c32e1f299a3abca2c
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/virtual-clusters/1.0.0-icon-k3k.svg
@@ -2982,7 +3005,7 @@ entries:
       hosts, and CI/CD pipelines,N/A: ""
     apiVersion: v2
     appVersion: 0.8.1
-    created: "2026-08-18T08:41:05.867149652Z"
+    created: "2026-08-27T15:25:46.145465782Z"
     description: Delivers full-lifecycle scanning for Kubernetes environments
     digest: a7c2344275342d69e4f037675244f1aeefc780a900f7dcfffa56b5c8e1ba6fd5
     icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/vulnerability-scanner/0.8.1-icon-vulnerability-scanner.svg
@@ -2991,4 +3014,4 @@ entries:
     urls:
     - assets/vulnerability-scanner/vulnerability-scanner-0.8.1.tgz
     version: 0.8.1
-generated: "2026-08-18T08:41:05.831684633Z"
+generated: "2026-08-27T15:25:46.110192322Z"
