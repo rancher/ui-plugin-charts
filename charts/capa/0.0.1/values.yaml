@@ -1,0 +1,17 @@
+nameOverride: ""
+fullnameOverride: ""
+plugin:
+  enabled: true
+  versionOverride: ""
+  endpoint: >-
+    https://raw.githubusercontent.com/rancher/prov-capi-ui-extensions/gh-pages/extensions/capa/0.0.1
+  compressedEndpoint: >-
+    https://raw.githubusercontent.com/rancher/prov-capi-ui-extensions/gh-pages/extensions/capa/0.0.1.tgz
+  noCache: false
+  noAuth: false
+  metadata:
+    catalog.cattle.io/display-name: SUSE CAPI CAPA UI
+    catalog.cattle.io/rancher-version: ">= 2.15.0"
+    catalog.cattle.io/ui-extensions-version: ">= 3.0.0 < 4.0.0"
+    catalog.cattle.io/experimental: "true"
+    catalog.cattle.io/prime-only: "true"
