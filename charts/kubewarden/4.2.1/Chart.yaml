@@ -1,0 +1,18 @@
+annotations:
+  catalog.cattle.io/certified: rancher
+  catalog.cattle.io/namespace: cattle-ui-plugin-system
+  catalog.cattle.io/os: linux
+  catalog.cattle.io/permits-os: linux, windows
+  catalog.cattle.io/scope: management
+  catalog.cattle.io/ui-component: plugins
+  catalog.cattle.io/kube-version: '>= v1.16.0-0'
+  catalog.cattle.io/rancher-version: '>= 2.11.0-0'
+  catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+  catalog.cattle.io/display-name: SUSE Security Admission Controller
+apiVersion: v2
+appVersion: 4.2.1
+description: Automates policy enforcement and security validation for cluster-wide admission requests
+name: kubewarden
+type: application
+version: 4.2.1
+icon: https://raw.githubusercontent.com/rancher/ui-plugin-charts/main/icons/kubewarden/4.2.1-icon-kubewarden.svg
