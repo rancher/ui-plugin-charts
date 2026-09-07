@@ -22,5 +22,7 @@
   "kubewarden@4.2.0": "2026-08-18T08:41:05Z",
   "virtual-clusters@1.2.0": "2026-08-27T15:25:46Z",
   "rancher-ai-ui@1.0.2": "2026-09-02T12:40:48Z",
-  "rancher-ai-ui@1.1.0": "2026-09-02T12:40:48Z"
+  "rancher-ai-ui@1.1.0": "2026-09-02T12:40:48Z",
+  "supportability-review-app@3.0.4": "2026-09-07T09:28:42Z",
+  "supportability-review-app@3.0.5": "2026-09-07T09:28:43Z"
 }
