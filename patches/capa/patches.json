@@ -1,0 +1,9 @@
+{
+  "patches": [
+    {
+      "versions": ">0.0.0 <1.0.0",
+      "dir": "0.0.1",
+      "description": "Provisions and manages Kubernetes clusters on AWS through Cluster API Provider AWS (CAPA)"   
+    }
+  ]
+}
