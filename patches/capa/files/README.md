@@ -1,19 +1,31 @@
-# SUSE UI Extension to support Rancher v2 provisioning via CAPI CAPA
+# SUSE CAPI AWS (CAPA) Provisioning
 
-Adds a **CAPI AWS** option to Rancher's cluster creation page, allowing to provision and manage Kubernetes clusters on AWS through [Cluster API Provider AWS (CAPA)](https://cluster-api-aws.sigs.k8s.io/) instead of the classic AWS node driver.
+**Provisions and manages AWS EC2-backed Kubernetes clusters via Cluster API directly from the Rancher UI.**
 
-## Features
-- Provisioning a new RKE2/K3s cluster on AWS with a managed VPC (CAPA creates the VPC, subnets and security groups for you) or bring your own VPC/subnets.
-- Configuring network security: additional ingress rules for the control plane, worker nodes and CNI, plus optional security-group overrides and IPv6 support.
-- Configuring machine pools per-AWS-instance details: instance type, AMI, IAM instance profile, root/additional EBS volumes, on-demand/spot/capacity-block pricing, and resource tags.
-- Editing an existing CAPA cluster's infrastructure and machine pool configuration from Rancher, the same way you would any other cluster.
+### Overview
+The SUSE CAPI AWS extension brings upstream Cluster API Provider AWS (CAPA) into the Rancher Prime experience. Instead of relying on Rancher's legacy node driver, it lets you provision and manage RKE2 clusters on AWS entirely through a native, declarative workflow — using the same CAPI controllers that the wider Kubernetes ecosystem depends on.
 
-## Prerequisites
+Documentation for SUSE CAPI AWS Provisioning can be found [**here**](https://documentation.suse.com/cloudnative/rancher-srfa/latest/en/cluster-deployment/configuration/capi-infrastructure-providers.html).
 
-- Rancher `>= 2.15.0` (Rancher Prime) with UI Extensions `>= 3.0.0 < 4.0.0`.
-- [Rancher Turtles](https://github.com/rancher/turtles) installed, with the AWS infrastructure provider enabled.
+This extension is **experimental** and available to Rancher Prime customers.
 
-## Advanced
-This extension is experimental and available to Rancher Prime customers.
+
+### Core Architecture
+This extension integrates with [Rancher Turtles](https://github.com/rancher/turtles) as the backend operator responsible for deploying and reconciling CAPI infrastructure providers. The UI extension registers directly into Rancher's cluster provisioner extension point, managing three layers of CAPI resources on the user's behalf: an `AWSCluster` (VPC, subnets, security groups, load balancer), per-pool `AWSMachineTemplate` (EC2 instance configuration), and the `provisioning.cattle.io.cluster` binding that ties them together.
+
+### Key Technical Features
+* **Managed or Unmanaged Networking**: Let CAPA auto-create your VPC, subnets, and security groups, or bring your own existing infrastructure.
+* **Flexible Machine Pools**: Configure EC2 instance type, AMI, IAM instance profile, EBS volumes, and spot/on-demand/capacity-block pricing per pool.
+* **Full Cluster Lifecycle**: Create, edit, and scale CAPA clusters from Rancher — including machine template immutability handled transparently (new templates are created on edit and old ones cleaned up only after a successful save).
+* **Advanced Security Controls**: Fine-grained security group overrides and additional ingress rules per role (control plane, worker, load balancer), with automatic updates when the CNI changes.
+* **IPv6 Support**: Optional dual-stack networking for clusters that require it.
+
+### Target Use Cases
+* **AWS-Native Provisioning**: Teams that want to manage AWS clusters through CAPI controllers rather than Rancher's legacy node drivers.
+* **Multi-Cloud Standardisation**: Organizations standardising cluster lifecycle management across providers using the upstream CAPI model.
+
+### Deployment Path
+* **Prerequisites**: Rancher Prime subscription; Rancher Turtles installed on the management cluster with the AWS CAPI provider enabled; IAM roles and instance profiles pre-configured via `clusterawsadm`; an AWS cloud credential registered in Rancher.
+* **First Step**: Go to **Cluster Management** > **Create** and select the **CAPI AWS** provisioner card.
 
 See [USAGE.md](./USAGE.md) for full usage instructions (creating/editing clusters, troubleshooting), and the [project README](https://github.com/rancher/prov-capi-ui-extensions) for guidance on building similar extensions for other infrastructure providers.
