@@ -12,7 +12,7 @@ annotations:
   catalog.cattle.io/prime-only: 'true'
 apiVersion: v2
 appVersion: 0.0.1
-description: SUSE UI Extension to support Rancher v2 provisioning via CAPI CAPA
+description: Provisions and manages Kubernetes clusters on AWS through Cluster API Provider AWS (CAPA)
 name: capa
 type: application
 version: 0.0.1
