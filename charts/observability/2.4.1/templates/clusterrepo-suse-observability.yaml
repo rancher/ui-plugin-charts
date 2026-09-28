@@ -1,0 +1,8 @@
+{{- if not (lookup "catalog.cattle.io/v1" "ClusterRepo" "default" "suse-observability") }}
+apiVersion: catalog.cattle.io/v1
+kind: ClusterRepo
+metadata:
+  name: suse-observability
+spec:
+  url: "https://charts.rancher.com/server-charts/prime/suse-observability"
+{{- end }}
