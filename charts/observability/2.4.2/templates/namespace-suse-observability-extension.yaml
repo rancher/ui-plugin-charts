@@ -1,0 +1,11 @@
+{{- /*
+  Hosted rancher pre-creates the namespace.
+  This is so that the hosted-admin role gets sufficient permission to
+  create all resources in the extension.
+*/ -}}
+{{- if not (lookup "v1" "Namespace" "" "suse-observability-extension") }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: suse-observability-extension
+{{- end }}
