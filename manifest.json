@@ -219,6 +219,13 @@
       "versions": [
         "0.0.1"
       ]
+    },
+    "locales": {
+      "repo": "rancher/ui-locales",
+      "branch": "gh-pages",
+      "versions": [
+        "0.1.2"
+      ]
     }
   }
 }
