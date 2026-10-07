@@ -1,0 +1,11 @@
+plugin/locales-0.1.2.umd.min.148.js
+plugin/locales-0.1.2.umd.min.148.js.map
+plugin/locales-0.1.2.umd.min.596.js
+plugin/locales-0.1.2.umd.min.596.js.map
+plugin/locales-0.1.2.umd.min.671.js
+plugin/locales-0.1.2.umd.min.671.js.map
+plugin/locales-0.1.2.umd.min.716.js
+plugin/locales-0.1.2.umd.min.716.js.map
+plugin/locales-0.1.2.umd.min.js
+plugin/locales-0.1.2.umd.min.js.map
+plugin/package.json
