@@ -1,0 +1,10 @@
+{
+  "patches": [
+    {
+      "versions": ">= 0.1.2",
+      "dir": "files",
+      "name": "SUSE Localization Pack",
+      "description": "Extends and localizes the Rancher UI with additional languages for global operations teams"
+    }
+  ]
+}
