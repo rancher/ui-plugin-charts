@@ -1,0 +1,2 @@
+"use strict";(("undefined"!==typeof self?self:this)["webpackChunkruntime_enforcer_0_1_1"]=("undefined"!==typeof self?self:this)["webpackChunkruntime_enforcer_0_1_1"]||[]).push([[303],{66303:function(e,n,r){r.r(n),r.d(n,{default:function(){return i}});var t=r(9274);function o(e,n,r,o,u,c){const s=(0,t.resolveComponent)("ResourceDetail");return(0,t.openBlock)(),(0,t.createBlock)(s)}var u=r(10013),c={name:"ClusterResourcedId",components:{ResourceDetail:u.A}},s=r(47433);const f=(0,s.A)(c,[["render",o]]);var i=f}}]);
+//# sourceMappingURL=runtime-enforcer-0.1.1.umd.min.303.js.map
