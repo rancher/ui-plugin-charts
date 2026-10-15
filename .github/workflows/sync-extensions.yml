@@ -87,14 +87,7 @@ jobs:
           
           # Store the PR number as an output
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-  
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@be16258da8010256c6e82849661221415f031968 # v1.5.0
-        with:
-          charts_dir: ./charts/*
-        env:
-          CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-          CR_SKIP_EXISTING: true
+
   sync-catalogs:
     if: (github.repository_owner == 'rancher' && github.event.pull_request.merged == true) || github.ref_type == 'tag'
     name: Sync and Release Extension Catalog
