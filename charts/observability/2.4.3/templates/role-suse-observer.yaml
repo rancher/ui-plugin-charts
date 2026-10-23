@@ -1,0 +1,21 @@
+apiVersion: management.cattle.io/v3
+kind: RoleTemplate
+displayName: SUSE Observability Observer
+description: Read-only access to project data in SUSE Observability
+builtin: false
+hidden: false
+external: false
+context: project
+metadata:
+  name: suse-observability-observer
+  namespace: {{ .Release.Namespace }}
+  labels: {{ include "extension-server.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - scope.observability.cattle.io
+    resources:
+      - metrics
+      - topology
+      - traces
+    verbs:
+      - get
