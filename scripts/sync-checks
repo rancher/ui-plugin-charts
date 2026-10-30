@@ -46,6 +46,7 @@ do
   REPO=$(jq -r ".extensions.\"${NAME}\".repo" manifest.json)
   EXT_BRANCH=$(jq -r ".extensions.\"${NAME}\".branch" manifest.json)
   VERSIONS=$(jq -r ".extensions.\"${NAME}\".versions[]" manifest.json)
+  IS_BUNDLE=$(jq -r ".extensions.\"${NAME}\".bundle // false" manifest.json)
   VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
 
   echo -e "     Repository: ${REPO}"
@@ -73,14 +74,20 @@ do
 
       echo -e "${BOLD}${YELLOW}  .. Starting checks for extension ${NAME} version ${VERSION}${RESET}"
 
-      # check if description exists and is non-empty in package.json
-      PKG_JSON_DESCRIPTION=$(jq -r ".description" ./tmp/${NAME}/extensions/${NAME}/${VERSION}/plugin/package.json)
-      PKG_JSON_VERSION=$(jq -r ".version" ./tmp/${NAME}/extensions/${NAME}/${VERSION}/plugin/package.json)
+      # A bundle has no plugin/package.json: it ships no JavaScript of its own, and
+      # its members' package.json files sit a directory deeper under
+      # extensions/<bundle>/<version>/<member>/<member-version>/plugin/. Everything a
+      # bundle's card shows comes from Chart.yaml, which is checked below.
+      if [[ "${IS_BUNDLE}" != "true" ]]; then
+        # check if description exists and is non-empty in package.json
+        PKG_JSON_DESCRIPTION=$(jq -r ".description" ./tmp/${NAME}/extensions/${NAME}/${VERSION}/plugin/package.json)
+        PKG_JSON_VERSION=$(jq -r ".version" ./tmp/${NAME}/extensions/${NAME}/${VERSION}/plugin/package.json)
 
-      if [[ ! -n "$PKG_JSON_DESCRIPTION" ]] || [[ "$PKG_JSON_DESCRIPTION" == null ]]; then
-        echo "❌ Missing description in package.json for extension ${NAME} version ${VERSION}! Description is a mandatory field!"
-        WITH_ERROR="true"
-        OVERALL_ERROR="true"
+        if [[ ! -n "$PKG_JSON_DESCRIPTION" ]] || [[ "$PKG_JSON_DESCRIPTION" == null ]]; then
+          echo "❌ Missing description in package.json for extension ${NAME} version ${VERSION}! Description is a mandatory field!"
+          WITH_ERROR="true"
+          OVERALL_ERROR="true"
+        fi
       fi
 
       # check if description exists and is non-empty in Chart.yaml
@@ -93,7 +100,7 @@ do
       fi
 
       # check if version exists and is non-empty in package.json
-      if [[ ! -n "$PKG_JSON_VERSION" ]] || [[ "$PKG_JSON_VERSION" == null ]]; then
+      if [[ "${IS_BUNDLE}" != "true" ]] && { [[ ! -n "$PKG_JSON_VERSION" ]] || [[ "$PKG_JSON_VERSION" == null ]]; }; then
         echo "❌ Missing version in package.json for extension ${NAME} version ${VERSION}! Version is a mandatory field!"
         WITH_ERROR="true"
         OVERALL_ERROR="true"

@@ -96,11 +96,15 @@ do
   REPO=$(jq -r ".extensions.\"${NAME}\".repo" manifest.json)
   EXT_BRANCH=$(jq -r ".extensions.\"${NAME}\".branch" manifest.json)
   VERSIONS=$(jq -r ".extensions.\"${NAME}\".versions[]" manifest.json)
+  IS_BUNDLE=$(jq -r ".extensions.\"${NAME}\".bundle // false" manifest.json)
   VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
 
   echo -e "     Repository: ${REPO}"
   echo -e "     Branch: ${EXT_BRANCH}"
   echo -e "     Versions  : ${VFORMAT}"
+  if [[ "${IS_BUNDLE}" == "true" ]]; then
+    echo -e "     Bundle    : yes"
+  fi
   echo ""
 
   # clone extension repository
@@ -126,10 +130,43 @@ do
 
       # Need to patch the charts
       echo "     + Patching Helm chart"
-      CR_FILE=./charts/${NAME}/${VERSION}/templates/cr.yaml
-      ENDPOINT=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/extensions/${NAME}/${VERSION}
-      sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
-      rm -f ${CR_FILE}.bak
+
+      if [[ "${IS_BUNDLE}" == "true" ]]; then
+        # A bundle has no templates of its own - every UIPlugin comes from a member
+        # chart vendored under charts/. Each of those carries its own endpoint in
+        # values.yaml, pointing at the source repository.
+        #
+        # The path below the host is identical on both sides, because the source repo
+        # already publishes a bundle's member assets under
+        # extensions/<bundle>/<version>/<member>/<member-version>, and the copy above
+        # brings that whole tree across unchanged. So only the repo and branch change.
+        #
+        # yq rather than sed: these are folded scalars ("endpoint: >-" with the URL on
+        # the next line), and a line-wise substitution would leave the old URL behind.
+        SRC_PREFIX=https://raw.githubusercontent.com/${REPO}/${EXT_BRANCH}
+        DEST_PREFIX=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}
+
+        for MEMBER_VALUES in ./charts/${NAME}/${VERSION}/charts/*/values.yaml; do
+          [ -f "${MEMBER_VALUES}" ] || continue
+
+          MEMBER=$(basename "$(dirname "${MEMBER_VALUES}")")
+
+          for KEY in endpoint compressedEndpoint; do
+            CURRENT=$(yq eval ".plugin.${KEY} // \"\"" "${MEMBER_VALUES}")
+
+            if [ -n "${CURRENT}" ] && [ "${CURRENT}" != "null" ]; then
+              yq -i eval ".plugin.${KEY} = \"${CURRENT/${SRC_PREFIX}/${DEST_PREFIX}}\"" "${MEMBER_VALUES}"
+            fi
+          done
+
+          echo "       - repointed ${MEMBER}"
+        done
+      else
+        CR_FILE=./charts/${NAME}/${VERSION}/templates/cr.yaml
+        ENDPOINT=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/extensions/${NAME}/${VERSION}
+        sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
+        rm -f ${CR_FILE}.bak
+      fi
 
       echo "     + Fetching and patching icon"
 
@@ -175,9 +212,14 @@ do
 
           rm -rf ${CHART_FILE}.bak
 
-          PKG_FILE=${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json
-          sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
-          rm -rf ${PKG_FILE}.bak
+          # Only a single extension has plugin/package.json at this level. A bundle's
+          # icon lives in Chart.yaml, patched above; its members sit a directory
+          # deeper and have no card of their own to brand.
+          if [[ "${IS_BUNDLE}" != "true" ]]; then
+            PKG_FILE=${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json
+            sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
+            rm -rf ${PKG_FILE}.bak
+          fi
         else
           echo -e "${YELLOW}${BOLD}Warning: Could not download icon - check URL${RESET}"
 
@@ -194,8 +236,13 @@ do
       # --------------------------------------------------------------------------------
       # Update the helm index just for this chart
       # --------------------------------------------------------------------------------
+      # Always assign: under `set -u` an unset UPDATE aborts the run the first time
+      # this is reached on a repository with no index.yaml yet. The else branch also
+      # stops a value set on an earlier iteration carrying into a later one.
       if [ -f "${HELM_INDEX}" ]; then
         UPDATE="--merge ${HELM_INDEX}"
+      else
+        UPDATE=""
       fi
 
       # Base URL referencing assets directly from GitHub

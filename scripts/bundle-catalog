@@ -101,6 +101,7 @@ do
   # that would ship every version ever published and is what made this image
   # over a gigabyte.
   VERSIONS=$("${SCRIPT_DIR}/catalog-versions" --ext "${NAME}" --warn)
+  IS_BUNDLE=$(jq -r ".extensions[\"${NAME}\"].bundle // false" manifest.json)
   VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
   PUBLISHED=$(jq -r ".extensions[\"${NAME}\"].versions | length" manifest.json)
 
@@ -133,10 +134,33 @@ do
     cp -R ./tmp/${NAME}/charts/${NAME}/${VERSION} ${CONTAINER_TMP}/charts/${NAME}
 
     echo "     + Patching Helm chart"
-    CR_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/templates/cr.yaml
-    ENDPOINT=http://${DEST_IMAGE_NAME}-svc.cattle-ui-plugin-system:8080/plugin/${NAME}-${VERSION}
-    sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
-    rm -f ${CR_FILE}.bak
+
+    if [[ "${IS_BUNDLE}" == "true" ]]; then
+      # A bundle has no templates of its own; each vendored member carries its own
+      # endpoint in values.yaml. The image serves every extension from a flattened
+      # plugin/<name>-<version> path, so each member points at its own, not the
+      # bundle's.
+      #
+      # yq rather than sed: these are folded scalars and a line-wise substitution
+      # would strand the old URL on the following line.
+      for MEMBER_VALUES in ${CONTAINER_TMP}/charts/${NAME}/${VERSION}/charts/*/values.yaml; do
+        [ -f "${MEMBER_VALUES}" ] || continue
+
+        MEMBER=$(basename "$(dirname "${MEMBER_VALUES}")")
+        MEMBER_VERSION=$(yq eval '.appVersion // ""' "$(dirname "${MEMBER_VALUES}")/Chart.yaml")
+        MEMBER_ENDPOINT=http://${DEST_IMAGE_NAME}-svc.cattle-ui-plugin-system:8080/plugin/${MEMBER}-${MEMBER_VERSION}
+
+        yq -i eval ".plugin.endpoint = \"${MEMBER_ENDPOINT}\"" "${MEMBER_VALUES}"
+        yq -i eval ".plugin.compressedEndpoint = \"${MEMBER_ENDPOINT}.tgz\"" "${MEMBER_VALUES}"
+
+        echo "       - ${MEMBER} ${MEMBER_VERSION} -> plugin/${MEMBER}-${MEMBER_VERSION}"
+      done
+    else
+      CR_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/templates/cr.yaml
+      ENDPOINT=http://${DEST_IMAGE_NAME}-svc.cattle-ui-plugin-system:8080/plugin/${NAME}-${VERSION}
+      sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
+      rm -f ${CR_FILE}.bak
+    fi
 
     echo "     + Fetching and patching icon"
     CHART_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/Chart.yaml
@@ -197,8 +221,13 @@ do
     echo "     + Updating Helm index"
     HELM_INDEX="${CONTAINER_TMP}/index.yaml"
 
+    # Always assign, so a value set on an earlier iteration cannot carry into a
+    # later one. This script does not run under `set -u`, where an unset UPDATE would
+    # abort outright, but the same shape caused exactly that in sync-charts.
     if [ -f "${HELM_INDEX}" ]; then
       UPDATE="--merge ${HELM_INDEX}"
+    else
+      UPDATE=""
     fi
 
     RELATIVE_URL="plugin/${NAME}"
@@ -207,13 +236,35 @@ do
 
     mv ${CONTAINER_TMP}/assets/${NAME}/index.yaml ${CONTAINER_TMP}
 
-    # Move pkg files into relative named plugin directories
-    for d in ${CONTAINER_TMP}/extensions; do
-      pushd ${d}
+    # Move pkg files into relative named plugin directories.
+    #
+    # For a single extension that is extensions/<name>/<version>/ -> <name>-<version>.
+    # A bundle's directory instead holds one subdirectory per member, each with its own
+    # version, and the image serves each member under its own flattened name - which is
+    # what the endpoints rewritten above point at.
+    pushd ${CONTAINER_TMP}/extensions > /dev/null
+
+    if [[ "${IS_BUNDLE}" == "true" ]]; then
+      for MEMBER_DIR in ${NAME}/${VERSION}/*/; do
+        [ -d "${MEMBER_DIR}" ] || continue
+
+        MEMBER=$(basename "${MEMBER_DIR}")
+
+        for MEMBER_VERSION_DIR in ${MEMBER_DIR}*/; do
+          [ -d "${MEMBER_VERSION_DIR}" ] || continue
+
+          MEMBER_VERSION=$(basename "${MEMBER_VERSION_DIR}")
+
+          mkdir -p ${MEMBER}-${MEMBER_VERSION}
+          mv ${MEMBER_VERSION_DIR}* ${MEMBER}-${MEMBER_VERSION}
+        done
+      done
+    else
       mkdir -p ${NAME}-${VERSION}
       mv ${NAME}/${VERSION}/* ${NAME}-${VERSION}
-      popd
-    done
+    fi
+
+    popd > /dev/null
 
     rm -rf ${CONTAINER_TMP}/extensions/${NAME}
   done
