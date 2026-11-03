@@ -88,6 +88,13 @@ do
           WITH_ERROR="true"
           OVERALL_ERROR="true"
         fi
+
+        # check if version exists and is non-empty in package.json
+        if [[ ! -n "$PKG_JSON_VERSION" ]] || [[ "$PKG_JSON_VERSION" == null ]]; then
+          echo "❌ Missing version in package.json for extension ${NAME} version ${VERSION}! Version is a mandatory field!"
+          WITH_ERROR="true"
+          OVERALL_ERROR="true"
+        fi
       fi
 
       # check if description exists and is non-empty in Chart.yaml
@@ -95,13 +102,6 @@ do
 
       if [[ ! -n "$CHART_YAML_DESCRIPTION" ]] || [[ "$CHART_YAML_DESCRIPTION" == null ]]; then
         echo "❌ Missing description in Chart.yaml for extension ${NAME} version ${VERSION}! Description is a mandatory field!"
-        WITH_ERROR="true"
-        OVERALL_ERROR="true"
-      fi
-
-      # check if version exists and is non-empty in package.json
-      if [[ "${IS_BUNDLE}" != "true" ]] && { [[ ! -n "$PKG_JSON_VERSION" ]] || [[ "$PKG_JSON_VERSION" == null ]]; }; then
-        echo "❌ Missing version in package.json for extension ${NAME} version ${VERSION}! Version is a mandatory field!"
         WITH_ERROR="true"
         OVERALL_ERROR="true"
       fi
