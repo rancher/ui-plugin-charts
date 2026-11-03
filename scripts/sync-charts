@@ -136,36 +136,71 @@ do
         # chart vendored under charts/. Each of those carries its own endpoint in
         # values.yaml, pointing at the source repository.
         #
-        # The path below the host is identical on both sides, because the source repo
-        # already publishes a bundle's member assets under
-        # extensions/<bundle>/<version>/<member>/<member-version>, and the copy above
-        # brings that whole tree across unchanged. So only the repo and branch change.
+        # The endpoint is rebuilt from the member's own identity rather than swapped out
+        # of the URL the source published. The manifest's `repo` is only an alias used
+        # to clone: a transferred repository still publishes URLs under its current
+        # owner, and `neuvector/security-ui-exts` is already a redirect to
+        # `rancher/security-ui-exts`. A prefix swap would match nothing, print
+        # "repointed", exit 0, and leave every endpoint on the source repository.
+        #
+        # The member's own version comes from its vendored Chart.yaml, so the path
+        # cannot drift from what was actually published.
         #
         # yq rather than sed: these are folded scalars ("endpoint: >-" with the URL on
         # the next line), and a line-wise substitution would leave the old URL behind.
-        SRC_PREFIX=https://raw.githubusercontent.com/${REPO}/${EXT_BRANCH}
         DEST_PREFIX=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}
 
         for MEMBER_VALUES in ./charts/${NAME}/${VERSION}/charts/*/values.yaml; do
           [ -f "${MEMBER_VALUES}" ] || continue
 
           MEMBER=$(basename "$(dirname "${MEMBER_VALUES}")")
+          MEMBER_VERSION=$(yq eval '.appVersion // ""' "$(dirname "${MEMBER_VALUES}")/Chart.yaml")
 
-          for KEY in endpoint compressedEndpoint; do
-            CURRENT=$(yq eval ".plugin.${KEY} // \"\"" "${MEMBER_VALUES}")
+          if [ -z "${MEMBER_VERSION}" ] || [ "${MEMBER_VERSION}" == "null" ]; then
+            echo "❌ ${NAME} ${VERSION}: member ${MEMBER} has no appVersion in its Chart.yaml"
+            exit 1
+          fi
 
-            if [ -n "${CURRENT}" ] && [ "${CURRENT}" != "null" ]; then
-              yq -i eval ".plugin.${KEY} = \"${CURRENT/${SRC_PREFIX}/${DEST_PREFIX}}\"" "${MEMBER_VALUES}"
-            fi
-          done
+          MEMBER_REL=extensions/${NAME}/${VERSION}/${MEMBER}/${MEMBER_VERSION}
 
-          echo "       - repointed ${MEMBER}"
+          # Fail loudly rather than publish a chart pointing at assets we never synced
+          if [ ! -d "./${MEMBER_REL}" ] || [ ! -f "./${MEMBER_REL}.tgz" ]; then
+            echo "❌ ${NAME} ${VERSION}: missing assets for member ${MEMBER} ${MEMBER_VERSION} at ${MEMBER_REL}"
+            exit 1
+          fi
+
+          yq -i eval ".plugin.endpoint = \"${DEST_PREFIX}/${MEMBER_REL}\"" "${MEMBER_VALUES}"
+          yq -i eval ".plugin.compressedEndpoint = \"${DEST_PREFIX}/${MEMBER_REL}.tgz\"" "${MEMBER_VALUES}"
+
+          echo "       - repointed ${MEMBER} ${MEMBER_VERSION}"
         done
       else
         CR_FILE=./charts/${NAME}/${VERSION}/templates/cr.yaml
         ENDPOINT=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/extensions/${NAME}/${VERSION}
         sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
         rm -f ${CR_FILE}.bak
+
+        # Rancher prefers compressedEndpoint and only falls back to endpoint when the
+        # archive cannot be fetched, so an un-rewritten compressedEndpoint means every
+        # install downloads from the source repository rather than from here - the
+        # sync supplies the card, the source still supplies the code.
+        #
+        # Two things are needed. The archive is published *beside* the version
+        # directory, so the copy above does not bring it across. And 'endpoint:.*'
+        # never matches 'compressedEndpoint:' because of the capital E, so the
+        # substitution above leaves it alone.
+        SRC_TGZ=./tmp/${NAME}/extensions/${NAME}/${VERSION}.tgz
+
+        if [ -f "${SRC_TGZ}" ]; then
+          cp "${SRC_TGZ}" ./extensions/${NAME}/${VERSION}.tgz
+          sed -i.bak -e 's@compressedEndpoint:.*@compressedEndpoint: '"$ENDPOINT"'.tgz@' ${CR_FILE}
+          rm -f ${CR_FILE}.bak
+        else
+          # Versions published before the source started building an archive. Left
+          # pointing upstream, where it 404s and the backend falls back to endpoint -
+          # which is the behaviour every synced version has today.
+          echo -e "${YELLOW}     ! No archive at extensions/${NAME}/${VERSION}.tgz - leaving compressedEndpoint unchanged${RESET}"
+        fi
       fi
 
       echo "     + Fetching and patching icon"
@@ -292,6 +327,7 @@ for DIR in ./charts/*/; do
         # remove files
         rm -rf ${BASE_DIR}/charts/${SYNCED_EXT}/${EXT_V}
         rm -rf ${BASE_DIR}/extensions/${SYNCED_EXT}/${EXT_V}
+        rm -f ${BASE_DIR}/extensions/${SYNCED_EXT}/${EXT_V}.tgz
         rm -rf ${BASE_DIR}/assets/${SYNCED_EXT}/${SYNCED_EXT}-${EXT_V}.tgz
       fi
     done
