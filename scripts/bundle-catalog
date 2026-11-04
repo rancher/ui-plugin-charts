@@ -18,6 +18,7 @@ DEST_TAG="latest"
 DEST_REGISTRY=""
 DEST_NAMESPACE="rancher"
 RUNTIME="docker"
+DRY_RUN=false
 
 usage() {
   echo "Usage: $0 [<options>]"
@@ -26,6 +27,7 @@ usage() {
   echo "  -t, --tag <name>              Specify the version tag for the destination image (defaults to 'latest')"
   echo "  -r, --registry <name>         Specify the destination container registry to push the catalog images (defaults to 'docker.io')"
   echo "  -n, --namespace <name>        Specify the destination namespace of the for the catalog image scope (defaults to 'rancher')"
+  echo "  -d, --dry-run                 Assemble the catalog contents but do not build, tag or push an image"
   exit 1
 }
 
@@ -61,6 +63,10 @@ while [[ $# -gt 0 ]]; do
       DEST_NAMESPACE="${2}"
       shift 2
       ;;
+    -d|--dry-run)
+      DRY_RUN=true
+      shift
+      ;;
     *)
       echo "Error: Unknown option $1"
       usage
@@ -90,6 +96,7 @@ do
   REPO=$(jq -r ".extensions[\"${NAME}\"].repo" manifest.json)
   EXT_BRANCH=$(jq -r ".extensions[\"${NAME}\"].branch" manifest.json)
   VERSIONS=$(jq -r ".extensions[\"${NAME}\"].versions[]" manifest.json)
+  IS_BUNDLE=$(jq -r ".extensions[\"${NAME}\"].bundle // false" manifest.json)
   VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
 
   echo -e "     Repository: ${REPO}"
@@ -114,15 +121,87 @@ do
     cp -R ./tmp/${NAME}/extensions/${NAME}/${VERSION} ${CONTAINER_TMP}/extensions/${NAME}
     cp -R ./tmp/${NAME}/charts/${NAME}/${VERSION} ${CONTAINER_TMP}/charts/${NAME}
 
+    # Deliberately not copying the extension's .tgz archive. sync-charts does carry it,
+    # because over the internet a compressed fetch is one request instead of hundreds.
+    # Here everything is served by an in-cluster nginx that already holds the
+    # uncompressed tree, so the archive would be a second copy of every extension
+    # bought for round trips that are not the bottleneck - about 205MB on a 1072MB
+    # image today. compressedEndpoint is blanked below instead.
+
     echo "     + Patching Helm chart"
-    CR_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/templates/cr.yaml
+
+    # Every chart gets its own directory in the image, bundle or not.
     ENDPOINT=http://${DEST_IMAGE_NAME}-svc.cattle-ui-plugin-system:8080/plugin/${NAME}-${VERSION}
-    sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
-    rm -f ${CR_FILE}.bak
+
+    if [[ "${IS_BUNDLE}" == "true" ]]; then
+      # A bundle has no templates of its own; each vendored member carries its own
+      # endpoint in values.yaml.
+      #
+      # Members are served from under the bundle's own directory rather than from a
+      # shared plugin/<member>-<version>. A member can be published both standalone
+      # and inside a bundle, and the two arrive here as separate releases that this
+      # script then patches differently - only the standalone copy has its card icon
+      # downloaded into plugin/img and written into plugin/package.json. Sharing one
+      # directory would make whichever extension the manifest happens to list first
+      # overwrite the other's assets.
+      #
+      # yq rather than sed: these are folded scalars and a line-wise substitution
+      # would strand the old URL on the following line.
+      for MEMBER_VALUES in ${CONTAINER_TMP}/charts/${NAME}/${VERSION}/charts/*/values.yaml; do
+        [ -f "${MEMBER_VALUES}" ] || continue
+
+        MEMBER=$(basename "$(dirname "${MEMBER_VALUES}")")
+        MEMBER_VERSION=$(yq eval '.appVersion // ""' "$(dirname "${MEMBER_VALUES}")/Chart.yaml")
+
+        if [ -z "${MEMBER_VERSION}" ] || [ "${MEMBER_VERSION}" == "null" ]; then
+          echo "❌ ${NAME} ${VERSION}: member ${MEMBER} has no appVersion in its Chart.yaml"
+          exit 1
+        fi
+
+        MEMBER_ENDPOINT=${ENDPOINT}/${MEMBER}-${MEMBER_VERSION}
+
+        # Blanked rather than pointed at an archive - see the note above the copy.
+        # Rancher skips a compressedEndpoint that is empty and goes straight to
+        # endpoint, so this is what keeps an air-gapped cluster from calling out to
+        # raw.githubusercontent.com and waiting for it to fail.
+        yq -i eval ".plugin.endpoint = \"${MEMBER_ENDPOINT}\"" "${MEMBER_VALUES}"
+        yq -i eval '.plugin.compressedEndpoint = ""' "${MEMBER_VALUES}"
+
+        echo "       - ${MEMBER} ${MEMBER_VERSION} -> plugin/${NAME}-${VERSION}/${MEMBER}-${MEMBER_VERSION}"
+      done
+    else
+      CR_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/templates/cr.yaml
+      sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
+      rm -f ${CR_FILE}.bak
+
+      # Blank compressedEndpoint rather than repoint it - see the note above the copy.
+      # It is left over from the source repository and 'endpoint:.*' does not match it
+      # (capital E), so without this an air-gapped cluster calls out to
+      # raw.githubusercontent.com for every extension and has to wait for that to fail
+      # before falling back to the endpoint above. Rancher skips an empty one outright.
+      sed -i.bak -e 's@compressedEndpoint:.*@compressedEndpoint: ""@' ${CR_FILE}
+      rm -f ${CR_FILE}.bak
+    fi
 
     echo "     + Fetching and patching icon"
     CHART_FILE=${CONTAINER_TMP}/charts/${NAME}/${VERSION}/Chart.yaml
     ICON=$(yq eval '.icon' ${CHART_FILE})
+
+    # Where the card icon is downloaded to, and the path the image serves it from.
+    #
+    # A single extension keeps it inside its own plugin/img, beside the package.json
+    # that also carries it. A bundle has no plugin/ at this level - only member
+    # directories - so it gets its own img/ directly at the flattened level, which the
+    # image serves as plugin/<bundle>-<version>/img. Downloading to the
+    # single-extension path aborts the whole catalog build for every extension: curl
+    # cannot create the file, and the package.json patch below then fails under set -e.
+    if [[ "${IS_BUNDLE}" == "true" ]]; then
+      ICON_DIR=${CONTAINER_TMP}/extensions/${NAME}-${VERSION}/img
+      ICON_URL_DIR=img
+    else
+      ICON_DIR=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img
+      ICON_URL_DIR=plugin/img
+    fi
 
     if [ -n "${ICON}" ] && [ "${ICON}" != "null" ]; then
         # Downloading icon
@@ -130,47 +209,61 @@ do
         ICON_EXTENSION="${ICON_FILE##*.}"
         NEW_ICON_NAME="copy-app-icon-${NAME}.${ICON_EXTENSION}"
         echo "     + Fetching icon: ${ICON}"
-        
+
+        mkdir -p "${ICON_DIR}"
+
         # Validate icon URL and download (SSRF prevention, HTTPS-only)
         set +e
         ERR=1
         if validate_icon_url "$ICON"; then
-          FINAL_URL=$(curl --silent --show-error --proto '=https' --proto-redir '=https' --fail --location --output "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}" --write-out "%{url_effective}" "$ICON")
+          FINAL_URL=$(curl --silent --show-error --proto '=https' --proto-redir '=https' --fail --location --output "${ICON_DIR}/${NEW_ICON_NAME}" --write-out "%{url_effective}" "$ICON")
           ERR=$?
           if [ ${ERR} -eq 0 ] && [ "$FINAL_URL" != "$ICON" ]; then
             if ! validate_icon_url "$FINAL_URL"; then
               echo "❌ Warning: Redirected icon URL failed validation: $FINAL_URL"
               ERR=1
-              rm -f "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img/${NEW_ICON_NAME}"
+              rm -f "${ICON_DIR}/${NEW_ICON_NAME}"
             fi
           fi
         fi
         set -e # <--- Re-enables the 'exit immediately on error' setting
 
+        NEW_ICON=""
+
         if [ ${ERR} -eq 0 ]; then
+          NEW_ICON=${ENDPOINT}/${ICON_URL_DIR}/${NEW_ICON_NAME}
+
           # Icon downloaded okay... Let's patch the icon properly
           echo " ::: Icon ${ICON} downloaded fine!!! will be using ${NEW_ICON}"
-
-          NEW_ICON=${ENDPOINT}/plugin/img/${NEW_ICON_NAME}
-        else
+        elif [[ "${IS_BUNDLE}" != "true" ]]; then
           # Let's use the old code as fallback... better than failing with nothing...
           echo " ::: Icon ${ICON} failed to download.... Fallback"
-          
-          ICON_FILE=$(ls -1 "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/img" | head -n 1)
-          NEW_ICON=${ENDPOINT}/plugin/img/${ICON_FILE}
-        fi
 
-        # Check if '>-' exists in the icon property to remove the second line
-        if grep -q 'icon: >-' "${CHART_FILE}"; then
-          sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
-          sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+          ICON_FILE=$(ls -1 "${ICON_DIR}" | head -n 1)
+          NEW_ICON=${ENDPOINT}/${ICON_URL_DIR}/${ICON_FILE}
         else
-          sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+          # A bundle ships no icons of its own, so there is nothing to fall back to.
+          # Leave Chart.yaml alone rather than point the card at a 404.
+          echo -e "${YELLOW}${BOLD}Warning: could not download icon for bundle ${NAME} ${VERSION} - leaving Chart.yaml icon unchanged${RESET}"
         fi
 
-        PKG_FILE=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/package.json
-        sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"${NEW_ICON}"'\"@' ${PKG_FILE}
-        rm -f ${PKG_FILE}.bak ${CHART_FILE}.bak
+        if [ -n "${NEW_ICON}" ]; then
+          # Check if '>-' exists in the icon property to remove the second line
+          if grep -q 'icon: >-' "${CHART_FILE}"; then
+            sed -i.bak '/^icon: >-/{n;d;}' "${CHART_FILE}"
+            sed -i -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+          else
+            sed -i.bak -e 's@icon:.*@icon: '"${NEW_ICON}"'@' ${CHART_FILE}
+          fi
+          rm -f ${CHART_FILE}.bak
+
+          # Only a single extension has a plugin/package.json at this level
+          if [[ "${IS_BUNDLE}" != "true" ]]; then
+            PKG_FILE=${CONTAINER_TMP}/extensions/${NAME}/${VERSION}/plugin/package.json
+            sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"${NEW_ICON}"'\"@' ${PKG_FILE}
+            rm -f ${PKG_FILE}.bak
+          fi
+        fi
       fi
 
     echo "     + Packaging Helm chart"
@@ -179,8 +272,13 @@ do
     echo "     + Updating Helm index"
     HELM_INDEX="${CONTAINER_TMP}/index.yaml"
 
+    # Always assign, so a value set on an earlier iteration cannot carry into a
+    # later one. This script does not run under `set -u`, where an unset UPDATE would
+    # abort outright, but the same shape caused exactly that in sync-charts.
     if [ -f "${HELM_INDEX}" ]; then
       UPDATE="--merge ${HELM_INDEX}"
+    else
+      UPDATE=""
     fi
 
     RELATIVE_URL="plugin/${NAME}"
@@ -189,13 +287,42 @@ do
 
     mv ${CONTAINER_TMP}/assets/${NAME}/index.yaml ${CONTAINER_TMP}
 
-    # Move pkg files into relative named plugin directories
-    for d in ${CONTAINER_TMP}/extensions; do
-      pushd ${d}
+    # Move pkg files into relative named plugin directories.
+    #
+    # For a single extension that is extensions/<name>/<version>/ -> <name>-<version>.
+    # A bundle's directory instead holds one subdirectory per member, each with its own
+    # version, and each member is placed under the bundle's own directory as
+    # <bundle>-<version>/<member>-<member-version> - which is what the endpoints
+    # rewritten above point at. Keeping members inside the bundle means a member
+    # published both standalone and as part of a bundle never shares a path with its
+    # other copy, matching how the source repository publishes them.
+    pushd ${CONTAINER_TMP}/extensions > /dev/null
+
+    if [[ "${IS_BUNDLE}" == "true" ]]; then
+      for MEMBER_DIR in ${NAME}/${VERSION}/*/; do
+        [ -d "${MEMBER_DIR}" ] || continue
+
+        MEMBER=$(basename "${MEMBER_DIR}")
+
+        for MEMBER_VERSION_DIR in ${MEMBER_DIR}*/; do
+          [ -d "${MEMBER_VERSION_DIR}" ] || continue
+
+          MEMBER_VERSION=$(basename "${MEMBER_VERSION_DIR}")
+
+          mkdir -p ${NAME}-${VERSION}/${MEMBER}-${MEMBER_VERSION}
+
+          # Only the directory moves. A member's .tgz is published beside it and is
+          # left behind on purpose, for the same reason the single-extension archive
+          # is not copied in - nothing in the image points at it.
+          mv ${MEMBER_VERSION_DIR}* ${NAME}-${VERSION}/${MEMBER}-${MEMBER_VERSION}
+        done
+      done
+    else
       mkdir -p ${NAME}-${VERSION}
       mv ${NAME}/${VERSION}/* ${NAME}-${VERSION}
-      popd
-    done
+    fi
+
+    popd > /dev/null
 
     rm -rf ${CONTAINER_TMP}/extensions/${NAME}
   done
@@ -204,7 +331,9 @@ do
 done
 
 # if no tag is passed, get the latest version from dockerhub and bump the minor version
-if [[ "${DEST_TAG}" == "latest" ]]; then
+if [[ "${DRY_RUN}" == "true" ]]; then
+  DEST_TAG="dry-run"
+elif [[ "${DEST_TAG}" == "latest" ]]; then
   echo "No tag argument passed. Fetching tags for Docker Hub repo: $DOCKERHUB_REPO"
 
   # Get latest semver tag
@@ -243,15 +372,17 @@ PACKAGING_CONTAINER=${TMP}/container
 rm -rf ${PACKAGING_CONTAINER}
 mkdir -p ${PACKAGING_CONTAINER}
 
-# Fetch packaging scripts
-pushd ${PACKAGING_CONTAINER}
-git init
-git remote add subdir https://github.com/rancher/dashboard.git
-git fetch subdir
-git checkout subdir/master -- shell/scripts/extension/helm
-mv shell/scripts/extension/helm/* .
-rm -rf .git shell
-popd
+# Fetch packaging scripts - only needed to actually build the image
+if [[ "${DRY_RUN}" != "true" ]]; then
+  pushd ${PACKAGING_CONTAINER}
+  git init
+  git remote add subdir https://github.com/rancher/dashboard.git
+  git fetch subdir
+  git checkout subdir/master -- shell/scripts/extension/helm
+  mv shell/scripts/extension/helm/* .
+  rm -rf .git shell
+  popd
+fi
 
 mkdir -p ${PACKAGING_CONTAINER}/plugin
 
@@ -266,6 +397,12 @@ cp ${BASE_DIR}/scripts/bundle/package.json ${PACKAGING_CONTAINER}/plugin
 PLUGIN_JSON=${PACKAGING_CONTAINER}/plugin/package.json
 cat ${PLUGIN_JSON} | jq '.name = $image_name' --arg image_name "${DEST_IMAGE_NAME}" | tee ${PLUGIN_JSON} >/dev/null
 cat ${PLUGIN_JSON} | jq '.version = $tagged_version' --arg tagged_version "${DEST_TAG}" | tee ${PLUGIN_JSON} >/dev/null
+
+if [[ "${DRY_RUN}" == "true" ]]; then
+  echo -e "${CYAN}Dry run: skipping image build and push${RESET}"
+  echo -e "${CHECK}${CYAN} Catalog contents assembled at ${PACKAGING_CONTAINER}/plugin${RESET}"
+  exit 0
+fi
 
 pushd ${PACKAGING_CONTAINER} > /dev/null
 echo -e "${CYAN}Building container image ...${RESET}"
