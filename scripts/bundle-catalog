@@ -121,12 +121,12 @@ do
     cp -R ./tmp/${NAME}/extensions/${NAME}/${VERSION} ${CONTAINER_TMP}/extensions/${NAME}
     cp -R ./tmp/${NAME}/charts/${NAME}/${VERSION} ${CONTAINER_TMP}/charts/${NAME}
 
-    # A single extension's archive sits beside its version directory rather than
-    # inside it, so it needs copying separately. A bundle has none at this level -
-    # its members carry their own, inside the tree already copied above.
-    if [ -f ./tmp/${NAME}/extensions/${NAME}/${VERSION}.tgz ]; then
-      cp ./tmp/${NAME}/extensions/${NAME}/${VERSION}.tgz ${CONTAINER_TMP}/extensions/${NAME}/${VERSION}.tgz
-    fi
+    # Deliberately not copying the extension's .tgz archive. sync-charts does carry it,
+    # because over the internet a compressed fetch is one request instead of hundreds.
+    # Here everything is served by an in-cluster nginx that already holds the
+    # uncompressed tree, so the archive would be a second copy of every extension
+    # bought for round trips that are not the bottleneck - about 205MB on a 1072MB
+    # image today. compressedEndpoint is blanked below instead.
 
     echo "     + Patching Helm chart"
 
@@ -160,8 +160,12 @@ do
 
         MEMBER_ENDPOINT=${ENDPOINT}/${MEMBER}-${MEMBER_VERSION}
 
+        # Blanked rather than pointed at an archive - see the note above the copy.
+        # Rancher skips a compressedEndpoint that is empty and goes straight to
+        # endpoint, so this is what keeps an air-gapped cluster from calling out to
+        # raw.githubusercontent.com and waiting for it to fail.
         yq -i eval ".plugin.endpoint = \"${MEMBER_ENDPOINT}\"" "${MEMBER_VALUES}"
-        yq -i eval ".plugin.compressedEndpoint = \"${MEMBER_ENDPOINT}.tgz\"" "${MEMBER_VALUES}"
+        yq -i eval '.plugin.compressedEndpoint = ""' "${MEMBER_VALUES}"
 
         echo "       - ${MEMBER} ${MEMBER_VERSION} -> plugin/${NAME}-${VERSION}/${MEMBER}-${MEMBER_VERSION}"
       done
@@ -170,16 +174,13 @@ do
       sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
       rm -f ${CR_FILE}.bak
 
-      # As in sync-charts: the backend tries compressedEndpoint first, and
-      # 'endpoint:.*' does not match it (capital E). Left alone, an air-gapped cluster
-      # makes an outbound call to raw.githubusercontent.com for every extension and
-      # has to wait for it to fail before the endpoint fallback runs.
-      if [ -f "${CONTAINER_TMP}/extensions/${NAME}/${VERSION}.tgz" ]; then
-        sed -i.bak -e 's@compressedEndpoint:.*@compressedEndpoint: '"$ENDPOINT"'.tgz@' ${CR_FILE}
-        rm -f ${CR_FILE}.bak
-      else
-        echo -e "${YELLOW}     ! No archive for ${NAME} ${VERSION} - leaving compressedEndpoint unchanged${RESET}"
-      fi
+      # Blank compressedEndpoint rather than repoint it - see the note above the copy.
+      # It is left over from the source repository and 'endpoint:.*' does not match it
+      # (capital E), so without this an air-gapped cluster calls out to
+      # raw.githubusercontent.com for every extension and has to wait for that to fail
+      # before falling back to the endpoint above. Rancher skips an empty one outright.
+      sed -i.bak -e 's@compressedEndpoint:.*@compressedEndpoint: ""@' ${CR_FILE}
+      rm -f ${CR_FILE}.bak
     fi
 
     echo "     + Fetching and patching icon"
@@ -309,24 +310,16 @@ do
           MEMBER_VERSION=$(basename "${MEMBER_VERSION_DIR}")
 
           mkdir -p ${NAME}-${VERSION}/${MEMBER}-${MEMBER_VERSION}
-          mv ${MEMBER_VERSION_DIR}* ${NAME}-${VERSION}/${MEMBER}-${MEMBER_VERSION}
 
-          # The member archive sits beside its directory, not inside it, and
-          # compressedEndpoint above points at it.
-          if [ -f "${MEMBER_DIR}${MEMBER_VERSION}.tgz" ]; then
-            mv ${MEMBER_DIR}${MEMBER_VERSION}.tgz ${NAME}-${VERSION}/${MEMBER}-${MEMBER_VERSION}.tgz
-          fi
+          # Only the directory moves. A member's .tgz is published beside it and is
+          # left behind on purpose, for the same reason the single-extension archive
+          # is not copied in - nothing in the image points at it.
+          mv ${MEMBER_VERSION_DIR}* ${NAME}-${VERSION}/${MEMBER}-${MEMBER_VERSION}
         done
       done
     else
       mkdir -p ${NAME}-${VERSION}
       mv ${NAME}/${VERSION}/* ${NAME}-${VERSION}
-
-      # Served as plugin/<name>-<version>.tgz, which is what compressedEndpoint points
-      # at - the same naming the source repo's own catalog image uses.
-      if [ -f "${NAME}/${VERSION}.tgz" ]; then
-        mv ${NAME}/${VERSION}.tgz ${NAME}-${VERSION}.tgz
-      fi
     fi
 
     popd > /dev/null
