@@ -160,27 +160,105 @@ write_manifest bad-minors.json '{"versionPolicy":{"minorsPerMajor":0},
   "extensions":{"x":{"repo":"a/b","branch":"gh-pages","versions":["1.0.0"]}}}'
 expect_fail "rejects minorsPerMajor of 0" "${RESOLVE}" -m "${TMP}/bad-minors.json"
 
-# --- regression lock against the real manifest --------------------------------
+# --- invariants against the real manifest -------------------------------------
+#
+# These assert properties, not a snapshot of the resolved list. An earlier
+# version hardcoded "kubewarden ... 4.2.3", which broke the moment 4.2.4 was
+# published - the resolver was right and the test was stale. Anything asserted
+# here has to stay true as extensions publish new versions.
+#
+# Each invariant is then re-run against a deliberately broken input, so an
+# invariant that can no longer detect anything fails loudly instead of passing
+# forever on an empty result.
+
+# Shared preamble: for each extension, the published list, the declared
+# exceptions, and the versions the rule (rather than an exception) produced.
+read -r -d '' PREAMBLE <<'JQ' || true
+  def parts: split(".") | map(tonumber);
+  ($manifest[0].versionPolicy.minorsPerMajor // 3) as $n
+  | $manifest[0].extensions as $exts
+  | ($manifest[0].versionPolicy.exceptions // {}) as $exc
+  | to_entries[]
+  | .key as $ext
+  | .value as $resolved
+  | ($exts[$ext].versions | map(ltrimstr(" ") | rtrimstr(" "))) as $published
+  | (($exc[$ext] // []) | map(.version)) as $exceptions
+  | ($resolved | map(select(. as $v | $exceptions | index($v) | not))) as $byRule
+JQ
+
+INV_PUBLISHED='$resolved[]
+  | select(. as $v | $published | index($v) | not)
+  | "\($ext)@\(.) is not published in the manifest"'
+
+INV_MINOR_COUNT='$byRule | map(parts) | group_by(.[0])[]
+  | select((map(.[1]) | unique | length) > $n)
+  | "\($ext) major \(.[0][0]) keeps \(map(.[1]) | unique | length) minors"'
+
+INV_ONE_PATCH='$byRule | map(parts) | group_by([.[0], .[1]])[]
+  | select(length > 1)
+  | "\($ext) \(.[0][0]).\(.[0][1]) keeps \(length) patches"'
+
+INV_LATEST_PATCH='($published | map(parts)) as $pp
+  | $byRule[] | . as $v | ($v | parts) as $p
+  | ($pp | map(select(.[0] == $p[0] and .[1] == $p[1])) | sort | last) as $max
+  | select($p != $max)
+  | "\($ext)@\($v) is not the latest patch of \($p[0]).\($p[1])"'
+
+INV_EXCEPTIONS_KEPT='$exceptions[]
+  | select(. as $v | $published | index($v))
+  | select(. as $v | $resolved | index($v) | not)
+  | "\($ext)@\(.) is an exception but was not kept"'
+
+# invariant <jq-body> <manifest> <resolved> -> violations, one per line
+invariant() {
+  jq -r --slurpfile manifest "$2" "${PREAMBLE} | $1" "$3"
+}
 
 if [[ -f "${BASE_DIR}/manifest.json" ]]; then
-  expect "harvester resolves to its documented exception set" \
-    "1.0.6 1.5.2 1.6.1 1.7.3 1.8.2 1.9.0" \
-    "$("${RESOLVE}" --ext harvester | tr '\n' ' ' | sed 's/ $//')"
-  expect "kubewarden keeps 3 minors in each of its 4 majors" \
-    "1.4.3 1.5.0 1.6.10 2.0.1 2.1.6 3.0.3 3.1.3 4.0.3 4.1.5 4.2.3" \
-    "$("${RESOLVE}" --ext kubewarden | tr '\n' ' ' | sed 's/ $//')"
-  expect "every resolved version is one the manifest actually publishes" \
-    "" \
-    "$("${RESOLVE}" --format json | jq -r --slurpfile m "${BASE_DIR}/manifest.json" '
-        to_entries[] as $e
-        | $e.value[]
-        | select(. as $v | ($m[0].extensions[$e.key].versions | index($v)) == null)
-        | "\($e.key)@\(.)"')"
+  REAL="${BASE_DIR}/manifest.json"
+  "${RESOLVE}" -m "${REAL}" --format json > "${TMP}/resolved.json"
+
+  expect "every resolved version is one the manifest actually publishes" "" \
+    "$(invariant "${INV_PUBLISHED}" "${REAL}" "${TMP}/resolved.json")"
+  expect "no major keeps more than minorsPerMajor minors by rule" "" \
+    "$(invariant "${INV_MINOR_COUNT}" "${REAL}" "${TMP}/resolved.json")"
+  expect "the rule keeps at most one patch per minor" "" \
+    "$(invariant "${INV_ONE_PATCH}" "${REAL}" "${TMP}/resolved.json")"
+  expect "each kept version is the highest published patch of its minor" "" \
+    "$(invariant "${INV_LATEST_PATCH}" "${REAL}" "${TMP}/resolved.json")"
+  expect "every declared exception that is still published is kept" "" \
+    "$(invariant "${INV_EXCEPTIONS_KEPT}" "${REAL}" "${TMP}/resolved.json")"
+  expect "the manifest declares exceptions for harvester" "true" \
+    "$(jq -r '(.versionPolicy.exceptions.harvester // []) | length > 0' "${REAL}")"
 fi
 
-echo ""
-if [[ ${FAIL} -gt 0 ]]; then
-  echo -e "${RED}${BOLD}${FAIL} failed${RESET}, ${PASS} passed"
-  exit 1
-fi
-echo -e "${GREEN}${BOLD}all ${PASS} tests passed${RESET}"
+# --- the invariants must be able to fail --------------------------------------
+
+# Needs a 4th non-exception minor, so that a seeded over-wide result is actually
+# over-wide once exceptions are filtered out.
+write_manifest seed.json '{"versionPolicy":{"minorsPerMajor":3,"exceptions":{
+  "x":[{"version":"1.0.0","reason":"pinned"}]}},
+  "extensions":{"x":{"repo":"a/b","branch":"gh-pages",
+  "versions":["1.0.0","1.1.0","1.2.0","1.3.0","1.3.7","1.4.0"]}}}'
+
+seeded() { echo "$1" > "${TMP}/seeded.json"; invariant "$2" "${TMP}/seed.json" "${TMP}/seeded.json"; }
+
+expect "catches a version that is not published" \
+  "x@9.9.9 is not published in the manifest" \
+  "$(seeded '{"x":["9.9.9"]}' "${INV_PUBLISHED}")"
+
+expect "catches a major keeping too many minors" \
+  "x major 1 keeps 4 minors" \
+  "$(seeded '{"x":["1.1.0","1.2.0","1.3.7","1.4.0"]}' "${INV_MINOR_COUNT}")"
+
+expect "catches two patches kept from one minor" \
+  "x 1.3 keeps 2 patches" \
+  "$(seeded '{"x":["1.3.0","1.3.7"]}' "${INV_ONE_PATCH}")"
+
+expect "catches keeping a stale patch" \
+  "x@1.3.0 is not the latest patch of 1.3" \
+  "$(seeded '{"x":["1.3.0"]}' "${INV_LATEST_PATCH}")"
+
+expect "catches a published exception being dropped" \
+  "x@1.0.0 is an exception but was not kept" \
+  "$(seeded '{"x":["1.3.7"]}' "${INV_EXCEPTIONS_KEPT}")"
