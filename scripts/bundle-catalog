@@ -18,6 +18,7 @@ DEST_TAG="latest"
 DEST_REGISTRY=""
 DEST_NAMESPACE="rancher"
 RUNTIME="docker"
+DRY_RUN=false
 
 usage() {
   echo "Usage: $0 [<options>]"
@@ -26,6 +27,7 @@ usage() {
   echo "  -t, --tag <name>              Specify the version tag for the destination image (defaults to 'latest')"
   echo "  -r, --registry <name>         Specify the destination container registry to push the catalog images (defaults to 'docker.io')"
   echo "  -n, --namespace <name>        Specify the destination namespace of the for the catalog image scope (defaults to 'rancher')"
+  echo "  -d, --dry-run                 Build the catalog image but do not push it (used by the scheduled build check)"
   exit 1
 }
 
@@ -61,6 +63,10 @@ while [[ $# -gt 0 ]]; do
       DEST_NAMESPACE="${2}"
       shift 2
       ;;
+    -d|--dry-run)
+      DRY_RUN=true
+      shift
+      ;;
     *)
       echo "Error: Unknown option $1"
       usage
@@ -89,13 +95,25 @@ do
 
   REPO=$(jq -r ".extensions[\"${NAME}\"].repo" manifest.json)
   EXT_BRANCH=$(jq -r ".extensions[\"${NAME}\"].branch" manifest.json)
-  VERSIONS=$(jq -r ".extensions[\"${NAME}\"].versions[]" manifest.json)
+
+  # The catalog image ships a subset of what the manifest publishes - see
+  # scripts/catalog-versions for the policy. Never read .versions directly here:
+  # that would ship every version ever published and is what made this image
+  # over a gigabyte.
+  VERSIONS=$("${SCRIPT_DIR}/catalog-versions" --ext "${NAME}" --warn)
   VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
+  PUBLISHED=$(jq -r ".extensions[\"${NAME}\"].versions | length" manifest.json)
 
   echo -e "     Repository: ${REPO}"
   echo -e "     Branch: ${EXT_BRANCH}"
   echo -e "     Versions  : ${VFORMAT}"
+  echo -e "     (bundling $(echo ${VERSIONS} | wc -w | tr -d ' ') of ${PUBLISHED} published versions)"
   echo ""
+
+  if [[ -z "${VERSIONS}" ]]; then
+    echo -e "${YELLOW}     Nothing to bundle for ${NAME}, skipping${RESET}"
+    continue
+  fi
 
   echo -e "  .. Cloning repository"
   rm -rf ${TMP}/${NAME}
@@ -277,6 +295,15 @@ fi
 
 if [ ! -z "${IMAGE}" ]; then
   REGISTRY=${DEST_REGISTRY} ORG=${DEST_NAMESPACE} REPO=${DEST_IMAGE_NAME} TAG=${DEST_TAG} RUNTIME=${RUNTIME} ./scripts/package
+
+  if [[ "${DRY_RUN}" == true ]]; then
+    echo -e "${CYAN}Dry run: built ${IMAGE}, skipping push${RESET}"
+    ${RUNTIME} images --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep "${DEST_IMAGE_NAME}" || true
+    popd > /dev/null
+    rm -rf ${TMP}
+    echo -e "${CHECK}${CYAN} ${IMAGE} built successfully (not pushed).${RESET}"
+    exit 0
+  fi
 
   echo -e "${CYAN}Pushing container image ...${RESET}"
 

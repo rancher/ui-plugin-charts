@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ------------------------------------------------------------------------------
+# Reports, in markdown, what a manifest change does to the airgap catalog image.
+#
+#   ./scripts/catalog-report <base-manifest> [<head-manifest>]
+#
+# manifest.json lists everything published to the GitHub Helm repo; the catalog
+# image ships a policy-filtered subset of it (see scripts/catalog-versions). That
+# means a one-line manifest diff can silently add or drop versions from the image
+# - adding 4.3.0 pushes 4.0.3 out of the window. This makes that visible on the
+# PR, where someone is still in a position to object.
+#
+# Resolution is delegated to scripts/catalog-versions, the same script the catalog
+# build uses, so this always reports what would actually be built.
+# ------------------------------------------------------------------------------
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+BASE_DIR="$( cd "${SCRIPT_DIR}" && cd .. && pwd )"
+RESOLVE="${SCRIPT_DIR}/catalog-versions"
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <base-manifest> [<head-manifest>]" >&2
+  exit 1
+fi
+
+BASE_MANIFEST="$1"
+HEAD_MANIFEST="${2:-${BASE_DIR}/manifest.json}"
+
+for f in "${BASE_MANIFEST}" "${HEAD_MANIFEST}"; do
+  if [[ ! -f "${f}" ]]; then
+    echo "Error: manifest not found at ${f}" >&2
+    exit 1
+  fi
+done
+
+TMP=$(mktemp -d)
+trap 'rm -rf "${TMP}"' EXIT
+
+"${RESOLVE}" -m "${BASE_MANIFEST}" > "${TMP}/base.txt"
+"${RESOLVE}" -m "${HEAD_MANIFEST}" --warn > "${TMP}/head.txt" 2> "${TMP}/warnings.txt"
+
+BASE_N=$(grep -c '^' < "${TMP}/base.txt" || true)
+HEAD_N=$(grep -c '^' < "${TMP}/head.txt" || true)
+BASE_PUB=$(jq '[.extensions[].versions[]] | length' "${BASE_MANIFEST}")
+HEAD_PUB=$(jq '[.extensions[].versions[]] | length' "${HEAD_MANIFEST}")
+
+ADDED=$(comm -13 <(LC_ALL=C sort -u "${TMP}/base.txt") <(LC_ALL=C sort -u "${TMP}/head.txt") || true)
+REMOVED=$(comm -23 <(LC_ALL=C sort -u "${TMP}/base.txt") <(LC_ALL=C sort -u "${TMP}/head.txt") || true)
+
+echo "## Airgap catalog image contents"
+echo ""
+
+if [[ -z "${ADDED}" && -z "${REMOVED}" ]]; then
+  echo "This PR does not change what the catalog image ships (**${HEAD_N} versions**, unchanged)."
+  echo ""
+else
+  MINORS=$(jq -r '.versionPolicy.minorsPerMajor // 3' "${HEAD_MANIFEST}")
+  echo "Applying the version policy (for each major → last ${MINORS} minors → latest patch):"
+  echo ""
+
+  CHANGED_EXTS=$(printf '%s\n%s\n' "${ADDED}" "${REMOVED}" | grep -v '^$' | awk '{print $1}' | LC_ALL=C sort -u)
+
+  for EXT in ${CHANGED_EXTS}; do
+    echo "**${EXT}**"
+    while read -r _ V; do
+      [[ -n "${V:-}" ]] && echo "- \`${V}\` added to the image"
+    done <<< "$(echo "${ADDED}" | grep "^${EXT} " || true)"
+    while read -r _ V; do
+      [[ -n "${V:-}" ]] && echo "- \`${V}\` **dropped from the image** (pushed out of the policy window)"
+    done <<< "$(echo "${REMOVED}" | grep "^${EXT} " || true)"
+    echo ""
+  done
+fi
+
+echo "| | Published to the Helm repo | Bundled in the image |"
+echo "| --- | --- | --- |"
+echo "| base | ${BASE_PUB} | ${BASE_N} |"
+echo "| this PR | ${HEAD_PUB} | ${HEAD_N} |"
+echo ""
+
+if [[ -s "${TMP}/warnings.txt" ]]; then
+  echo "### Policy warnings"
+  echo ""
+  while read -r LINE; do
+    [[ -n "${LINE}" ]] && echo "- ${LINE}"
+  done < "${TMP}/warnings.txt"
+  echo ""
+fi
+
+if [[ -n "${REMOVED}" ]]; then
+  echo "> Versions dropped from the image are still published to the GitHub Helm repo, so"
+  echo "> connected installs keep working. They stop being available to **new** airgap installs."
+  echo ""
+fi
+
+echo "<sub>Resolved by \`scripts/catalog-versions\`, the same script \`scripts/bundle-catalog\` uses.</sub>"

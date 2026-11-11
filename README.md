@@ -94,23 +94,40 @@ Required properties for `manifest.json`
 }
 ```
 
-## Which versions we ship (version policy)
+## Which versions ship in the airgap catalog image
 
-Every version listed in `manifest.json` is baked into the airgap catalog image, and the image was getting
-unmanageably large. So there is a cap on what we ship:
+Everything listed in `manifest.json` is published to the GitHub Helm repo at
+`rancher/ui-plugin-charts`, which is the repo connected Rancher installs use. Adding a version here is still a
+plain append, and versions are not removed from the manifest as a matter of routine.
+
+The **airgap catalog image** (`rancher/ui-plugin-catalog`) is different. Every version in it costs airgap
+customers bandwidth and disk, and the image had grown past a gigabyte, so it ships a filtered subset:
 
 > **For each major version, keep the last 3 minors, and for each of those keep only the latest patch.**
 
-For example, if an extension has shipped `1.4.0` → `1.6.10`, `2.0.0` → `2.1.6` and `3.0.0` → `3.1.3`, the
-manifest keeps `1.4.3`, `1.5.0`, `1.6.10`, `2.0.1`, `2.1.6`, `3.0.3`, `3.1.3`.
+For example, Kubewarden publishes 63 versions; the image ships 10 of them — `1.4.3`, `1.5.0`, `1.6.10`,
+`2.0.1`, `2.1.6`, `3.0.3`, `3.1.3`, `4.0.3`, `4.1.5`, `4.2.3`.
 
-The practical consequence: **adding a version is often not just an append**. Publishing `4.3.0` pushes the
-oldest minor of major 4 out of the window, so that entry has to go in the same PR.
+The filter is applied at build time by `scripts/bundle-catalog`, not by editing the manifest. That means the
+policy is reversible — change the rule and the next image is different — and that no installed extension ever
+loses the endpoint it loads from.
+
+### What this means when you add a version
+
+Nothing changes about how you add one: append it to `manifest.json` as before.
+
+Be aware that the image contents are a sliding window, so **adding a version can push another one out of the
+image**. Publishing Kubewarden `4.3.0` means major 4 has four minor lines, so `4.0.3` stops being bundled. The
+version is still published to the Helm repo and still installable on connected clusters; it just stops being
+available to new airgap installs.
+
+You do not need to work this out by hand. CI posts the before/after image contents on every PR that touches
+`manifest.json` (`.github/workflows/catalog-contents-report.yml`), so the effect is visible in review.
 
 ### Exceptions
 
-Sometimes a version has to keep shipping even though the rule would drop it — almost always because it is the
-only build compatible with a Rancher line we still support. Declare those under `versionPolicy.exceptions`,
+Sometimes a version has to stay in the image even though the rule would drop it — almost always because it is
+the only build compatible with a Rancher line we still support. Declare those under `versionPolicy.exceptions`,
 with a reason:
 
 ```json
@@ -127,33 +144,77 @@ with a reason:
 }
 ```
 
-Before adding an exception, check the `catalog.cattle.io/rancher-version` annotation in the version's
-`Chart.yaml` — that is what decides whether dropping it leaves a supported Rancher release with no compatible
-build of that extension.
+Harvester is the live example: it has only ever shipped major 1, so the rule alone would leave Rancher 2.10,
+2.11 and 2.12 with no compatible build in the image at all.
 
-When a Rancher line goes EOL, the exceptions that existed only to serve it should be removed.
+Before adding an exception, check the `catalog.cattle.io/rancher-version` annotation in that version's
+`Chart.yaml` — that is what decides whether dropping it leaves a supported Rancher release with nothing to
+install. When a Rancher line goes EOL, the exceptions that existed only to serve it should be removed.
 
-### Checking the manifest
+An exception can only ever re-add a version that is already in the manifest; it cannot introduce one we do not
+publish.
+
+### Working with the policy locally
 
 ```bash
-# report violations
-./scripts/validate-manifest
+# what the catalog image would contain
+./scripts/catalog-versions
 
-# rewrite manifest.json so it satisfies the policy (exceptions are preserved)
-./scripts/validate-manifest --fix
+# just one extension, as bundle-catalog asks for it
+./scripts/catalog-versions --ext kubewarden
+
+# machine-readable
+./scripts/catalog-versions --format json
+
+# flag exceptions that no longer point at a published version
+./scripts/catalog-versions --warn
+
+# what a manifest change would do to the image
+./scripts/catalog-report <base-manifest> [<head-manifest>]
+
+# unit tests for the resolver
+./scripts/test-catalog-versions
 ```
 
-The same check runs in CI on any PR that touches `manifest.json` (see
-`.github/workflows/validate-manifest.yml`). It reports three things:
+`scripts/catalog-versions` is the single source of truth for catalog contents. `scripts/bundle-catalog` calls it
+to decide what to bundle and CI calls it to build the report, so the report cannot drift from what ships. Do not
+reimplement the rule anywhere else.
 
-| Reported | Meaning |
-| --- | --- |
-| *not allowed by the policy* | The version is outside the window and has no exception — remove it, or add one |
-| *stale exception* | An exception names a version that is no longer in the manifest — delete the exception |
-| *redundant exception* | The rule already keeps that version, so the exception is doing nothing |
+### Removing a version deliberately
 
-If a release genuinely cannot wait for the manifest to be tidied, label the PR `skip-version-policy` and the
-check is skipped. Please open a follow-up rather than leaving it.
+The policy is about what the image ships. If a version needs to be **withdrawn** — a bad release, a security
+problem — remove it from `manifest.json` as normal. `scripts/sync-charts` still deletes its chart, extension and
+asset directories on the next sync, and it disappears from both the Helm repo and the image.
+
+Note that doing so breaks any connected cluster currently running that version: the installed `UIPlugin` CR
+points at `raw.githubusercontent.com/rancher/ui-plugin-charts/main/extensions/<name>/<version>`, and Rancher
+re-fetches from there whenever its plugin cache is rebuilt. That is the right behaviour for a withdrawal, and
+the reason routine cleanup is not done this way.
+
+### Checking the catalog still builds
+
+The catalog build takes about 4-5 minutes, so it runs as a dry run — building the image and stopping before the
+push — on **every PR that touches `manifest.json`**, alongside the contents report. A PR therefore exercises
+exactly what a release will do.
+
+The same job also runs **weekly on a schedule**, because `scripts/bundle-catalog` fetches its Dockerfile and
+packaging scripts from `rancher/dashboard` master at build time, unpinned:
+
+```bash
+git checkout subdir/master -- shell/scripts/extension/helm
+```
+
+A change on dashboard master can break the catalog release with no commit in this repository at all, and no PR
+trigger would ever catch it.
+
+Both paths call the same reusable workflow (`.github/workflows/catalog-build-dry-run.yml`), so there is no
+second copy of the build steps to drift. It can be run on demand from the Actions tab, or locally:
+
+```bash
+./scripts/bundle-catalog --tag dry-run --dry-run
+```
+
+The dry run needs no registry credentials, so it also works on pull requests from forks.
 
 ## How to patch an extension metadata
 
