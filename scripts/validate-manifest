@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ------------------------------------------------------------------------------
+# Validates manifest.json against the shipped-version policy:
+#
+#   for each major -> keep the last N minors -> keep only the latest patch
+#
+# N comes from `.versionPolicy.minorsPerMajor` (defaults to 3).
+#
+# Versions that fall outside the rule but must still ship (typically because they
+# are the only build compatible with a still-supported Rancher line) are declared
+# in `.versionPolicy.exceptions`, each with a reason.
+#
+# Exit codes: 0 = manifest is compliant, 1 = violations found.
+# ------------------------------------------------------------------------------
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+BASE_DIR="$( cd "${SCRIPT_DIR}" && cd .. && pwd )"
+
+CYAN="\033[96m"
+YELLOW="\033[93m"
+RED="\033[31m"
+GREEN="\033[32m"
+RESET="\033[0m"
+BOLD="\033[1m"
+
+MANIFEST="${BASE_DIR}/manifest.json"
+FIX=false
+
+usage() {
+  echo "Usage: $0 [<options>]"
+  echo " options:"
+  echo "  [-f | --fix]            Rewrite manifest.json so it satisfies the policy"
+  echo "  [-m | --manifest] <p>   Path to the manifest (defaults to ./manifest.json)"
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help) usage ;;
+    -f|--fix)  FIX=true; shift ;;
+    -m|--manifest)
+      if [[ -z ${2:-} || $2 == -* ]]; then echo "Error: Missing argument for $1 option"; usage; fi
+      MANIFEST="$2"; shift 2 ;;
+    *) echo "Error: Unknown option $1"; usage ;;
+  esac
+done
+
+if [[ ! -f "${MANIFEST}" ]]; then
+  echo -e "${RED}Error: manifest not found at ${MANIFEST}${RESET}"
+  exit 1
+fi
+
+if ! jq empty "${MANIFEST}" 2>/dev/null; then
+  echo -e "${RED}Error: ${MANIFEST} is not valid JSON${RESET}"
+  exit 1
+fi
+
+KEEP_MINORS=$(jq -r '.versionPolicy.minorsPerMajor // 3' "${MANIFEST}")
+EXTS=$(jq -r '.extensions | keys[]' "${MANIFEST}")
+
+echo -e "${CYAN}${BOLD}Validating ${MANIFEST}${RESET}"
+echo -e "Policy: for each major -> last ${KEEP_MINORS} minors -> latest patch"
+echo ""
+
+VIOLATIONS=0
+STALE_EXCEPTIONS=0
+REDUNDANT_EXCEPTIONS=0
+SUMMARY=""
+
+# Normalises a list into the byte-wise order `comm` expects (and drops blanks).
+cmp_sort() {
+  echo "${1}" | grep -v '^$' | LC_ALL=C sort -u || true
+}
+
+# Computes the versions the rule keeps, given a newline-separated version list.
+rule_set() {
+  local versions="$1"
+  local majors maj minors min latest
+  majors=$(echo "${versions}" | cut -d. -f1 | sort -n -u)
+  for maj in ${majors}; do
+    minors=$(echo "${versions}" | awk -F. -v m="${maj}" '$1==m {print $2}' | sort -n -u | tail -n "${KEEP_MINORS}")
+    for min in ${minors}; do
+      latest=$(echo "${versions}" | awk -F. -v m="${maj}" -v n="${min}" '$1==m && $2==n' | sort -V | tail -n 1)
+      echo "${latest}"
+    done
+  done
+}
+
+for NAME in ${EXTS}; do
+  VERSIONS=$(jq -r --arg n "${NAME}" '.extensions[$n].versions[]' "${MANIFEST}" | tr -d ' ' | sort -V)
+  EXCEPTIONS=$(jq -r --arg n "${NAME}" '.versionPolicy.exceptions[$n][]?.version' "${MANIFEST}" | tr -d ' ' | sort -V)
+
+  BY_RULE=$(rule_set "${VERSIONS}")
+  ALLOWED=$(printf '%s\n%s\n' "${BY_RULE}" "${EXCEPTIONS}" | grep -v '^$')
+
+  # `comm` compares byte-wise, so every operand must be plain-sorted — feeding it
+  # `sort -V` output silently misreads lists where version order and lexical order
+  # disagree (e.g. 2.2.10 vs 2.2.9).
+  EXTRA=$(comm -23 <(cmp_sort "${VERSIONS}") <(cmp_sort "${ALLOWED}") || true)
+
+  # An exception naming a version that is not in the manifest is dead weight.
+  STALE=$(comm -13 <(cmp_sort "${VERSIONS}") <(cmp_sort "${EXCEPTIONS}") || true)
+  # An exception for a version the rule already keeps is noise.
+  REDUNDANT=$(comm -12 <(cmp_sort "${BY_RULE}") <(cmp_sort "${EXCEPTIONS}") || true)
+
+  EXTRA=$(echo "${EXTRA}" | grep -v '^$' | sort -V || true)
+  STALE=$(echo "${STALE}" | grep -v '^$' | sort -V || true)
+  REDUNDANT=$(echo "${REDUNDANT}" | grep -v '^$' | sort -V || true)
+
+  N_TOTAL=$(echo "${VERSIONS}" | grep -c '^' || true)
+  N_ALLOWED=$(cmp_sort "${ALLOWED}" | grep -c '^' || true)
+
+  if [[ -z "${EXTRA}" && -z "${STALE}" && -z "${REDUNDANT}" ]]; then
+    echo -e "${GREEN} ✔ ${NAME}${RESET} (${N_TOTAL} versions)"
+    continue
+  fi
+
+  echo -e "${RED}${BOLD} ✘ ${NAME}${RESET} (${N_TOTAL} versions, policy allows ${N_ALLOWED})"
+
+  if [[ -n "${EXTRA}" ]]; then
+    N_EXTRA=$(echo "${EXTRA}" | grep -c '^')
+    VIOLATIONS=$((VIOLATIONS + N_EXTRA))
+    echo -e "     ${RED}not allowed by the policy:${RESET} $(echo ${EXTRA} | tr '\n' ' ')"
+    echo -e "     ${YELLOW}-> remove them, or declare them under .versionPolicy.exceptions.${NAME} with a reason${RESET}"
+    SUMMARY="${SUMMARY}- **${NAME}**: remove \`$(echo ${EXTRA} | tr '\n' ' ' | sed 's/ $//' | sed 's/ /`, `/g')\` (or add an exception)\n"
+  fi
+
+  if [[ -n "${STALE}" ]]; then
+    N_STALE=$(echo "${STALE}" | grep -c '^')
+    STALE_EXCEPTIONS=$((STALE_EXCEPTIONS + N_STALE))
+    echo -e "     ${YELLOW}exceptions for versions no longer in the manifest:${RESET} $(echo ${STALE} | tr '\n' ' ')"
+    echo -e "     ${YELLOW}-> drop them from .versionPolicy.exceptions.${NAME}${RESET}"
+    SUMMARY="${SUMMARY}- **${NAME}**: stale exception(s) \`$(echo ${STALE} | tr '\n' ' ' | sed 's/ $//' | sed 's/ /`, `/g')\` — version is not in the manifest\n"
+  fi
+
+  if [[ -n "${REDUNDANT}" ]]; then
+    N_RED=$(echo "${REDUNDANT}" | grep -c '^')
+    REDUNDANT_EXCEPTIONS=$((REDUNDANT_EXCEPTIONS + N_RED))
+    echo -e "     ${YELLOW}redundant exceptions (the rule already keeps these):${RESET} $(echo ${REDUNDANT} | tr '\n' ' ')"
+    SUMMARY="${SUMMARY}- **${NAME}**: redundant exception(s) \`$(echo ${REDUNDANT} | tr '\n' ' ' | sed 's/ $//' | sed 's/ /`, `/g')\` — already kept by the rule\n"
+  fi
+done
+
+echo ""
+
+if [[ ${FIX} == true ]]; then
+  if [[ ${VIOLATIONS} -eq 0 && ${STALE_EXCEPTIONS} -eq 0 ]]; then
+    echo -e "${GREEN}Nothing to fix.${RESET}"
+    exit 0
+  fi
+
+  echo -e "${CYAN}${BOLD}Rewriting ${MANIFEST}${RESET}"
+  TMP_MANIFEST=$(mktemp)
+  cp "${MANIFEST}" "${TMP_MANIFEST}"
+
+  for NAME in ${EXTS}; do
+    VERSIONS=$(jq -r --arg n "${NAME}" '.extensions[$n].versions[]' "${TMP_MANIFEST}" | tr -d ' ' | sort -V)
+    EXCEPTIONS=$(jq -r --arg n "${NAME}" '.versionPolicy.exceptions[$n][]?.version' "${TMP_MANIFEST}" | tr -d ' ' | sort -V)
+    BY_RULE=$(rule_set "${VERSIONS}")
+    ALLOWED=$(printf '%s\n%s\n' "${BY_RULE}" "${EXCEPTIONS}")
+    # Only keep allowed versions that actually exist in the manifest.
+    KEPT=$(comm -12 <(cmp_sort "${VERSIONS}") <(cmp_sort "${ALLOWED}") | sort -V)
+    NEW=$(echo "${KEPT}" | grep -v '^$' | jq -R . | jq -s .)
+    jq --arg n "${NAME}" --argjson v "${NEW}" '.extensions[$n].versions = $v' "${TMP_MANIFEST}" > "${TMP_MANIFEST}.next"
+    mv "${TMP_MANIFEST}.next" "${TMP_MANIFEST}"
+  done
+
+  # Drop exceptions pointing at versions that are no longer shipped, and any
+  # extension entry left with an empty exception list.
+  jq '
+    if .versionPolicy.exceptions then
+      . as $root
+      | .versionPolicy.exceptions |= (
+          with_entries(
+            .key as $ext
+            | .value |= map(
+                select(.version as $v | ($root.extensions[$ext].versions // []) | index($v))
+              )
+          )
+          | with_entries(select(.value | length > 0))
+        )
+    else . end
+  ' "${TMP_MANIFEST}" > "${TMP_MANIFEST}.next" && mv "${TMP_MANIFEST}.next" "${TMP_MANIFEST}"
+
+  mv "${TMP_MANIFEST}" "${MANIFEST}"
+  echo -e "${GREEN}Done. Re-run without --fix to confirm.${RESET}"
+  exit 0
+fi
+
+TOTAL=$((VIOLATIONS + STALE_EXCEPTIONS + REDUNDANT_EXCEPTIONS))
+
+if [[ ${TOTAL} -eq 0 ]]; then
+  echo -e "${GREEN}${BOLD}manifest.json satisfies the version policy.${RESET}"
+  exit 0
+fi
+
+echo -e "${RED}${BOLD}manifest.json violates the version policy${RESET}"
+echo -e "  ${VIOLATIONS} version(s) not allowed, ${STALE_EXCEPTIONS} stale exception(s), ${REDUNDANT_EXCEPTIONS} redundant exception(s)"
+echo ""
+echo -e "Run ${BOLD}./scripts/validate-manifest --fix${RESET} to apply the policy automatically,"
+echo -e "or declare a deliberate exception in ${BOLD}.versionPolicy.exceptions${RESET}."
+
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "## Version policy violations"
+    echo ""
+    echo "\`manifest.json\` does not satisfy **for each major → last ${KEEP_MINORS} minors → latest patch**."
+    echo ""
+    echo -e "${SUMMARY}"
+    echo ""
+    echo "Run \`./scripts/validate-manifest --fix\` locally, or add a deliberate exception under \`.versionPolicy.exceptions\` explaining why the version has to ship."
+  } >> "${GITHUB_STEP_SUMMARY}"
+fi
+
+exit 1

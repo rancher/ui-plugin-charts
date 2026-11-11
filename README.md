@@ -94,6 +94,67 @@ Required properties for `manifest.json`
 }
 ```
 
+## Which versions we ship (version policy)
+
+Every version listed in `manifest.json` is baked into the airgap catalog image, and the image was getting
+unmanageably large. So there is a cap on what we ship:
+
+> **For each major version, keep the last 3 minors, and for each of those keep only the latest patch.**
+
+For example, if an extension has shipped `1.4.0` → `1.6.10`, `2.0.0` → `2.1.6` and `3.0.0` → `3.1.3`, the
+manifest keeps `1.4.3`, `1.5.0`, `1.6.10`, `2.0.1`, `2.1.6`, `3.0.3`, `3.1.3`.
+
+The practical consequence: **adding a version is often not just an append**. Publishing `4.3.0` pushes the
+oldest minor of major 4 out of the window, so that entry has to go in the same PR.
+
+### Exceptions
+
+Sometimes a version has to keep shipping even though the rule would drop it — almost always because it is the
+only build compatible with a Rancher line we still support. Declare those under `versionPolicy.exceptions`,
+with a reason:
+
+```json
+{
+  "versionPolicy": {
+    "minorsPerMajor": 3,
+    "exceptions": {
+      "harvester": [
+        { "version": "1.0.6", "reason": "Newest Harvester build compatible with Rancher 2.10 (requires >= 2.10.1)" }
+      ]
+    }
+  },
+  "extensions": { "...": {} }
+}
+```
+
+Before adding an exception, check the `catalog.cattle.io/rancher-version` annotation in the version's
+`Chart.yaml` — that is what decides whether dropping it leaves a supported Rancher release with no compatible
+build of that extension.
+
+When a Rancher line goes EOL, the exceptions that existed only to serve it should be removed.
+
+### Checking the manifest
+
+```bash
+# report violations
+./scripts/validate-manifest
+
+# rewrite manifest.json so it satisfies the policy (exceptions are preserved)
+./scripts/validate-manifest --fix
+```
+
+The same check runs in CI on any PR that touches `manifest.json` (see
+`.github/workflows/validate-manifest.yml`). It reports three things:
+
+| Reported | Meaning |
+| --- | --- |
+| *not allowed by the policy* | The version is outside the window and has no exception — remove it, or add one |
+| *stale exception* | An exception names a version that is no longer in the manifest — delete the exception |
+| *redundant exception* | The rule already keeps that version, so the exception is doing nothing |
+
+If a release genuinely cannot wait for the manifest to be tidied, label the PR `skip-version-policy` and the
+check is skipped. Please open a follow-up rather than leaving it.
+
 ## How to patch an extension metadata
 
 We now provide the ability to change metadata on published extensions in this repository. Let's cover the fundamentals on how this works.
