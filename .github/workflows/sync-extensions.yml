@@ -143,12 +143,30 @@ jobs:
         id: create-release-tag
         run: |
           NOTES_FILE=$(mktemp)
-          jq -r '
-            "## Extensions Catalog\n\n" +
-            (.extensions | to_entries | map(
-              "- Extension **\(.key)** version(s): \(.value.versions | join(", "))"
-            ) | join("\n"))
-          ' manifest.json > "$NOTES_FILE"
+          CONTENTS=$(mktemp)
+
+          # List what the image actually ships, not what manifest.json publishes.
+          # The catalog bundles a policy-filtered subset (see scripts/catalog-versions),
+          # so reading .versions here would tell airgap admins they are getting
+          # versions that are not in the image.
+          chmod +x ./scripts/catalog-versions
+          ./scripts/catalog-versions --format json > "$CONTENTS"
+
+          PUBLISHED=$(jq '[.extensions[].versions[]] | length' manifest.json)
+          BUNDLED=$(jq '[.[][]] | length' "$CONTENTS")
+
+          {
+            echo "## Extensions Catalog"
+            echo ""
+            echo "Versions bundled in this catalog image:"
+            echo ""
+            jq -r 'to_entries | map(
+              "- Extension **\(.key)** version(s): \(.value | join(", "))"
+            ) | join("\n")' "$CONTENTS"
+            echo ""
+            echo "<sub>This image bundles ${BUNDLED} of the ${PUBLISHED} versions published to the Helm repository at \`rancher/ui-plugin-charts\`, per the version policy documented in the README. Versions not bundled here remain installable on non-air-gapped clusters.</sub>"
+          } > "$NOTES_FILE"
+
           gh release create ${{ steps.sync_catalog_script.outputs.GH_RELEASE_TAG }} \
             --title "Release extensions catalog ${{ steps.sync_catalog_script.outputs.GH_RELEASE_TAG }}" \
             --notes-file "$NOTES_FILE"

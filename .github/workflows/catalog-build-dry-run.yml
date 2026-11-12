@@ -1,0 +1,92 @@
+name: Catalog build dry run
+
+# Builds the airgap catalog image exactly as a release would, and stops before
+# pushing. Takes about 4-5 minutes, which is cheap enough to run on every
+# manifest PR rather than only finding out at release time.
+#
+# Called two ways:
+#   - from catalog-contents-report.yml, on PRs that touch manifest.json
+#   - on a schedule, because scripts/bundle-catalog fetches its Dockerfile and
+#     packaging scripts from rancher/dashboard master unpinned:
+#
+#       git checkout subdir/master -- shell/scripts/extension/helm
+#
+#     so the catalog release can break with zero commits in this repository, and
+#     no PR trigger would ever catch it.
+
+on:
+  workflow_call:
+  schedule:
+    # Mondays 05:00 UTC - early enough in the week to react before a release.
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build the catalog image without pushing
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Setup Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: v3.12.1
+
+      - name: Test the resolver
+        shell: bash
+        run: |
+          chmod +x ./scripts/catalog-versions ./scripts/test-catalog-versions
+          ./scripts/test-catalog-versions
+
+      - name: Build the catalog image (no push)
+        shell: bash
+        run: |
+          chmod +x ./scripts/bundle-catalog
+          # An explicit tag avoids the Docker Hub tag lookup and auto-bump that
+          # the default 'latest' triggers - a dry run must not reserve a tag.
+          # No registry credentials are needed, which also means this works on
+          # pull requests from forks.
+          ./scripts/bundle-catalog --tag dry-run --dry-run
+
+      - name: Record image size
+        if: success()
+        shell: bash
+        run: |
+          {
+            echo "## Catalog image built"
+            echo ""
+            echo '```'
+            docker images --format '{{.Repository}}:{{.Tag}}  {{.Size}}' | grep ui-plugin-catalog || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Explain a failure
+        if: failure()
+        shell: bash
+        run: |
+          {
+            echo "## Catalog build dry run failed"
+            echo ""
+            echo "Likely causes, in order:"
+            echo ""
+            echo "1. **rancher/dashboard master changed.** \`scripts/bundle-catalog\` checks out"
+            echo "   \`shell/scripts/extension/helm\` from dashboard master unpinned, so a change"
+            echo "   to that Dockerfile or \`scripts/package\` lands here immediately. If this ran"
+            echo "   on a schedule with no commits here, this is almost certainly it."
+            echo "2. **An upstream extension repo changed or removed a published version**, so a"
+            echo "   version in \`manifest.json\` can no longer be fetched."
+            echo "3. **An extension icon URL stopped resolving.**"
+            echo ""
+            echo "The build log names the extension and version it stopped on."
+          } >> "$GITHUB_STEP_SUMMARY"

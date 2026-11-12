@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ------------------------------------------------------------------------------
+# Resolves which extension versions go into the airgap catalog image.
+#
+# manifest.json lists everything we publish to the GitHub Helm repo. The catalog
+# image ships a subset of that, because every version in the image costs airgap
+# customers bandwidth and disk. The policy is:
+#
+#   for each major -> keep the last N minors -> keep only the latest patch
+#
+# N comes from `.versionPolicy.minorsPerMajor` (defaults to 3).
+#
+# Versions that fall outside the rule but must still ship (typically because they
+# are the only build compatible with a still-supported Rancher line) are declared
+# in `.versionPolicy.exceptions`, each with a reason.
+#
+# THIS IS THE SINGLE SOURCE OF TRUTH FOR CATALOG CONTENTS. `scripts/bundle-catalog`
+# calls it to decide what to bundle, and CI calls it to report what a manifest
+# change would do. Do not reimplement the rule anywhere else - if the two ever
+# disagree, CI reports contents that differ from what actually ships.
+# ------------------------------------------------------------------------------
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+BASE_DIR="$( cd "${SCRIPT_DIR}" && cd .. && pwd )"
+
+MANIFEST="${BASE_DIR}/manifest.json"
+FORMAT="lines"
+ONLY_EXT=""
+WARN=false
+
+usage() {
+  echo "Usage: $0 [<options>]"
+  echo " options:"
+  echo "  [-m | --manifest] <path>   Manifest to read (defaults to ./manifest.json)"
+  echo "  [-e | --ext] <name>        Only output versions for this extension, one per line"
+  echo "  [-f | --format] <fmt>      lines (default) | json"
+  echo "  [-w | --warn]              Report unusable exceptions on stderr"
+  echo ""
+  echo " output:"
+  echo "  lines  '<extension> <version>' per line, extensions alphabetical, versions ascending"
+  echo "  json   {\"<extension>\": [\"<version>\", ...]}"
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help) usage ;;
+    -m|--manifest)
+      if [[ -z ${2:-} || $2 == -* ]]; then echo "Error: Missing argument for $1" >&2; usage; fi
+      MANIFEST="$2"; shift 2 ;;
+    -e|--ext)
+      if [[ -z ${2:-} || $2 == -* ]]; then echo "Error: Missing argument for $1" >&2; usage; fi
+      ONLY_EXT="$2"; shift 2 ;;
+    -f|--format)
+      if [[ -z ${2:-} || $2 == -* ]]; then echo "Error: Missing argument for $1" >&2; usage; fi
+      FORMAT="$2"; shift 2 ;;
+    -w|--warn) WARN=true; shift ;;
+    *) echo "Error: Unknown option $1" >&2; usage ;;
+  esac
+done
+
+if [[ ! -f "${MANIFEST}" ]]; then
+  echo "Error: manifest not found at ${MANIFEST}" >&2
+  exit 1
+fi
+
+if ! jq empty "${MANIFEST}" 2>/dev/null; then
+  echo "Error: ${MANIFEST} is not valid JSON" >&2
+  exit 1
+fi
+
+if [[ "${FORMAT}" != "lines" && "${FORMAT}" != "json" ]]; then
+  echo "Error: unknown format '${FORMAT}'" >&2
+  usage
+fi
+
+KEEP_MINORS=$(jq -r '.versionPolicy.minorsPerMajor // 3' "${MANIFEST}")
+
+if ! [[ "${KEEP_MINORS}" =~ ^[1-9][0-9]*$ ]]; then
+  echo "Error: .versionPolicy.minorsPerMajor must be a positive integer, got '${KEEP_MINORS}'" >&2
+  exit 1
+fi
+
+# Applies the rule to a newline-separated, version-sorted list.
+# Majors and minors are compared numerically and patches with `sort -V`, so
+# double-digit components (1.6.10 > 1.6.9) order correctly.
+rule_set() {
+  local versions="$1"
+  local majors maj minors min
+  majors=$(echo "${versions}" | cut -d. -f1 | sort -n -u)
+  for maj in ${majors}; do
+    minors=$(echo "${versions}" | awk -F. -v m="${maj}" '$1==m {print $2}' | sort -n -u | tail -n "${KEEP_MINORS}")
+    for min in ${minors}; do
+      echo "${versions}" | awk -F. -v m="${maj}" -v n="${min}" '$1==m && $2==n' | sort -V | tail -n 1
+    done
+  done
+}
+
+resolve_ext() {
+  local name="$1" versions exceptions allowed
+  versions=$(jq -r --arg n "${name}" '.extensions[$n].versions[]' "${MANIFEST}" | tr -d ' ' | grep -v '^$' | sort -V)
+  exceptions=$(jq -r --arg n "${name}" '.versionPolicy.exceptions[$n][]?.version' "${MANIFEST}" | tr -d ' ' | grep -v '^$' || true)
+
+  if [[ "${WARN}" == true && -n "${exceptions}" ]]; then
+    local unknown
+    unknown=$(comm -13 <(echo "${versions}" | LC_ALL=C sort -u) <(echo "${exceptions}" | LC_ALL=C sort -u) || true)
+    if [[ -n "${unknown}" ]]; then
+      echo "Warning: ${name} has exception(s) for version(s) not in the manifest: $(echo ${unknown} | tr '\n' ' ')" >&2
+    fi
+  fi
+
+  # Exceptions only ever add versions that exist in the manifest; they can never
+  # introduce one we do not publish.
+  allowed=$(printf '%s\n%s\n' "$(rule_set "${versions}")" "${exceptions}" | grep -v '^$' | LC_ALL=C sort -u)
+  comm -12 <(echo "${versions}" | LC_ALL=C sort -u) <(echo "${allowed}") | sort -V
+}
+
+if [[ -n "${ONLY_EXT}" ]]; then
+  if [[ "$(jq -r --arg n "${ONLY_EXT}" '.extensions | has($n)' "${MANIFEST}")" != "true" ]]; then
+    echo "Error: extension '${ONLY_EXT}' is not in ${MANIFEST}" >&2
+    exit 1
+  fi
+  resolve_ext "${ONLY_EXT}"
+  exit 0
+fi
+
+EXTS=$(jq -r '.extensions | keys[]' "${MANIFEST}" | LC_ALL=C sort)
+
+if [[ "${FORMAT}" == "json" ]]; then
+  OUT='{}'
+  for NAME in ${EXTS}; do
+    VERSIONS=$(resolve_ext "${NAME}" | jq -R . | jq -s .)
+    OUT=$(echo "${OUT}" | jq --arg n "${NAME}" --argjson v "${VERSIONS}" '.[$n] = $v')
+  done
+  echo "${OUT}"
+else
+  for NAME in ${EXTS}; do
+    while read -r VERSION; do
+      [[ -n "${VERSION}" ]] && echo "${NAME} ${VERSION}"
+    done <<< "$(resolve_ext "${NAME}")"
+  done
+fi

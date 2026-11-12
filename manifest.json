@@ -1,4 +1,23 @@
 {
+  "versionPolicy": {
+    "minorsPerMajor": 3,
+    "exceptions": {
+      "harvester": [
+        {
+          "version": "1.0.6",
+          "reason": "Newest Harvester build compatible with Rancher 2.10 (requires >= 2.10.1)"
+        },
+        {
+          "version": "1.5.2",
+          "reason": "Newest Harvester build compatible with Rancher 2.11"
+        },
+        {
+          "version": "1.6.1",
+          "reason": "Newest Harvester build compatible with Rancher 2.12"
+        }
+      ]
+    }
+  },
   "extensions": {
     "observability": {
       "repo": "StackVista/rancher-extension-stackstate",
@@ -202,7 +221,7 @@
         "1.0.1",
         "1.0.2",
         "1.1.0",
-        "1.2.0", 
+        "1.2.0",
         "1.2.1"
       ]
     },
@@ -226,7 +245,7 @@
         "1.1.0"
       ]
     },
-    "capa":{
+    "capa": {
       "repo": "rancher/prov-capi-ui-extensions",
       "branch": "gh-pages",
       "versions": [
