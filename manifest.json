@@ -237,7 +237,8 @@
       "repo": "rancher/ui-locales",
       "branch": "gh-pages",
       "versions": [
-        "0.1.2"
+        "0.1.2",
+        "0.1.3"
       ]
     }
   }
