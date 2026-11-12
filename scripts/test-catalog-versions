@@ -262,3 +262,16 @@ expect "catches keeping a stale patch" \
 expect "catches a published exception being dropped" \
   "x@1.0.0 is an exception but was not kept" \
   "$(seeded '{"x":["1.3.7"]}' "${INV_EXCEPTIONS_KEPT}")"
+
+# --- summary ------------------------------------------------------------------
+#
+# Must stay the last thing in the file. Without the exit below the suite prints
+# its failures and still returns 0, so CI reports a green gate over a resolver
+# that is wrong - which is exactly what happened once already.
+
+echo ""
+if [[ ${FAIL} -gt 0 ]]; then
+  echo -e "${RED}${BOLD}${FAIL} failed${RESET}, ${PASS} passed"
+  exit 1
+fi
+echo -e "${GREEN}${BOLD}all ${PASS} tests passed${RESET}"
