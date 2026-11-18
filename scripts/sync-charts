@@ -96,11 +96,15 @@ do
   REPO=$(jq -r ".extensions.\"${NAME}\".repo" manifest.json)
   EXT_BRANCH=$(jq -r ".extensions.\"${NAME}\".branch" manifest.json)
   VERSIONS=$(jq -r ".extensions.\"${NAME}\".versions[]" manifest.json)
+  IS_BUNDLE=$(jq -r ".extensions.\"${NAME}\".bundle // false" manifest.json)
   VFORMAT=$(echo $VERSIONS | tr '\n' ' ')
 
   echo -e "     Repository: ${REPO}"
   echo -e "     Branch: ${EXT_BRANCH}"
   echo -e "     Versions  : ${VFORMAT}"
+  if [[ "${IS_BUNDLE}" == "true" ]]; then
+    echo -e "     Bundle    : yes"
+  fi
   echo ""
 
   # clone extension repository
@@ -126,10 +130,78 @@ do
 
       # Need to patch the charts
       echo "     + Patching Helm chart"
-      CR_FILE=./charts/${NAME}/${VERSION}/templates/cr.yaml
-      ENDPOINT=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/extensions/${NAME}/${VERSION}
-      sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
-      rm -f ${CR_FILE}.bak
+
+      if [[ "${IS_BUNDLE}" == "true" ]]; then
+        # A bundle has no templates of its own - every UIPlugin comes from a member
+        # chart vendored under charts/. Each of those carries its own endpoint in
+        # values.yaml, pointing at the source repository.
+        #
+        # The endpoint is rebuilt from the member's own identity rather than swapped out
+        # of the URL the source published. The manifest's `repo` is only an alias used
+        # to clone: a transferred repository still publishes URLs under its current
+        # owner, and `neuvector/security-ui-exts` is already a redirect to
+        # `rancher/security-ui-exts`. A prefix swap would match nothing, print
+        # "repointed", exit 0, and leave every endpoint on the source repository.
+        #
+        # The member's own version comes from its vendored Chart.yaml, so the path
+        # cannot drift from what was actually published.
+        #
+        # yq rather than sed: these are folded scalars ("endpoint: >-" with the URL on
+        # the next line), and a line-wise substitution would leave the old URL behind.
+        DEST_PREFIX=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}
+
+        for MEMBER_VALUES in ./charts/${NAME}/${VERSION}/charts/*/values.yaml; do
+          [ -f "${MEMBER_VALUES}" ] || continue
+
+          MEMBER=$(basename "$(dirname "${MEMBER_VALUES}")")
+          MEMBER_VERSION=$(yq eval '.appVersion // ""' "$(dirname "${MEMBER_VALUES}")/Chart.yaml")
+
+          if [ -z "${MEMBER_VERSION}" ] || [ "${MEMBER_VERSION}" == "null" ]; then
+            echo "❌ ${NAME} ${VERSION}: member ${MEMBER} has no appVersion in its Chart.yaml"
+            exit 1
+          fi
+
+          MEMBER_REL=extensions/${NAME}/${VERSION}/${MEMBER}/${MEMBER_VERSION}
+
+          # Fail loudly rather than publish a chart pointing at assets we never synced
+          if [ ! -d "./${MEMBER_REL}" ] || [ ! -f "./${MEMBER_REL}.tgz" ]; then
+            echo "❌ ${NAME} ${VERSION}: missing assets for member ${MEMBER} ${MEMBER_VERSION} at ${MEMBER_REL}"
+            exit 1
+          fi
+
+          yq -i eval ".plugin.endpoint = \"${DEST_PREFIX}/${MEMBER_REL}\"" "${MEMBER_VALUES}"
+          yq -i eval ".plugin.compressedEndpoint = \"${DEST_PREFIX}/${MEMBER_REL}.tgz\"" "${MEMBER_VALUES}"
+
+          echo "       - repointed ${MEMBER} ${MEMBER_VERSION}"
+        done
+      else
+        CR_FILE=./charts/${NAME}/${VERSION}/templates/cr.yaml
+        ENDPOINT=https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/extensions/${NAME}/${VERSION}
+        sed -i.bak -e 's@endpoint:.*@endpoint: '"$ENDPOINT"'@' ${CR_FILE}
+        rm -f ${CR_FILE}.bak
+
+        # Rancher prefers compressedEndpoint and only falls back to endpoint when the
+        # archive cannot be fetched, so an un-rewritten compressedEndpoint means every
+        # install downloads from the source repository rather than from here - the
+        # sync supplies the card, the source still supplies the code.
+        #
+        # Two things are needed. The archive is published *beside* the version
+        # directory, so the copy above does not bring it across. And 'endpoint:.*'
+        # never matches 'compressedEndpoint:' because of the capital E, so the
+        # substitution above leaves it alone.
+        SRC_TGZ=./tmp/${NAME}/extensions/${NAME}/${VERSION}.tgz
+
+        if [ -f "${SRC_TGZ}" ]; then
+          cp "${SRC_TGZ}" ./extensions/${NAME}/${VERSION}.tgz
+          sed -i.bak -e 's@compressedEndpoint:.*@compressedEndpoint: '"$ENDPOINT"'.tgz@' ${CR_FILE}
+          rm -f ${CR_FILE}.bak
+        else
+          # Versions published before the source started building an archive. Left
+          # pointing upstream, where it 404s and the backend falls back to endpoint -
+          # which is the behaviour every synced version has today.
+          echo -e "${YELLOW}     ! No archive at extensions/${NAME}/${VERSION}.tgz - leaving compressedEndpoint unchanged${RESET}"
+        fi
+      fi
 
       echo "     + Fetching and patching icon"
 
@@ -175,9 +247,14 @@ do
 
           rm -rf ${CHART_FILE}.bak
 
-          PKG_FILE=${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json
-          sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
-          rm -rf ${PKG_FILE}.bak
+          # Only a single extension has plugin/package.json at this level. A bundle's
+          # icon lives in Chart.yaml, patched above; its members sit a directory
+          # deeper and have no card of their own to brand.
+          if [[ "${IS_BUNDLE}" != "true" ]]; then
+            PKG_FILE=${BASE_DIR}/extensions/${NAME}/${VERSION}/plugin/package.json
+            sed -i.bak -e 's@\"icon\": \".*\"@\"icon\": \"'"$NEW_ICON"'\"@' ${PKG_FILE}
+            rm -rf ${PKG_FILE}.bak
+          fi
         else
           echo -e "${YELLOW}${BOLD}Warning: Could not download icon - check URL${RESET}"
 
@@ -194,8 +271,13 @@ do
       # --------------------------------------------------------------------------------
       # Update the helm index just for this chart
       # --------------------------------------------------------------------------------
+      # Always assign: under `set -u` an unset UPDATE aborts the run the first time
+      # this is reached on a repository with no index.yaml yet. The else branch also
+      # stops a value set on an earlier iteration carrying into a later one.
       if [ -f "${HELM_INDEX}" ]; then
         UPDATE="--merge ${HELM_INDEX}"
+      else
+        UPDATE=""
       fi
 
       # Base URL referencing assets directly from GitHub
@@ -245,6 +327,7 @@ for DIR in ./charts/*/; do
         # remove files
         rm -rf ${BASE_DIR}/charts/${SYNCED_EXT}/${EXT_V}
         rm -rf ${BASE_DIR}/extensions/${SYNCED_EXT}/${EXT_V}
+        rm -f ${BASE_DIR}/extensions/${SYNCED_EXT}/${EXT_V}.tgz
         rm -rf ${BASE_DIR}/assets/${SYNCED_EXT}/${SYNCED_EXT}-${EXT_V}.tgz
       fi
     done
