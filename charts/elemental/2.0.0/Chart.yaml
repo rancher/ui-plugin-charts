@@ -8,6 +8,7 @@ annotations:
   catalog.cattle.io/scope: management
   catalog.cattle.io/ui-component: plugins
   catalog.cattle.io/ui-version: '>= 2.7.2'
+  catalog.cattle.io/prime-only: "true"
 apiVersion: v2
 appVersion: 2.0.0
 description: OS Management extension

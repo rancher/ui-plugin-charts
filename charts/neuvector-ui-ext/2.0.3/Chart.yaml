@@ -8,6 +8,7 @@ annotations:
   catalog.cattle.io/scope: management
   catalog.cattle.io/ui-component: plugins
   catalog.cattle.io/display-name: NeuVector UI Extension
+  catalog.cattle.io/prime-only: "true"
 apiVersion: v2
 appVersion: 2.0.3
 description: NeuVector extension for Rancher Manager

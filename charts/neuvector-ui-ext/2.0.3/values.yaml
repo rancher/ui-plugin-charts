@@ -4,3 +4,5 @@ plugin:
   enabled: true
   versionOverride: ""
   noCache: false
+  metadata:
+    catalog.cattle.io/prime-only: "true"
