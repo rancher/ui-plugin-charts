@@ -16,6 +16,9 @@ BOLD="\033[1m"
 ORG="${1:-rancher}"
 BRANCH="${2:-main}"
 
+# semver_to_sortable / semver_check / version_matches_range
+source "$SCRIPT_DIR/version-range.sh"
+
 echo -e "${CYAN}${BOLD}Patch mechanism for extensions${RESET}"
 echo -e "${CYAN}ORG: ${ORG}, BRANCH: ${BRANCH}${RESET}"
 
@@ -36,50 +39,6 @@ rm -rf ${TMP}
 mkdir -p ${TMP}
 
 REPOSITORY=${ORG}/ui-plugin-charts
-
-
-# --- Function to convert SemVer to sortable format ---
-semver_to_sortable() {
-  local version=$(echo "$1" | tr '+' '-' | cut -d '-' -f 1)
-  
-  [[ -z "$version" ]] && return 1
-
-  local PADDED_VERSION
-  
-  # Read components into an array
-  IFS='.' read -r -a V_PARTS <<< "$version"
-  
-  for part in "${V_PARTS[@]}"; do
-    PADDED_VERSION+="$(printf '%03d' "$part")."
-  done
-  
-  echo "${PADDED_VERSION%.}"
-}
-
-# --- Function to compare two versions (V1 operator V2) ---
-semver_check() {
-  local V1="$1"
-  local OP="$2"
-  local V2="$3" 
-  
-  local SV1=$(semver_to_sortable "$V1")
-  local SV2=$(semver_to_sortable "$V2")
-
-  if [[ "$OP" == "=" ]]; then
-    [[ "$SV1" == "$SV2" ]]
-  elif [[ "$OP" == ">" ]]; then
-    [[ "$SV1" > "$SV2" ]]
-  elif [[ "$OP" == "<" ]]; then
-    [[ "$SV1" < "$SV2" ]]
-  elif [[ "$OP" == ">=" ]]; then
-    [[ "$SV1" == "$SV2" || "$SV1" > "$SV2" ]]
-  elif [[ "$OP" == "<=" ]]; then
-    [[ "$SV1" == "$SV2" || "$SV1" < "$SV2" ]]
-  else
-    echo "Error: Invalid operator $OP" >&2
-    return 1
-  fi
-}
 
 
 echo "GitHub Repository: ${REPOSITORY}"
@@ -138,13 +97,6 @@ do
 
         BASE_ICON_NAME="icon"
 
-        # variables to control tgz part so that we do all operations at onces
-        APPLY_DESCRIPTION="false"
-        APPLY_ICON="false"
-        APPLY_README="false"
-        APPLY_NAME="false"
-        APPLY_ANNOTATIONS="false"
-
         # These are related to the JQ query below... If we change the defaults on the query
         # we should change these variables as well
         NO_VERSION="N/A"
@@ -176,6 +128,17 @@ do
         while IFS=',' read -r DIR_QUOTED VERSION_RANGE_QUOTED PATCH_NAME_QUOTED PATCH_DESCRIPTION_QUOTED ANNO_STRING_QUOTED; do
           echo "--- Starting Patch Traversal ---"
 
+          # variables to control tgz part so that we do all operations at once.
+          # They MUST be reset for every entry in patches.json: a patch entry that
+          # only sets, say, annotations would otherwise inherit the "apply" flags of
+          # a previous entry for the same version and re-write name/description with
+          # the jq fallbacks ("No Name" / "No Description").
+          APPLY_DESCRIPTION="false"
+          APPLY_ICON="false"
+          APPLY_README="false"
+          APPLY_NAME="false"
+          APPLY_ANNOTATIONS="false"
+
           # 1. Strip quotes and clean variables
           ANNO_BLOCK="${ANNO_STRING_QUOTED#?}"
           ANNO_BLOCK="${ANNO_BLOCK%?}"
@@ -196,68 +159,15 @@ do
           # check VERSION in patches.json (evaluate condition)
           # Status tracker for compound conditions (logical AND)
           REQUIRED_STATUS=0 # 0 means TRUE (patch is required)
-          
+
           if [[ "$VERSION_RANGE" == "$NO_VERSION" ]]; then
             echo -e "${PURPLE}⚠️ Patch skipped, invalid version range 'N/A'${RESET}"
             continue
           fi
 
-          # Split the VERSION_RANGE string by space into tokens, then merge any
-          # standalone operator token (e.g. ">=") with the following version token
-          # so that ">= 4.1.4" is treated as one condition ">=4.1.4", not two.
-          IFS=' ' read -r -a RAW_TOKENS <<< "$VERSION_RANGE"
-          CONDITIONS=()
-          _i=0
-          while [[ $_i -lt ${#RAW_TOKENS[@]} ]]; do
-            _token="${RAW_TOKENS[$_i]}"
-            if [[ "$_token" =~ ^(>=|<=|>|<|=)$ ]]; then
-              _next=$(( _i + 1 ))
-              if [[ $_next -lt ${#RAW_TOKENS[@]} ]]; then
-                CONDITIONS+=("${_token}${RAW_TOKENS[$_next]}")
-                _i=$(( _i + 2 ))
-              else
-                CONDITIONS+=("$_token")
-                _i=$(( _i + 1 ))
-              fi
-            else
-              CONDITIONS+=("$_token")
-              _i=$(( _i + 1 ))
-            fi
-          done
-          unset _i _token _next
-          
-          for CONDITION in "${CONDITIONS[@]}"; do
-            # 1. Determine operator ($OP) and version ($V2) from the single CONDITION
-            if [[ "$CONDITION" == ">="* ]]; then
-              OP=">="
-              V2="${CONDITION:2}"
-            elif [[ "$CONDITION" == "<="* ]]; then
-              OP="<="
-              V2="${CONDITION:2}"
-            elif [[ "$CONDITION" == ">"* ]]; then
-              OP=">"
-              V2="${CONDITION:1}"
-            elif [[ "$CONDITION" == "<"* ]]; then
-              OP="<"
-              V2="${CONDITION:1}"
-            elif [[ "$CONDITION" == "="* ]]; then
-              OP="="
-              V2="${CONDITION:1}"
-            elif [[ "$CONDITION" =~ ^[0-9] ]]; then
-              OP="="
-              V2="$CONDITION"
-            else
-              echo "⚠️ Sub-condition failed due to unparseable version range: $CONDITION" >&2
-              REQUIRED_STATUS=1 # Treat unparseable as failure
-              break
-            fi
-            
-            # 2. Call the function for this single condition
-            if ! semver_check "$VERSION" "$OP" "$V2"; then
-              REQUIRED_STATUS=1 # Condition failed (Logical AND)
-              break
-            fi
-          done
+          if ! version_matches_range "$VERSION" "$VERSION_RANGE"; then
+            REQUIRED_STATUS=1
+          fi
 
           # VERSION in patches.json final status
           if [[ $REQUIRED_STATUS -eq 0 ]]; then
@@ -306,8 +216,41 @@ do
           if [[ "$ANNO_STRING" == "$NO_ANNOTATIONS" ]]; then
             echo -e "${PURPLE}ANNOTATIONS :::  No annotations found... Let's skip the annotations change...${RESET}"
           else
-            echo -e "${YELLOW}${BOLD}ANNOTATIONS ::: We have new annotations, let's apply them...${RESET}"
-            APPLY_ANNOTATIONS="true"
+            # Only flag the annotations as "to apply" when at least one of them is not
+            # already set to the wanted value. Without this check an extension that
+            # already carries the annotation is still unpacked and repacked, which
+            # changes the tgz digest in index.yaml without changing any content.
+            CURR_CHART_YAML="${BASE_DIR}/charts/${NAME}/${VERSION}/Chart.yaml"
+            CURR_VALUES_YAML="${BASE_DIR}/charts/${NAME}/${VERSION}/values.yaml"
+
+            ANNO_CHECK_IFS="$IFS"
+            IFS='|' read -r -a ANNO_CHECK_ARRAY <<< "$ANNO_STRING"
+
+            for ANNO_CHECK_PAIR in "${ANNO_CHECK_ARRAY[@]}"; do
+              IFS='=' read -r CHECK_KEY CHECK_VALUE <<< "$ANNO_CHECK_PAIR"
+              CHECK_KEY="${CHECK_KEY//\"/}"
+              CHECK_VALUE="${CHECK_VALUE//\"/}"
+
+              if [[ ! -f "$CURR_CHART_YAML" || ! -f "$CURR_VALUES_YAML" ]]; then
+                APPLY_ANNOTATIONS="true"
+                continue
+              fi
+
+              CURR_ANN_CHART=$(yq ".annotations[\"${CHECK_KEY}\"] // \"\"" "$CURR_CHART_YAML")
+              CURR_ANN_VALUES=$(yq ".plugin.metadata[\"${CHECK_KEY}\"] // \"\"" "$CURR_VALUES_YAML")
+
+              if [[ "$CURR_ANN_CHART" != "$CHECK_VALUE" || "$CURR_ANN_VALUES" != "$CHECK_VALUE" ]]; then
+                APPLY_ANNOTATIONS="true"
+              fi
+            done
+
+            IFS="$ANNO_CHECK_IFS"
+
+            if [[ "$APPLY_ANNOTATIONS" == "true" ]]; then
+              echo -e "${YELLOW}${BOLD}ANNOTATIONS ::: We have new annotations, let's apply them...${RESET}"
+            else
+              echo -e "${PURPLE}ANNOTATIONS ::: Annotations are already set to the wanted values... let's skip them...${RESET}"
+            fi
           fi
 
           # check apply new README and ICON

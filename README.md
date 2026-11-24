@@ -8,6 +8,8 @@ This repository contains Helm charts for official UI Plugins (Extensions) from R
 
 * Chart must be **published** in a **public Github** repository that we can reference.
 
+* Every version must be **Prime-only**. See [Prime-only extensions](#prime-only-extensions) - this is enforced by CI and a submission that is not covered will fail the checks.
+
 ## Workflow
 
 ### 1. Fork the [UI Plugin Charts](https://github.com/rancher/ui-plugin-charts) repository, clone your fork, checkout the **main** branch and pull the latest changes. 
@@ -93,6 +95,59 @@ Required properties for `manifest.json`
   }
 }
 ```
+
+## Prime-only extensions
+
+Everything published from this repository is a **Rancher Prime** extension. Every chart version carries:
+
+```yaml
+annotations:
+  catalog.cattle.io/prime-only: "true"
+```
+
+Dashboard reads it per chart version (`isSupportedChartVersion` in `shell/config/uiplugins.js`): on a community
+Rancher the version is shown as incompatible and cannot be installed, and an already installed one stops
+loading. On a Rancher Prime install nothing changes beyond a "Prime" label on the card.
+
+Because the check is **per version**, a single version without the annotation is enough to leave the extension
+installable on community Rancher, which is why the policy covers every published version rather than just the
+recent ones.
+
+### How it is applied
+
+Through the patch mechanism, with one entry per extension in `patches/<ext>/patches.json`:
+
+```json
+{
+  "versions": ">= 0.0.0",
+  "annotations": {
+    "catalog.cattle.io/prime-only": "true"
+  }
+}
+```
+
+`>= 0.0.0` matches every version, including versions published in the future, so no one has to remember to
+re-apply it. The entry deliberately has no `dir`, which keeps it from dragging README and icon patches onto
+old versions along with the annotation.
+
+An upstream repository is free to set the annotation in its own `Chart.yaml` instead - the patch entry then
+finds the value already correct and leaves the chart alone.
+
+### Adding a new extension
+
+`scripts/sync-checks` fails the PR if a version being added would end up without the annotation. It passes when
+either:
+
+* the incoming `Chart.yaml` already has `catalog.cattle.io/prime-only: "true"`, or
+* `patches/<ext>/patches.json` has an entry whose `versions` range covers the version being added and sets the
+  annotation.
+
+So when you add a **new extension** to `manifest.json`, create `patches/<ext>/patches.json` with the entry
+above in the same PR, unless the upstream chart already sets it. The failure message tells you which of the two
+is missing.
+
+Both the checks and `scripts/patch-extensions` evaluate the `versions` range with the same helper
+(`scripts/version-range.sh`), so a version the checks accept is a version that actually gets patched.
 
 ## Which versions ship in the airgap catalog image
 
@@ -257,6 +312,8 @@ We now provide the ability to change metadata on published extensions in this re
 
 - For the **ICON** change, the icon file must be called `icon` (it doesn't care about the file extension, since it can be a `svg` or `png`) in order for it to be considered as change
 - For the **README** change: the file content must be different than the `README` originally present on the extension in order to be applied, otherwise it's ignored
+- For the **ANNOTATIONS** change: if every annotation in the entry is already set to the value you are asking for, the entry is skipped. The chart is not unpacked and repacked, so its digest in `index.yaml` does not change for a patch that would not have changed anything
+- A version can match **more than one entry** in the same `patches.json` - for example a `name`/`description` entry and an `annotations` entry. Each entry is evaluated on its own, so one entry never leaks its changes into the next
 
 
 ### How does the script work
@@ -264,9 +321,11 @@ We now provide the ability to change metadata on published extensions in this re
 - starts by going through `manifest.json` and list all of the extensions we have in the repo
 - goes through the `patches` folder structure and cross-checks if there's a match with the given `manifest.json` it's going through
 - if there's a folder match, it goes through `patches.json`, does a check on the versions condition present on the file and see if the version of given extension on the manifest we are looking at fits as patch candidate
-- if it matches, then it starts by doing checks on whether to apply any of the above changes and creates "APPLY" flags for each different metadata change
+- the `versions` range is evaluated by `scripts/version-range.sh`, which is shared with `scripts/sync-checks` so both scripts agree on what a range covers
+- if it matches, then it starts by doing checks on whether to apply any of the above changes and creates "APPLY" flags for each different metadata change. The flags are reset for every entry in `patches.json`, so an entry that only sets annotations cannot inherit the name or description of the entry before it
 - after all checks are done, it's time to apply them. Starts by unpacking the TGZ and changing all the metadata we've check before both outside the TGZ assets and inside them as well
 - once all changes are done, repacks the TGZ, applies the same permissions as the original file and regens the `index.yaml`
+- if none of the checks produced an "APPLY" flag there is nothing to write, so the TGZ is left untouched
 
 ## Running the patch-extensions script
 
@@ -343,3 +402,20 @@ If you need to re-patch an extension that was previously patched:
 4. The next sync will re-apply the patches to that extension@version
 
 This explicit removal approach ensures that re-patching is intentional and visible in git history.
+
+### Is re-patching safe?
+
+Yes. Every operation the script performs writes an absolute value rather than appending to what is already
+there, so applying the same patch twice lands on the same result as applying it once:
+
+- **name** and **description** are `yq` assignments, so they overwrite with the same string
+- **annotations** are skipped entirely when they already hold the wanted value
+- the **README** is compared against the one in the chart and skipped when identical
+- the **icon** is copied to a path derived from the version, so it overwrites itself with the same bytes
+
+Re-patching never goes back to the upstream repository either - it only rewrites what is already in `charts/`
+and `assets/`, so there is nothing for it to clobber.
+
+The one thing that does change on a re-patch is the **tgz digest in `index.yaml`**, because the archive is
+unpacked and repacked. That is harmless (connected Rancher installs read `index.yaml` fresh), but it is why
+the script avoids repacking when it has nothing to write.

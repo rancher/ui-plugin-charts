@@ -5,6 +5,12 @@
       "dir": "files",
       "name": "SUSE Observability",
       "description": "Analyzes multi-cluster telemetry with AI-powered insights for accelerated incident resolution"
+    },
+    {
+      "versions": ">= 0.0.0",
+      "annotations": {
+        "catalog.cattle.io/prime-only": "true"
+      }
     }
   ]
 }
