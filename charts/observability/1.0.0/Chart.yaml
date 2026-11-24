@@ -8,6 +8,7 @@ annotations:
   catalog.cattle.io/scope: management
   catalog.cattle.io/ui-component: plugins
   catalog.cattle.io/ui-extensions-version: '>= 2.0.1'
+  catalog.cattle.io/prime-only: "true"
 apiVersion: v2
 appVersion: 1.0.0
 description: SUSE Rancher Prime Observability Extension

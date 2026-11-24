@@ -9,6 +9,7 @@ annotations:
   catalog.cattle.io/kube-version: '>= 1.16.0-0'
   catalog.cattle.io/rancher-version: '>= 2.14.0-0'
   catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+  catalog.cattle.io/prime-only: "true"
 apiVersion: v2
 appVersion: 1.8.0
 description: Centralizes and manages SUSE hyperconverged infrastructure and virtual machine workloads
