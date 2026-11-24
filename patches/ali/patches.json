@@ -4,6 +4,12 @@
       "versions": ">= 1.1.0",
       "dir": "files",
       "description": "Provisions and manages Alibaba Cloud (ACK) clusters for integrated cloud resource management"
+    },
+    {
+      "versions": ">= 0.0.0",
+      "annotations": {
+        "catalog.cattle.io/prime-only": "true"
+      }
     }
   ]
 }

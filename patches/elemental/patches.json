@@ -5,6 +5,12 @@
       "dir": "files",
       "name": "SUSE OS Management",
       "description": "Manages and automates cloud-native operating system lifecycles as native Kubernetes resources"
+    },
+    {
+      "versions": ">= 0.0.0",
+      "annotations": {
+        "catalog.cattle.io/prime-only": "true"
+      }
     }
   ]
 }

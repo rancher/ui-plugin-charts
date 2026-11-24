@@ -5,6 +5,12 @@
       "dir": "files",
       "name": "SUSE Security Runtime Enforcer",
       "description": "Provides runtime enforcement to observe process executions in your workloads and to enforce allow-list based security policies at the kernel level."
+    },
+    {
+      "versions": ">= 0.0.0",
+      "annotations": {
+        "catalog.cattle.io/prime-only": "true"
+      }
     }
   ]
 }

@@ -11,6 +11,12 @@
       "dir": "files",
       "name": "SUSE Virtualization",
       "description": "Centralizes and manages SUSE hyperconverged infrastructure and virtual machine workloads"
+    },
+    {
+      "versions": ">= 0.0.0",
+      "annotations": {
+        "catalog.cattle.io/prime-only": "true"
+      }
     }
   ]
 }
