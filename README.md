@@ -8,7 +8,7 @@ This repository contains Helm charts for official UI Plugins (Extensions) from R
 
 * Chart must be **published** in a **public Github** repository that we can reference.
 
-* Every version must be **Prime-only**. See [Prime-only extensions](#prime-only-extensions) - this is enforced by CI and a submission that is not covered will fail the checks.
+* Every version must be **Prime-only**. See [Prime-only extensions](#prime-only-extensions).
 
 ## Workflow
 
@@ -135,19 +135,16 @@ finds the value already correct and leaves the chart alone.
 
 ### Adding a new extension
 
-`scripts/sync-checks` fails the PR if a version being added would end up without the annotation. It passes when
-either:
+A version ends up Prime-only when either:
 
 * the incoming `Chart.yaml` already has `catalog.cattle.io/prime-only: "true"`, or
 * `patches/<ext>/patches.json` has an entry whose `versions` range covers the version being added and sets the
   annotation.
 
 So when you add a **new extension** to `manifest.json`, create `patches/<ext>/patches.json` with the entry
-above in the same PR, unless the upstream chart already sets it. The failure message tells you which of the two
-is missing.
-
-Both the checks and `scripts/patch-extensions` evaluate the `versions` range with the same helper
-(`scripts/version-range.sh`), so a version the checks accept is a version that actually gets patched.
+above in the same PR, unless the upstream chart already sets it. This is **not** checked by CI, so it is on the
+submitter and the reviewer to confirm it - a version covered by neither route is published without the
+annotation and stays installable on a community Rancher.
 
 ## Which versions ship in the airgap catalog image
 
@@ -321,7 +318,7 @@ We now provide the ability to change metadata on published extensions in this re
 - starts by going through `manifest.json` and list all of the extensions we have in the repo
 - goes through the `patches` folder structure and cross-checks if there's a match with the given `manifest.json` it's going through
 - if there's a folder match, it goes through `patches.json`, does a check on the versions condition present on the file and see if the version of given extension on the manifest we are looking at fits as patch candidate
-- the `versions` range is evaluated by `scripts/version-range.sh`, which is shared with `scripts/sync-checks` so both scripts agree on what a range covers
+- the `versions` range is evaluated by `scripts/version-range.sh`
 - if it matches, then it starts by doing checks on whether to apply any of the above changes and creates "APPLY" flags for each different metadata change. The flags are reset for every entry in `patches.json`, so an entry that only sets annotations cannot inherit the name or description of the entry before it
 - after all checks are done, it's time to apply them. Starts by unpacking the TGZ and changing all the metadata we've check before both outside the TGZ assets and inside them as well
 - once all changes are done, repacks the TGZ, applies the same permissions as the original file and regens the `index.yaml`
