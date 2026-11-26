@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ------------------------------------------------------------------------------
-# Shared version range matching for the patch and check scripts.
+# Version range matching for `scripts/patch-extensions`.
 #
 # A "range" is the `versions` string used by patches/<ext>/patches.json. It is a
 # space separated list of conditions joined by a logical AND, for example:
@@ -11,9 +11,8 @@
 #   "3.0.1"                that exact version
 #
 # THIS IS THE SINGLE SOURCE OF TRUTH FOR RANGE MATCHING. `scripts/patch-extensions`
-# uses it to decide what to patch and `scripts/sync-checks` uses it to decide
-# whether an incoming version is covered by a patch. If the two ever disagree, the
-# checks pass for versions that are never actually patched.
+# sources it to decide which versions a patch entry applies to. Anything else that
+# needs to evaluate a `versions` range should source this rather than reimplement it.
 # ------------------------------------------------------------------------------
 
 # --- Convert SemVer to a zero padded, string sortable format ---
