@@ -33,22 +33,43 @@ Then create a new branch off of main
 }
 ```
 
-### 3. Commit your changes
+### 3. If this is a **new extension**, add `patches/<ext>/patches.json`
+
+Everything published from this repository must be Prime-only. Unless the upstream `Chart.yaml` already sets
+`catalog.cattle.io/prime-only: "true"`, add the annotation through the patch mechanism in the same PR:
+
+```json
+{
+  "patches": [
+    {
+      "versions": ">= 0.0.0",
+      "annotations": {
+        "catalog.cattle.io/prime-only": "true"
+      }
+    }
+  ]
+}
+```
+
+Nothing in CI enforces this, so it is on the submitter and the reviewer to confirm it. See
+[Prime-only extensions](#prime-only-extensions) for the detail.
+
+### 4. Commit your changes
 ```bash
-git add manifest.json
+git add manifest.json patches/
 git commit -m "Submitting rancher/kubewarden-ui version 1.2.0"
 ```
 
-### 4. Push your commit
+### 5. Push your commit
 ```bash
 git push origin <your_branch>
 ```
 
-### 5. Open a pull request on the **main** branch
+### 6. Open a pull request on the **main** branch
 
 Once your pull request is approved and merged, an automated workflow will sync this repository with the build assets from the supplied repository within the `manifest.json` file and generate a PR with all the new files to update the Helm Chart, which will need review and approval
 
-### 6. Merging PR that updates Helm Chart
+### 7. Merging PR that updates Helm Chart
 
 Once the PR that updates Helm Chart is approved and merged, the Helm Chart in the `main` branch should be automatically updated. After this, a new automated workflow will run that 
 will release the extensions catalog (airgapped) and also create a release tag in the repository.
