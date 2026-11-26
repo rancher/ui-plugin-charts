@@ -8,7 +8,7 @@ This repository contains Helm charts for official UI Plugins (Extensions) from R
 
 * Chart must be **published** in a **public Github** repository that we can reference.
 
-* Every version must be **Prime-only**. See [Prime-only extensions](#prime-only-extensions) - this is enforced by CI and a submission that is not covered will fail the checks.
+* Every version must be **Prime-only**. See [Prime-only extensions](#prime-only-extensions).
 
 ## Workflow
 
@@ -33,22 +33,43 @@ Then create a new branch off of main
 }
 ```
 
-### 3. Commit your changes
+### 3. If this is a **new extension**, add `patches/<ext>/patches.json`
+
+Everything published from this repository must be Prime-only. Unless the upstream `Chart.yaml` already sets
+`catalog.cattle.io/prime-only: "true"`, add the annotation through the patch mechanism in the same PR:
+
+```json
+{
+  "patches": [
+    {
+      "versions": ">= 0.0.0",
+      "annotations": {
+        "catalog.cattle.io/prime-only": "true"
+      }
+    }
+  ]
+}
+```
+
+Nothing in CI enforces this, so it is on the submitter and the reviewer to confirm it. See
+[Prime-only extensions](#prime-only-extensions) for the detail.
+
+### 4. Commit your changes
 ```bash
-git add manifest.json
+git add manifest.json patches/
 git commit -m "Submitting rancher/kubewarden-ui version 1.2.0"
 ```
 
-### 4. Push your commit
+### 5. Push your commit
 ```bash
 git push origin <your_branch>
 ```
 
-### 5. Open a pull request on the **main** branch
+### 6. Open a pull request on the **main** branch
 
 Once your pull request is approved and merged, an automated workflow will sync this repository with the build assets from the supplied repository within the `manifest.json` file and generate a PR with all the new files to update the Helm Chart, which will need review and approval
 
-### 6. Merging PR that updates Helm Chart
+### 7. Merging PR that updates Helm Chart
 
 Once the PR that updates Helm Chart is approved and merged, the Helm Chart in the `main` branch should be automatically updated. After this, a new automated workflow will run that 
 will release the extensions catalog (airgapped) and also create a release tag in the repository.
@@ -135,19 +156,16 @@ finds the value already correct and leaves the chart alone.
 
 ### Adding a new extension
 
-`scripts/sync-checks` fails the PR if a version being added would end up without the annotation. It passes when
-either:
+A version ends up Prime-only when either:
 
 * the incoming `Chart.yaml` already has `catalog.cattle.io/prime-only: "true"`, or
 * `patches/<ext>/patches.json` has an entry whose `versions` range covers the version being added and sets the
   annotation.
 
 So when you add a **new extension** to `manifest.json`, create `patches/<ext>/patches.json` with the entry
-above in the same PR, unless the upstream chart already sets it. The failure message tells you which of the two
-is missing.
-
-Both the checks and `scripts/patch-extensions` evaluate the `versions` range with the same helper
-(`scripts/version-range.sh`), so a version the checks accept is a version that actually gets patched.
+above in the same PR, unless the upstream chart already sets it. This is **not** checked by CI, so it is on the
+submitter and the reviewer to confirm it - a version covered by neither route is published without the
+annotation and stays installable on a community Rancher.
 
 ## Which versions ship in the airgap catalog image
 
@@ -321,7 +339,7 @@ We now provide the ability to change metadata on published extensions in this re
 - starts by going through `manifest.json` and list all of the extensions we have in the repo
 - goes through the `patches` folder structure and cross-checks if there's a match with the given `manifest.json` it's going through
 - if there's a folder match, it goes through `patches.json`, does a check on the versions condition present on the file and see if the version of given extension on the manifest we are looking at fits as patch candidate
-- the `versions` range is evaluated by `scripts/version-range.sh`, which is shared with `scripts/sync-checks` so both scripts agree on what a range covers
+- the `versions` range is evaluated by `scripts/version-range.sh`
 - if it matches, then it starts by doing checks on whether to apply any of the above changes and creates "APPLY" flags for each different metadata change. The flags are reset for every entry in `patches.json`, so an entry that only sets annotations cannot inherit the name or description of the entry before it
 - after all checks are done, it's time to apply them. Starts by unpacking the TGZ and changing all the metadata we've check before both outside the TGZ assets and inside them as well
 - once all changes are done, repacks the TGZ, applies the same permissions as the original file and regens the `index.yaml`

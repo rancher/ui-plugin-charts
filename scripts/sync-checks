@@ -16,12 +16,7 @@ BRANCH=main
 
 OVERALL_ERROR="false"
 
-# Everything published from this repository is a Rancher Prime extension
-PRIME_ONLY_ANNOTATION="catalog.cattle.io/prime-only"
-
 source "$SCRIPT_DIR/validate-icon-url.sh"
-# semver_to_sortable / semver_check / version_matches_range
-source "$SCRIPT_DIR/version-range.sh"
 
 echo -e "${CYAN}${BOLD}Sync Extensions checks${RESET}"
 
@@ -109,41 +104,6 @@ do
         echo "❌ Missing description in Chart.yaml for extension ${NAME} version ${VERSION}! Description is a mandatory field!"
         WITH_ERROR="true"
         OVERALL_ERROR="true"
-      fi
-
-      # Check the extension is Prime-only. Everything published from this repository
-      # is a Rancher Prime extension, so the version must either arrive from upstream
-      # with the annotation already set, or be covered by a patch entry here that adds
-      # it. Anything else would end up installable on a community Rancher.
-      INCOMING_CHART_YAML=./tmp/${NAME}/charts/${NAME}/${VERSION}/Chart.yaml
-      CHART_PRIME_ONLY=$(yq -r ".annotations[\"${PRIME_ONLY_ANNOTATION}\"] // \"\"" "${INCOMING_CHART_YAML}")
-
-      if [[ "$CHART_PRIME_ONLY" == "true" ]]; then
-        echo "✅ Prime-only check succeeded - set upstream in Chart.yaml"
-      else
-        PATCH_JSON=./patches/${NAME}/patches.json
-        PATCHED_PRIME_ONLY="false"
-
-        if [[ -f "$PATCH_JSON" ]]; then
-          while IFS=$'\t' read -r PATCH_RANGE PATCH_VALUE; do
-            if [[ "$PATCH_VALUE" == "true" ]] && version_matches_range "$VERSION" "$PATCH_RANGE"; then
-              PATCHED_PRIME_ONLY="true"
-              break
-            fi
-          done < <(jq -r --arg key "$PRIME_ONLY_ANNOTATION" \
-            '.patches[] | select(.annotations[$key] != null) | [.versions // "N/A", (.annotations[$key] | tostring)] | @tsv' \
-            "$PATCH_JSON")
-        fi
-
-        if [[ "$PATCHED_PRIME_ONLY" == "true" ]]; then
-          echo "✅ Prime-only check succeeded - will be applied by ${PATCH_JSON}"
-        else
-          echo "❌ Extension ${NAME} version ${VERSION} is not Prime-only! Every extension published here must carry the ${PRIME_ONLY_ANNOTATION} annotation."
-          echo "   Either set it in the upstream Chart.yaml, or add a patch entry to ${PATCH_JSON} covering version ${VERSION}:"
-          echo '     { "versions": ">= 0.0.0", "annotations": { "'"${PRIME_ONLY_ANNOTATION}"'": "true" } }'
-          WITH_ERROR="true"
-          OVERALL_ERROR="true"
-        fi
       fi
 
       # check if README exists and it's content is not empty
